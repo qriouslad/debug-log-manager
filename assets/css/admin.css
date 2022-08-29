@@ -1,0 +1,200 @@
+#screen-meta-links {
+    display: none;
+}
+
+.dlm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding: 20px;
+    background-color: #fafafa;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.dlm-header.dlm-sticky {
+    box-shadow: 0 5px 10px rgb(0 0 0 / 10%);
+}
+
+.dlm-header-left {
+}
+
+.dlm-header-right {
+    display: flex;
+}
+
+.dlm-body {
+    padding: 20px;
+    background-color: #fff;
+}
+
+.dlm-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: #fafafa;
+    border-top: 1px solid #f5f5f5;
+}
+
+.wrap h1.dlm-heading {
+    font-size: 1.5em;
+    line-height: 26px;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+}
+
+.dlm-heading a {
+    text-decoration: none;
+    transition: .25s;
+}
+
+.dlm-heading a:hover {
+    text-decoration: underline;
+}
+
+.dlm-heading small {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+}
+
+.dlm-header-action {
+    margin-left: 16px;
+    text-decoration: none;
+    transition: .25s;
+    line-height: 30px;
+}
+
+.dlm-header-action:first-child {
+    margin-left: 0;
+}
+
+.dlm-header-action:hover {
+    text-decoration: underline;
+}
+
+.dlm-log-management {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.dlm-log-status-toggle {
+}
+
+.dlm-log-status {
+    line-height: 30px;
+}
+
+.dlm-faint {
+    opacity: 0.5;
+}
+
+#dlm-log-file-size {
+    font-weight: bold;
+}
+
+#dlm-clear-success {
+    margin-left: 8px;
+    font-style: italic;
+    font-weight: bold;
+    color: #5CB85C;
+}
+
+/* CSS On / Off switcher -- https://codepen.io/MoorLex/pen/GZaavy */
+
+input[type="checkbox"] {
+    display: none;
+}
+
+input[type="checkbox"] + label {
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    position: relative;
+    transition: 0.3s;
+    margin: 0 8px 0 0;
+    box-sizing: border-box;
+}
+
+input[type="checkbox"] + label:after,
+input[type="checkbox"] + label:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 20px;
+    height: 20px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+input[type="checkbox"].inset-3:checked + label.red {
+  background: #ECA9A7;
+}
+
+input[type="checkbox"].inset-3:checked + label.red:after {
+  background: #D9534F;
+}
+
+input[type="checkbox"].inset-3:checked + label.green {
+  background: #AEDCAE;
+}
+
+input[type="checkbox"].inset-3:checked + label.green:after {
+  background: #5CB85C;
+}
+
+input[type="checkbox"].inset-3:checked + label:after {
+  left: calc(100% - 18px);
+}
+
+input[type="checkbox"].inset-3 + label {
+  background: #ddd;
+  border-radius: 20px;
+}
+
+input[type="checkbox"].inset-3 + label:after {
+  background: #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  top: 2px;
+  left: 2px;
+}
+
+/* DataTables */
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 8px;
+}
+
+table.dataTable {
+    margin: 0 auto 8px;
+}
+
+.dataTables_wrapper .dataTables_length select {
+    min-width: 52px;
+}
+
+table.dataTable thead th, 
+table.dataTable tfoot th {
+    font-weight: 500 !important;
+}
+
+th.debug-log-timestamp {
+    min-width: 160px;
+}
+
+th.debug-log-error-type {
+    min-width: 90px;
+}
+
+th.debug-log-error-details {
+    
+}
