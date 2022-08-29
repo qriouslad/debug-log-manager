@@ -55,4 +55,4 @@ Debug Log Manager is built using [DataTables.js](https://datatables.net/) and [j
 
 ### 1.0.0 (2022.08.29)
 
-* Initial stable release.
+* Initial stable release. 

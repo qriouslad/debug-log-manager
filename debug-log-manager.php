@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       Debug Log Manager
  * Plugin URI:        https://wordpress.org/plugins/debug-log-manager/
- * Description:       Enable, create, view, filter and purge WordPredd debug.log
+ * Description:       Log errors via WP_DEBUG. Create, view and clear debug.log file.
  * Version:           1.0.0
  * Author:            Bowo
  * Author URI:        https://bowo.io
