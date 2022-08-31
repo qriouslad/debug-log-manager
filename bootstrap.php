@@ -5,10 +5,7 @@
 // https://carlalexander.ca/singletons-in-wordpress/
 // https://torquemag.io/2016/11/singletons-wordpress-good-evil/
 
-namespace DLM;
-
 require_once DLM_PATH . 'classes/debug-log.php'; // DLM\Classes\Debug_Log
-require_once DLM_PATH . 'classes/wpconfig-transformer.php'; // DLM\Classes\WP_Config
 
 /**
  * Main class of the plugin used to add functionalities
@@ -19,6 +16,9 @@ class Debug_Log_Manager {
 
 	// Refers to a single instance of this class
 	private static $instance = null;
+
+	// For the debug log object
+	private $debug_log;
 
 	/**
 	 * Creates or returns a single instance of this class
@@ -57,8 +57,9 @@ class Debug_Log_Manager {
 		}
 
 		// Register ajax calls
-		add_action( 'wp_ajax_toggle_debugging', [ $this, 'toggle_debugging' ] );
-		add_action( 'wp_ajax_clear_log', [ $this, 'clear_log' ] );
+		$this->debug_log = new DLM\Classes\Debug_Log;
+		add_action( 'wp_ajax_toggle_debugging', [ $this->debug_log, 'toggle_debugging' ] );
+		add_action( 'wp_ajax_clear_log', [ $this->debug_log, 'clear_log' ] );
 
 	}
 
@@ -134,8 +135,6 @@ class Debug_Log_Manager {
 		$log_file_shortpath = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $log_file_path );
 		$file_size = size_format( wp_filesize( $log_file_path ) );
 
-		$debug_log = new Classes\Debug_Log; // already in the DLM namespace, so, no need to repeat
-
 		?>
 
 		<div class="wrap dlm-main-page">
@@ -151,8 +150,8 @@ class Debug_Log_Manager {
 				</div>
 			</div>
 			<div class="dlm-body">
-				<?php 
-					$debug_log->get_entries();
+				<?php
+					$this->debug_log->get_entries();
 				?>
 			</div>
 			<div class="dlm-footer">
@@ -190,79 +189,6 @@ class Debug_Log_Manager {
 				'logStatus'	=> $log_status,
 			) 
 		);
-
-	}
-
-	/**
-	 * Enable / disable WP_DEBUG
-	 *
-	 * @since 1.0.0
-	 */
-	public function toggle_debugging() {
-
-		if ( isset( $_REQUEST ) ) {
-
-			$log_info = get_option( 'debug_log_manager' );
-
-			$date_time = wp_date( 'j-M-Y - H:i:s' ); // Localized according to WP timezone settings
-			$date_time_for_option = date( 'j-M-Y H:i:s' ); // in UTC
-
-			$wp_config = new Classes\WP_Config; // already in the DLM namespace, so, no need to repeat
-
-			if ( $log_info['status'] == 'disabled' ) {
-
-				$option_value = array(
-					'status'	=> 'enabled',
-					'on'		=> $date_time_for_option,
-				);
-
-				update_option( 'debug_log_manager', $option_value, false );
-
-				// Define Debug constants in wp-config.php
-
-				$wp_config->update( 'constant', 'WP_DEBUG', 'true' );
-				$wp_config->update( 'constant', 'WP_DEBUG_LOG', get_option( 'debug_log_manager_file_path' ) );
-				$wp_config->update( 'constant', 'WP_DEBUG_DISPLAY', 'false' );
-
-				$output = '<strong>Status</strong>: Logging was enabled on ' . esc_html( $date_time );
-
-			} elseif ( $log_info['status'] == 'enabled' ) {
-
-				$option_value = array(
-					'status'	=> 'disabled',
-					'on'		=> $date_time_for_option,
-				);
-
-				update_option( 'debug_log_manager', $option_value, false );
-
-				// Remove Debug constants in wp-config.php
-
-				$wp_config->remove( 'constant', 'WP_DEBUG' );
-				$wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
-				$wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
-
-				$output = '<strong>Status</strong>: Logging was disabled on ' . esc_html( $date_time );
-
-			} else {}
-
-			echo $output;
-
-		}
-
-	}
-
-	/**
-	 * Clear log file
-	 *
-	 * @since 1.0.0
-	 */
-	public function clear_log() {
-
-        $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
-
-		file_put_contents( $debug_log_file_path, '' );
-
-		echo true;
 
 	}
 

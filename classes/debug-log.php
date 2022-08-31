@@ -2,12 +2,26 @@
 
 namespace DLM\Classes;
 
+require_once DLM_PATH . 'classes/wpconfig-transformer.php'; // DLM\Classes\WP_Config
+
 /**
  * Class related to the debug log file and entries
  *
  * @since 1.0.0
  */
 class Debug_Log {
+
+	// The wp_config object
+	private $wp_config;
+
+	/**
+	 * Class constructor
+	 */
+	public function __construct() {
+
+		$this->wp_config = new WP_Config; // already in the DLM\Classes namespace, so, no need to repeat
+
+	}
 
 	/**
 	 * Get status of WP_DEBUG
@@ -22,6 +36,62 @@ class Debug_Log {
 		$date_time = wp_date( 'j-M-Y - H:i:s', strtotime( $value['on'] ) );
 
 		return '<div id="debug-log-status" class="dlm-log-status"><strong>Status</strong>: Logging was '. esc_html( $status ) .' on '. esc_html( $date_time ) .'<div id="dlm-log-toggle-hint"></div></div>';
+
+	}
+
+	/**
+	 * Enable / disable WP_DEBUG
+	 *
+	 * @since 1.0.0
+	 */
+	public function toggle_debugging() {
+
+		if ( isset( $_REQUEST ) ) {
+
+			$log_info = get_option( 'debug_log_manager' );
+
+			$date_time = wp_date( 'j-M-Y - H:i:s' ); // Localized according to WP timezone settings
+			$date_time_for_option = date( 'j-M-Y H:i:s' ); // in UTC
+
+			if ( $log_info['status'] == 'disabled' ) {
+
+				$option_value = array(
+					'status'	=> 'enabled',
+					'on'		=> $date_time_for_option,
+				);
+
+				update_option( 'debug_log_manager', $option_value, false );
+
+				// Define Debug constants in wp-config.php
+
+				$this->wp_config->update( 'constant', 'WP_DEBUG', 'true' );
+				$this->wp_config->update( 'constant', 'WP_DEBUG_LOG', get_option( 'debug_log_manager_file_path' ) );
+				$this->wp_config->update( 'constant', 'WP_DEBUG_DISPLAY', 'false' );
+
+				$output = '<strong>Status</strong>: Logging was enabled on ' . esc_html( $date_time );
+
+			} elseif ( $log_info['status'] == 'enabled' ) {
+
+				$option_value = array(
+					'status'	=> 'disabled',
+					'on'		=> $date_time_for_option,
+				);
+
+				update_option( 'debug_log_manager', $option_value, false );
+
+				// Remove Debug constants in wp-config.php
+
+				$this->wp_config->remove( 'constant', 'WP_DEBUG' );
+				$this->wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
+				$this->wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
+
+				$output = '<strong>Status</strong>: Logging was disabled on ' . esc_html( $date_time );
+
+			} else {}
+
+			echo $output;
+
+		}
 
 	}
 
@@ -140,6 +210,21 @@ class Debug_Log {
 
 		// echo $output . '<pre>'.print_r( $errors_master_list, true ).'</pre>';
 		echo $output;
+
+	}
+
+	/**
+	 * Clear log file
+	 *
+	 * @since 1.0.0
+	 */
+	public function clear_log() {
+
+        $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
+
+		file_put_contents( $debug_log_file_path, '' );
+
+		echo true;
 
 	}
 
