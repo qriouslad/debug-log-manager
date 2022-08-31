@@ -44,4 +44,4 @@ register_activation_hook( __FILE__, 'on_activation');
 register_deactivation_hook( __FILE__, 'on_deactivation' );
 
 // Bootstrap the core functionalities of this plugin
-require DLM_PATH . 'includes/bootstrap.php';
+require DLM_PATH . 'bootstrap.php';
