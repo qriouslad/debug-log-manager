@@ -5,7 +5,7 @@
 // https://carlalexander.ca/singletons-in-wordpress/
 // https://torquemag.io/2016/11/singletons-wordpress-good-evil/
 
-require_once DLM_PATH . 'classes/debug-log.php'; // DLM\Classes\Debug_Log
+require_once DLM_PATH . 'classes/class-debug-log.php'; // DLM\Classes\Debug_Log
 
 /**
  * Main class of the plugin used to add functionalities
@@ -131,9 +131,9 @@ class Debug_Log_Manager {
 	 */
 	public function create_main_page() {
 
-		$log_file_path = get_option( 'debug_log_manager_file_path' );
+		$log_file_path 		= get_option( 'debug_log_manager_file_path' );
 		$log_file_shortpath = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $log_file_path );
-		$file_size = size_format( wp_filesize( $log_file_path ) );
+		$file_size 			= size_format( wp_filesize( $log_file_path ) );
 
 		?>
 

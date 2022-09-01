@@ -10,7 +10,7 @@ use Exception;
  * @since 1.0.0
  * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
  */
-class WP_Config {	
+class WP_Config_Transformer {	
 
 	/**
 	 * The wp-config.php source file
@@ -39,8 +39,8 @@ class WP_Config {
 	public function wpconfig_file_path() {
 
 		$file = ABSPATH . 'wp-config.php';
-		if ( !file_exists( $file ) ) {
-			if ( @file_exists( dirname( ABSPATH ) . '/wp-config.php') ) {
+		if ( ! file_exists( $file ) ) {
+			if ( file_exists( dirname( ABSPATH ) . '/wp-config.php') ) {
 				$file = dirname( ABSPATH ) . '/wp-config.php'; // wp-config.php file is in the folder above the WP root folder
 			}
 		}
