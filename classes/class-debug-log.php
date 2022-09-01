@@ -48,6 +48,7 @@ class Debug_Log {
 		if ( isset( $_REQUEST ) ) {
 
 			$log_info 				= get_option( 'debug_log_manager' );
+	        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
 
 			$date_time 				= wp_date( 'j-M-Y - H:i:s' ); // Localized according to WP timezone settings
 			$date_time_for_option 	= date( 'j-M-Y H:i:s' ); // in UTC
@@ -61,11 +62,61 @@ class Debug_Log {
 
 				update_option( 'debug_log_manager', $option_value, false );
 
+				// Check existing debug.log file and copy it's content to log file created by this plugin
+
+				$wp_debug_log_const = $this->wp_config->get_value( 'constant', 'WP_DEBUG_LOG' );
+
+				if ( in_array( $wp_debug_log_const, array( 'true', 'false' ), true ) ) {
+					$wp_debug_log_const = (bool) $wp_debug_log_const;
+				}
+
+
+				if ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) && is_bool( $wp_debug_log_const ) ) {
+					// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log. 
+
+					if ( is_file( WP_CONTENT_DIR . '/debug.log' ) ) {
+						// Copy existing debug log content to this plugin's debug log.
+						$default_debug_log_content = file_get_contents( WP_CONTENT_DIR . '/debug.log' );
+						file_put_contents( $dlm_debug_log_file_path, $default_debug_log_content );
+					}
+
+				} elseif ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) && is_string( $wp_debug_log_const ) ) {
+					// WP_DEBUG_LOG is custom path to log file. Copy existing debug log content to this plugin's debug log.
+
+					if ( $wp_debug_log_const != $dlm_debug_log_file_path ) {
+
+						$custom_debug_log_content = file_get_contents( $wp_debug_log_const );
+					file_put_contents( $dlm_debug_log_file_path, $custom_debug_log_content );
+					
+					}
+
+				}
+
 				// Define Debug constants in wp-config.php
 
-				$this->wp_config->update( 'constant', 'WP_DEBUG', 'true' );
-				$this->wp_config->update( 'constant', 'WP_DEBUG_LOG', get_option( 'debug_log_manager_file_path' ) );
-				$this->wp_config->update( 'constant', 'WP_DEBUG_DISPLAY', 'false' );
+				$options = array(
+					'add'       => true, // Add the config if missing.
+					'raw'       => true, // Display value in raw format without quotes.
+					'normalize' => false, // Normalize config output using WP Coding Standards.
+				);
+
+				$this->wp_config->update( 'constant', 'WP_DEBUG', 'true', $options );
+
+				$options = array(
+					'add'       => true, // Add the config if missing.
+					'raw'       => false, // Display value in raw format without quotes.
+					'normalize' => false, // Normalize config output using WP Coding Standards.
+				);
+
+				$this->wp_config->update( 'constant', 'WP_DEBUG_LOG', get_option( 'debug_log_manager_file_path' ), $options );
+
+				$options = array(
+					'add'       => true, // Add the config if missing.
+					'raw'       => true, // Display value in raw format without quotes.
+					'normalize' => false, // Normalize config output using WP Coding Standards.
+				);
+
+				$this->wp_config->update( 'constant', 'WP_DEBUG_DISPLAY', 'false', $options );
 
 				$output = '<strong>Status</strong>: Logging was enabled on ' . esc_html( $date_time );
 
