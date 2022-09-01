@@ -143,6 +143,34 @@ class WP_Config_Transformer {
 	}
 
 	/**
+	 * Get the value of a config in the wp-config.php file.
+	 *
+	 * @throws Exception If the wp-config.php file is empty.
+	 * @throws Exception If the requested config type is invalid.
+	 *
+	 * @param string $type Config type (constant or variable).
+	 * @param string $name Config name.
+	 *
+	 * @return array
+	 */
+	public function get_value( $type, $name ) {
+		$wp_config_src = file_get_contents( $this->wpconfig_file_path() );
+
+		if ( ! trim( $wp_config_src ) ) {
+			throw new Exception( 'Config file is empty.' );
+		}
+
+		$this->wp_config_src = $wp_config_src;
+		$this->wp_configs    = $this->configs( 'raw' );
+
+		if ( ! isset( $this->wp_configs[ $type ] ) ) {
+			throw new Exception( "Config type '{$type}' does not exist." );
+		}
+
+		return $this->wp_configs[ $type ][ $name ]['value'];
+	}
+
+	/**
 	 * Adds a config to the wp-config.php file.
 	 *
 	 * @throws Exception If the config value provided is not a string.
@@ -157,7 +185,7 @@ class WP_Config_Transformer {
 	 * @since 2.7.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
-	public function add( $type, $name, $value ) {
+	public function add( $type, $name, $value, array $options = array() ) {
 		if ( ! is_string( $value ) ) {
 			throw new Exception( 'Config value must be a string.' );
 		}
@@ -166,14 +194,21 @@ class WP_Config_Transformer {
 			return false;
 		}
 
+		if ( in_array( $value, array( 'true', 'false' ), true ) ) {
+			$raw_input = true;
+		} else {
+			$raw_input = false;			
+		}
+
 		$defaults = array(
-			'raw'       => false, // Display value in raw format without quotes.
+			'raw'       => $raw_input, // Display value in raw format without quotes.
 			'anchor'    => "/* That's all, stop editing! Happy publishing. */", // Config placement anchor string.
 			'separator' => PHP_EOL, // Separator between config definition and anchor string.
 			'placement' => 'before', // Config placement direction (insert before or after).
 		);
 
-		list( $raw, $anchor, $separator, $placement ) = array_values( $defaults );
+		// list( $raw, $anchor, $separator, $placement ) = array_values( $options );
+		list( $raw, $anchor, $separator, $placement ) = array_values( array_merge( $defaults, $options ) );;
 
 		$raw       = (bool) $raw;
 		$anchor    = (string) $anchor;
@@ -209,18 +244,19 @@ class WP_Config_Transformer {
 	 * @since 2.7.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
-	public function update( $type, $name, $value ) {
+	public function update( $type, $name, $value, array $options = array() ) {
 		if ( ! is_string( $value ) ) {
 			throw new Exception( 'Config value must be a string.' );
 		}
 
-		$defaults = array(
-			'add'       => true, // Add the config if missing.
-			'raw'       => false, // Display value in raw format without quotes.
-			'normalize' => false, // Normalize config output using WP Coding Standards.
-		);
+		// $defaults = array(
+		// 	'add'       => true, // Add the config if missing.
+		// 	'raw'       => false, // Display value in raw format without quotes.
+		// 	'normalize' => false, // Normalize config output using WP Coding Standards.
+		// );
 
-		list( $add, $raw, $normalize ) = array_values( $defaults );
+		// list( $add, $raw, $normalize ) = array_values( array_merge( $defaults, $options ) );
+		list( $add, $raw, $normalize ) = array_values( $options );
 
 		$add       = (bool) $add;
 		$raw       = (bool) $raw;
