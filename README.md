@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://paypal.me/qriouslad  
 Tags: debug, errors, developer  
 Requires at least: 4.8  
-Tested up to: 6.0.1  
-Stable tag: 1.0.1  
+Tested up to: 6.0.2  
+Stable tag: 1.1.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -53,10 +53,18 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 1.1.0 (2022.09.13)
+
+* Improve implementation of [WP PHP Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/php/) across the codebase.
+* Improve variable sanitization and escaping.
+* Set initial data table sort based on the # column so that Last Occurence column is properly sorted according to the timestamp.
+* Add get_value() method to WP_Config_Transformer class to work with existing debug log constants in wp-config.php
+* Enable $options argument for the add() and update() method in WP_Config_Transformer to ensure formatting of debug log constants is correct in wp-config.php
+
 ### 1.0.1 (2022.08.31)
 
 * Refactor code for better organization and maintainability.
-* Improve plugin description / README.md
+* Improve plugin description / README.md.
 
 ### 1.0.0 (2022.08.29)
 
