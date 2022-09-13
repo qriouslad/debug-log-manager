@@ -118,7 +118,7 @@ class Debug_Log {
 
 				$this->wp_config->update( 'constant', 'WP_DEBUG_DISPLAY', 'false', $options );
 
-				$output = '<strong>Status</strong>: Logging was enabled on ' . esc_html( $date_time );
+				echo '<strong>Status</strong>: Logging was enabled on ' . esc_html( $date_time );
 
 			} elseif ( 'enabled' == $log_info['status'] ) {
 
@@ -135,11 +135,9 @@ class Debug_Log {
 				$this->wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
 				$this->wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
 
-				$output = '<strong>Status</strong>: Logging was disabled on ' . esc_html( $date_time );
+				echo '<strong>Status</strong>: Logging was disabled on ' . esc_html( $date_time );
 
 			} else {}
-
-			echo $output;
 
 		}
 
@@ -152,20 +150,21 @@ class Debug_Log {
 	 */
 	public function get_entries() {
 
-		$output = '';
+		?>
 
-		$output .= '<div class="dlm-log-management"><div class="dlm-log-status-toggle"><input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label></div>' . $this->get_status() . '</div>';
+		<div class="dlm-log-management"><div class="dlm-log-status-toggle"><input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label></div><?php echo $this->get_status(); ?></div>
 
-		$output .= '<table id="debug-log" class="wp-list-table widefat striped">
-					<thead>
-						<tr>
-							<th class="debug-log-number">#</th>
-							<th class="debug-log-error-type">Error Type</th>
-							<th class="debug-log-error-details">Details</th>
-							<th class="debug-log-timestamp">Last Occurrence</th>
-						</tr>
-					</thead>
-					<tbody>';
+		<table id="debug-log" class="wp-list-table widefat striped">
+			<thead>
+				<tr>
+					<th class="debug-log-number">#</th>
+					<th class="debug-log-error-type">Error Type</th>
+					<th class="debug-log-error-details">Details</th>
+					<th class="debug-log-timestamp">Last Occurrence</th>
+				</tr>
+			</thead>
+			<tbody>
+		<?php
 
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 
@@ -244,21 +243,24 @@ class Debug_Log {
 
 			$localized_timestamp 	= wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
 			$occurrence_count 		= count( $error['occurrences'] );
+			?>
 
-			$output .= '<tr>
-							<td>'. esc_html( $n ) .'</td>
-							<td>'. esc_html( $error['type'] ) .'</td>
-							<td>'. $error['details'] .'</td>
-							<td>'. esc_html( $localized_timestamp ) .'<br /><span class="dlm-faint">(' . esc_html( $occurrence_count ) . ' occurrences logged)<span></td>
-						</tr>';
+			<tr>
+				<td><?php echo esc_html( $n ); ?></td>
+				<td><?php echo esc_html( $error['type'] ); ?></td>
+				<td><?php echo wp_kses( $error['details'], 'post' ); ?></td>
+				<td><?php echo esc_html( $localized_timestamp ); ?><br /><span class="dlm-faint">(<?php echo esc_html( $occurrence_count ); ?> occurrences logged)<span></td>
+			</tr>
 
+			<?php
 			$n++;
 
 		}
 
-		$output .= '</tbody></table>';
-
-		echo $output;
+		?>
+			</tbody>
+		</table>
+		<?php
 
 	}
 

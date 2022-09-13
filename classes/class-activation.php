@@ -29,7 +29,7 @@ class Activation {
         
         $uploads_path = wp_upload_dir()['basedir'] . '/debug-log-manager';
 
-        $plain_domain = str_replace( array( ".", "-" ), "", $_SERVER['SERVER_NAME'] ); // e.g. wwwgooglecom
+        $plain_domain = str_replace( array( ".", "-" ), "", sanitize_text_field( $_SERVER['SERVER_NAME'] ) ); // e.g. wwwgooglecom
 
         $unique_key = date( 'YmdHi' );
 

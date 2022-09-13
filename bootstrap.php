@@ -70,7 +70,7 @@ class Debug_Log_Manager {
 	 */
 	public function is_dlm() {
 
-		$request_uri = $_SERVER['REQUEST_URI']; // e.g. /wp-admin/index.php?page=page-slug
+		$request_uri = sanitize_text_field( $_SERVER['REQUEST_URI'] ); // e.g. /wp-admin/index.php?page=page-slug
 
 		if ( strpos( $request_uri, 'tools.php?page=' . DLM_SLUG ) !== false ) {
 			return true; // Yes, this is the plugin's main page
@@ -132,7 +132,7 @@ class Debug_Log_Manager {
 	public function create_main_page() {
 
 		$log_file_path 		= get_option( 'debug_log_manager_file_path' );
-		$log_file_shortpath = str_replace( $_SERVER['DOCUMENT_ROOT'], "", $log_file_path );
+		$log_file_shortpath = str_replace( sanitize_text_field( $_SERVER['DOCUMENT_ROOT'] ), "", $log_file_path );
 		$file_size 			= size_format( wp_filesize( $log_file_path ) );
 
 		?>
