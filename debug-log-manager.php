@@ -60,7 +60,7 @@ function dlm_autoloader( $class_name ) {
  * 
  * @since 1.0.0
  */
-function on_activation() {
+function dlm_on_activation() {
 	$activation = new DLM\Classes\Activation;
     $activation->activate();
 }
@@ -70,16 +70,16 @@ function on_activation() {
  * 
  * @since 1.0.0
  */
-function on_deactivation() {
+function dlm_on_deactivation() {
     $deactivation = new DLM\Classes\Deactivation;
     $deactivation->deactivate();
 }
 
 // Register code that runs on plugin activation
-register_activation_hook( __FILE__, 'on_activation');
+register_activation_hook( __FILE__, 'dlm_on_activation');
 
 // Register code that runs on plugin deactivation
-register_deactivation_hook( __FILE__, 'on_deactivation' );
+register_deactivation_hook( __FILE__, 'dlm_on_deactivation' );
 
 // Bootstrap the core functionalities of this plugin
 require DLM_PATH . 'bootstrap.php';
