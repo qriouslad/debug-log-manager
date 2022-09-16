@@ -15,7 +15,7 @@ class WP_Config_Transformer {
 	/**
 	 * The wp-config.php source file
 	 *
-	 * @since    2.7.0
+	 * @since    1.0.0
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
@@ -24,7 +24,7 @@ class WP_Config_Transformer {
 	/**
 	 * The configs defined in wp-config.php
 	 *
-	 * @since    2.7.0
+	 * @since    1.0.0
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
@@ -33,8 +33,7 @@ class WP_Config_Transformer {
 	/**
 	 * Get wp-config.php file path
 	 *
-	 * @since 2.7.0
-	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
+	 * @since 1.0.0
 	 */
 	public function wpconfig_file_path() {
 
@@ -52,7 +51,7 @@ class WP_Config_Transformer {
 	/**
 	 * Get configs in wp-config.php
 	 * 
-	 * @since 2.7.0
+	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function configs( $return_type = 'raw' ) {
@@ -121,7 +120,7 @@ class WP_Config_Transformer {
 	 * @param string $name Config name.
 	 *
 	 * @return bool
-	 * @since 2.7.0
+	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function exists( $type, $name ) {
@@ -152,6 +151,7 @@ class WP_Config_Transformer {
 	 * @param string $name Config name.
 	 *
 	 * @return array
+	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function get_value( $type, $name ) {
 		$wp_config_src = file_get_contents( $this->wpconfig_file_path() );
@@ -182,7 +182,7 @@ class WP_Config_Transformer {
 	 * @param array  $options (optional) Array of special behavior options.
 	 *
 	 * @return bool
-	 * @since 2.7.0
+	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function add( $type, $name, $value, array $options = array() ) {
@@ -241,7 +241,7 @@ class WP_Config_Transformer {
 	 * @param array  $options (optional) Array of special behavior options.
 	 *
 	 * @return bool
-	 * @since 2.7.0
+	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function update( $type, $name, $value, array $options = array() ) {
@@ -294,7 +294,7 @@ class WP_Config_Transformer {
 	 * @param string $name Config name.
 	 *
 	 * @return bool
-	 * @since 2.7.0
+	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function remove( $type, $name ) {
@@ -321,7 +321,7 @@ class WP_Config_Transformer {
 	 * @param bool   $raw   Display value in raw format without quotes.
 	 *
 	 * @return mixed
-	 * @since 2.7.0
+	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function format_value( $value, $raw ) {
@@ -342,7 +342,7 @@ class WP_Config_Transformer {
 	 * @param mixed  $value Config value.
 	 *
 	 * @return string
-	 * @since 2.7.0
+	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function normalize( $type, $name, $value ) {
@@ -366,7 +366,7 @@ class WP_Config_Transformer {
 	 * @param string $contents New config contents.
 	 *
 	 * @return bool
-	 * @since 2.7.0
+	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function save( $contents ) {

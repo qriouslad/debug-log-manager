@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.2  
-Stable tag: 1.1.0  
+Stable tag: 1.2.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -18,11 +18,12 @@ Log errors via WP_DEBUG. Create, view and clear debug.log file.
 
 Debug Log Manager allows you to: 
 
-* **enable [WP_DEBUG](https://wordpress.org/support/article/debugging-in-wordpress/) with one click** to log PHP and database errors when you need to, and disable it when you're done. No need to manually edit wp-config.php file. 
-* **create the debug.log file for you** in a non-default location with a custom file name for better security.
+* **Enable [WP_DEBUG](https://wordpress.org/support/article/debugging-in-wordpress/) with one click** to log PHP and database errors when you need to, and disable it when you're done. No need to manually edit wp-config.php file. 
+* **Create the debug.log file for you** in a non-default location with a custom file name for enhanced security. 
+* **Copy the content of the default / existing debug.log file** into the custom debug.log file, and delete the default / existing debug.log file. So there is continuation in logging and enhanced security going forward.
 * parse the debug.log file and **view distinct errors and when they last occurred**, which is better then looking at the raw log file (potentially) full of repetitive errors. 
-* **quickly find and filter more specific errors** for your debugging work.
-* **easily clear the debug.log file** to save disk space and more easily observe newly occurring errors on your site.
+* **Quickly find and filter more specific errors** for your debugging work.
+* **Easily clear the debug.log file** to save disk space and more easily observe newly occurring errors on your site.
 
 A more compact version of Debug Log Manager is included as part of the [System Dashboard plugin](https://wordpress.org/plugins/system-dashboard/), should you prefer a single plugin that does more.
 
@@ -52,6 +53,12 @@ A more compact version of Debug Log Manager is included as part of the [System D
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/) and [jSticky](https://github.com/AndrewHenderson/jSticky).
 
 ## Changelog
+
+### 1.2.0 (2022.09.16)
+
+* Fix detection of existing debug log file, if there is one, so it is copied correctly into DLM's debug log file
+* Auto update entries table when logging is enabled, including when copying entries from existing debug.log file
+* Code refactor: added autoloader of plugin's PHP classes
 
 ### 1.1.0 (2022.09.13)
 

@@ -5,8 +5,6 @@
 // https://carlalexander.ca/singletons-in-wordpress/
 // https://torquemag.io/2016/11/singletons-wordpress-good-evil/
 
-require_once DLM_PATH . 'classes/class-debug-log.php'; // DLM\Classes\Debug_Log
-
 /**
  * Main class of the plugin used to add functionalities
  *
@@ -151,7 +149,7 @@ class Debug_Log_Manager {
 			</div>
 			<div class="dlm-body">
 				<?php
-					$this->debug_log->get_entries();
+					$this->debug_log->get_entries_datatable();
 				?>
 			</div>
 			<div class="dlm-footer">

@@ -97,6 +97,8 @@
     font-weight: bold;
 }
 
+#dlm-copy-success,
+#dlm-update-success,
 #dlm-clear-success {
     margin-left: 8px;
     font-style: italic;

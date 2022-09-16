@@ -36,12 +36,29 @@
 				},
 				success:function(data) {
 					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					// console.log(dataObject);
 					$('#debug-log-status').empty();
-					$('#debug-log-status').prepend(data);
+					$('#debug-log-status').prepend(dataObject.message);
 					if ( status == 'disabled' ) {
 						$('.debug-log-switcher').attr('data-status','enabled');
 					} else if ( status == 'enabled' ) {
 						$('.debug-log-switcher').attr('data-status','disabled');								
+					}
+					if ( dataObject.status == 'enabled' ) {
+						// Redraw table with new data: https://stackoverflow.com/a/25929434
+						var table = $("#debug-log").DataTable();
+						table.clear().rows.add(dataObject.entries); 
+						table.columns.adjust().draw();
+						if ( dataObject.copy == false ) {
+							$('#dlm-update-success').show().delay(2500).fadeOut(); // show update success message						
+						}
+					}
+					if ( dataObject.copy == true ) {
+						// When entries are copied from an existing debug.log file
+						$('#dlm-copy-success').show().delay(5000).fadeOut(); // show copy success message
+						$('#dlm-log-file-size').empty();
+						$('#dlm-log-file-size').prepend(dataObject.size); // fill in debug.log file size
 					}
 				},
 				error:function(errorThrown) {

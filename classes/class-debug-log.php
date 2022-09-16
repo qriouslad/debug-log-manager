@@ -2,8 +2,6 @@
 
 namespace DLM\Classes;
 
-require_once DLM_PATH . 'classes/class-wp-config-transformer.php'; // DLM\Classes\WP_Config
-
 /**
  * Class related to the debug log file and entries
  *
@@ -62,33 +60,67 @@ class Debug_Log {
 
 				update_option( 'debug_log_manager', $option_value, false );
 
-				// Check existing debug.log file and copy it's content to log file created by this plugin
+				// If WP_DEBUG_LOG is defined, copy content of existing debug.log file into the log file created by this plugin
 
-				$wp_debug_log_const = $this->wp_config->get_value( 'constant', 'WP_DEBUG_LOG' );
+				if ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) ) {
 
-				if ( in_array( $wp_debug_log_const, array( 'true', 'false' ), true ) ) {
-					$wp_debug_log_const = (bool) $wp_debug_log_const;
+					$wp_debug_log_const = $this->wp_config->get_value( 'constant', 'WP_DEBUG_LOG' );
+
+					if ( in_array( $wp_debug_log_const, array( 'true', 'false' ), true ) ) {
+						$wp_debug_log_const = (bool) $wp_debug_log_const;
+					}
+
+					if ( is_bool( $wp_debug_log_const ) ) {
+						// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log. 
+
+						if ( is_file( WP_CONTENT_DIR . '/debug.log' ) ) {
+							// Copy existing debug log content to this plugin's debug log.
+							$default_debug_log_content = file_get_contents( WP_CONTENT_DIR . '/debug.log' );
+							file_put_contents( $dlm_debug_log_file_path, $default_debug_log_content );
+							unlink( realpath( WP_CONTENT_DIR . '/debug.log' ) ); // delete existing debug log
+						}
+
+					} elseif ( is_string( $wp_debug_log_const ) ) {
+						// WP_DEBUG_LOG is custom path to log file. Copy existing debug log content to this plugin's debug log.
+
+						if ( is_file( $wp_debug_log_const ) && ( $wp_debug_log_const != $dlm_debug_log_file_path ) ) {
+							$custom_debug_log_content = file_get_contents( $wp_debug_log_const );
+							file_put_contents( $dlm_debug_log_file_path, $custom_debug_log_content );
+							unlink( $wp_debug_log_const ); // delete existing debug log
+						}
+
+					}
+
+					$copy = true; // existing debug.log file's entries are copied to this plugin's debug.log file
+
+				} else {
+
+					$copy = false; // existing debug.log file's entries are NOT copied to this plugin's debug.log file
+
 				}
 
+				// Prepare entries from the debug log for the data table
 
-				if ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) && is_bool( $wp_debug_log_const ) ) {
-					// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log. 
+				$errors_master_list = json_decode( $this->get_processed_entries(), true );
 
-					if ( is_file( WP_CONTENT_DIR . '/debug.log' ) ) {
-						// Copy existing debug log content to this plugin's debug log.
-						$default_debug_log_content = file_get_contents( WP_CONTENT_DIR . '/debug.log' );
-						file_put_contents( $dlm_debug_log_file_path, $default_debug_log_content );
-					}
+				$n = 1;
+				$entries = array();
 
-				} elseif ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) && is_string( $wp_debug_log_const ) ) {
-					// WP_DEBUG_LOG is custom path to log file. Copy existing debug log content to this plugin's debug log.
+				foreach ( $errors_master_list as $error ) {
 
-					if ( $wp_debug_log_const != $dlm_debug_log_file_path ) {
+					$localized_timestamp 	= wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+					$occurrence_count 		= count( $error['occurrences'] );
 
-						$custom_debug_log_content = file_get_contents( $wp_debug_log_const );
-					file_put_contents( $dlm_debug_log_file_path, $custom_debug_log_content );
-					
-					}
+					$entry = array( 
+							$n, 
+							$error['type'], 
+							$error['details'], 
+							$localized_timestamp . '<br /><span class="dlm-faint">(' . $occurrence_count . ' occurrences logged)<span>',
+					);
+
+					$entries[] = $entry;
+
+					$n++;
 
 				}
 
@@ -118,7 +150,23 @@ class Debug_Log {
 
 				$this->wp_config->update( 'constant', 'WP_DEBUG_DISPLAY', 'false', $options );
 
-				echo '<strong>Status</strong>: Logging was enabled on ' . esc_html( $date_time );
+				// Get the debug.log file size
+
+				$log_file_path 		= get_option( 'debug_log_manager_file_path' );
+				$log_file_shortpath = str_replace( sanitize_text_field( $_SERVER['DOCUMENT_ROOT'] ), "", $log_file_path );
+				$file_size 			= size_format( wp_filesize( $log_file_path ) );
+
+				// Assemble data to return
+
+				$data = array(
+					'status'	=> 'enabled',
+					'copy'		=> $copy,
+					'message' 	=> '<strong>Status</strong>: Logging was enabled on ' . esc_html( $date_time ),
+					'entries'	=> $entries,
+					'size'		=> $file_size,
+				);
+
+				echo json_encode( $data );
 
 			} elseif ( 'enabled' == $log_info['status'] ) {
 
@@ -135,7 +183,17 @@ class Debug_Log {
 				$this->wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
 				$this->wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
 
-				echo '<strong>Status</strong>: Logging was disabled on ' . esc_html( $date_time );
+				// Assemble data to return
+
+				$data = array(
+					'status'	=> 'disabled',
+					'copy'		=> false,
+					'message' 	=> '<strong>Status</strong>: Logging was disabled on ' . esc_html( $date_time ),
+					'entries'	=> '',
+					'size'		=> '',
+				);
+
+				echo json_encode( $data );
 
 			} else {}
 
@@ -144,27 +202,12 @@ class Debug_Log {
 	}
 
 	/**
-	 * Get debug log in data table format
+	 * Get the processed debug log data
 	 *
-	 * @since 1.0.0
+	 * @return string $errors_master_list The processed error log entries
+	 * @since 1.2.0
 	 */
-	public function get_entries() {
-
-		?>
-
-		<div class="dlm-log-management"><div class="dlm-log-status-toggle"><input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label></div><?php echo $this->get_status(); ?></div>
-
-		<table id="debug-log" class="wp-list-table widefat striped">
-			<thead>
-				<tr>
-					<th class="debug-log-number">#</th>
-					<th class="debug-log-error-type">Error Type</th>
-					<th class="debug-log-error-details">Details</th>
-					<th class="debug-log-timestamp">Last Occurrence</th>
-				</tr>
-			</thead>
-			<tbody>
-		<?php
+	public function get_processed_entries() {
 
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 
@@ -222,9 +265,9 @@ class Debug_Log {
 			if ( array_search( trim( $error_details ), array_column( $errors_master_list, 'details' ) ) === false ) {
 
 				$errors_master_list[] = array(
-					'occurrences'	=> array( $timestamp ),
 					'type'			=> $error_type,
 					'details'		=> trim( $error_details ),
+					'occurrences'	=> array( $timestamp ),
 				);
 
 			} else {
@@ -236,6 +279,36 @@ class Debug_Log {
 			}
 
 		}
+
+		return json_encode( $errors_master_list );
+
+	}
+
+
+	/**
+	 * Get debug log in data table format
+	 *
+	 * @since 1.0.0
+	 */
+	public function get_entries_datatable() {
+
+		?>
+
+		<div class="dlm-log-management"><div class="dlm-log-status-toggle"><input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label></div><?php echo $this->get_status(); ?><span id="dlm-copy-success" style="display:none;">Entries from existing debug.log file copied below...</span><span id="dlm-update-success" style="display:none;">Latest entries shown below...</span></div>
+
+		<table id="debug-log" class="wp-list-table widefat striped">
+			<thead>
+				<tr>
+					<th class="debug-log-number">#</th>
+					<th class="debug-log-error-type">Error Type</th>
+					<th class="debug-log-error-details">Details</th>
+					<th class="debug-log-timestamp">Last Occurrence</th>
+				</tr>
+			</thead>
+			<tbody>
+		<?php
+
+		$errors_master_list = json_decode( $this->get_processed_entries(), true );
 
 		$n = 1;
 
