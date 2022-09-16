@@ -149,7 +149,7 @@ class Debug_Log_Manager {
 			</div>
 			<div class="dlm-body">
 				<?php
-					$this->debug_log->get_entries();
+					$this->debug_log->get_entries_datatable();
 				?>
 			</div>
 			<div class="dlm-footer">
