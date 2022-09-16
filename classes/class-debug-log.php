@@ -60,33 +60,44 @@ class Debug_Log {
 
 				update_option( 'debug_log_manager', $option_value, false );
 
-				// Check existing debug.log file and copy it's content to log file created by this plugin
+				// If WP_DEBUG_LOG is defined, copy content of existing debug.log file into the log file created by this plugin
 
-				$wp_debug_log_const = $this->wp_config->get_value( 'constant', 'WP_DEBUG_LOG' );
+				if ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) ) {
 
-				if ( in_array( $wp_debug_log_const, array( 'true', 'false' ), true ) ) {
-					$wp_debug_log_const = (bool) $wp_debug_log_const;
-				}
+					$wp_debug_log_const = $this->wp_config->get_value( 'constant', 'WP_DEBUG_LOG' );
 
+					if ( in_array( $wp_debug_log_const, array( 'true', 'false' ), true ) ) {
+						$wp_debug_log_const = (bool) $wp_debug_log_const;
+					}
 
+					if ( is_bool( $wp_debug_log_const ) ) {
 				if ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) && is_bool( $wp_debug_log_const ) ) {
-					// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log. 
+						// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log. 
 
-					if ( is_file( WP_CONTENT_DIR . '/debug.log' ) ) {
-						// Copy existing debug log content to this plugin's debug log.
-						$default_debug_log_content = file_get_contents( WP_CONTENT_DIR . '/debug.log' );
-						file_put_contents( $dlm_debug_log_file_path, $default_debug_log_content );
+						if ( is_file( WP_CONTENT_DIR . '/debug.log' ) ) {
+							// Copy existing debug log content to this plugin's debug log.
+							$default_debug_log_content = file_get_contents( WP_CONTENT_DIR . '/debug.log' );
+							file_put_contents( $dlm_debug_log_file_path, $default_debug_log_content );
+							unlink( realpath( WP_CONTENT_DIR . '/debug.log' ) ); // delete existing debug log
+						}
+
+					} elseif ( is_string( $wp_debug_log_const ) ) {
+						// WP_DEBUG_LOG is custom path to log file. Copy existing debug log content to this plugin's debug log.
+
+						if ( is_file( $wp_debug_log_const ) && ( $wp_debug_log_const != $dlm_debug_log_file_path ) ) {
+
+							$custom_debug_log_content = file_get_contents( $wp_debug_log_const );
+							file_put_contents( $dlm_debug_log_file_path, $custom_debug_log_content );
+							unlink( $wp_debug_log_const ); // delete existing debug log
+						}
+
 					}
 
-				} elseif ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) && is_string( $wp_debug_log_const ) ) {
-					// WP_DEBUG_LOG is custom path to log file. Copy existing debug log content to this plugin's debug log.
+					$copy = true; // existing debug.log file's entries are copied to this plugin's debug.log file
 
-					if ( $wp_debug_log_const != $dlm_debug_log_file_path ) {
+				} else {
 
-						$custom_debug_log_content = file_get_contents( $wp_debug_log_const );
-					file_put_contents( $dlm_debug_log_file_path, $custom_debug_log_content );
-					
-					}
+					$copy = false; // existing debug.log file's entries are NOT copied to this plugin's debug.log file
 
 				}
 
