@@ -5,8 +5,6 @@
 // https://carlalexander.ca/singletons-in-wordpress/
 // https://torquemag.io/2016/11/singletons-wordpress-good-evil/
 
-require_once DLM_PATH . 'classes/class-debug-log.php'; // DLM\Classes\Debug_Log
-
 /**
  * Main class of the plugin used to add functionalities
  *

@@ -2,8 +2,6 @@
 
 namespace DLM\Classes;
 
-require_once DLM_PATH . 'classes/class-wp-config-transformer.php'; // DLM\Classes\WP_Config
-
 /**
  * Class related to the debug log file and entries
  *
