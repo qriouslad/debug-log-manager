@@ -25,16 +25,54 @@ define( 'DLM_PATH', plugin_dir_path( __FILE__ ) );
 // define( 'DLM_BASE', plugin_basename( __FILE__ ) );
 // define( 'DLM_FILE', __FILE__ );
 
-// Code that runs on plugin activation
-function on_activation() {
-	require_once DLM_PATH . 'classes/class-activation.php';
-	DLM\Classes\Activation::activate();
+// Register autoloading classes
+spl_autoload_register( 'dlm_autoloader' );
+
+/**
+ * Autoload classes defined by this plugin
+ * 
+ * @param  string $class_name e.g. \DLM\Classes\The_Name
+ * @since 1.2.0
+ */
+function dlm_autoloader( $class_name ) {
+
+    $namespace = 'DLM';
+
+    if ( false !== strpos( $class_name, $namespace ) ) {
+
+        // Assemble file path for the class
+        $path = str_replace( $namespace, "", $class_name ); // \DLM\Classes\The_Name => \Classes\The_Name
+        $path = str_replace( "\\", DIRECTORY_SEPARATOR, strtolower( $path ) ); // => /classes/the_name
+        $path = str_replace( "_", "-" , $path ) . '.php'; // => /classes/the-name.php
+        $path = str_replace( "classes" . DIRECTORY_SEPARATOR, "classes" . DIRECTORY_SEPARATOR . "class-", $path ); // => /classes/class-the-name.php
+        $path = DLM_PATH . $path; // => /plugin-path/classes/class-the-name.php
+
+        if ( file_exists( $path ) ) {
+            require_once( $path );
+        }
+
+    }
+
 }
 
-// Code that runs on plugin deactivation
+/**
+ * Code that runs on plugin activation
+ * 
+ * @since 1.0.0
+ */
+function on_activation() {
+	$activation = new DLM\Classes\Activation;
+    $activation->activate();
+}
+
+/**
+ * Code that runs on plugin deactivation
+ * 
+ * @since 1.0.0
+ */
 function on_deactivation() {
-	require_once DLM_PATH . 'classes/class-deactivation.php';
-	DLM\Classes\Deactivation::deactivate();
+    $deactivation = new DLM\Classes\Deactivation;
+    $deactivation->deactivate();
 }
 
 // Register code that runs on plugin activation
