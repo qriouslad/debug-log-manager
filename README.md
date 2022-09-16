@@ -21,7 +21,7 @@ Debug Log Manager allows you to:
 * **Enable [WP_DEBUG](https://wordpress.org/support/article/debugging-in-wordpress/) with one click** to log PHP and database errors when you need to, and disable it when you're done. No need to manually edit wp-config.php file. 
 * **Create the debug.log file for you** in a non-default location with a custom file name for enhanced security. 
 * **Copy the content of the default / existing debug.log file** into the custom debug.log file, and delete the default / existing debug.log file. So there is continuation in logging and enhanced security going forward.
-* parse the debug.log file and **view distinct errors and when they last occurred**, which is better then looking at the raw log file (potentially) full of repetitive errors. 
+* Parse the debug.log file and **view distinct errors and when they last occurred**, which is better than looking at the raw log file (potentially) full of repetitive errors. 
 * **Quickly find and filter more specific errors** for your debugging work.
 * **Easily clear the debug.log file** to save disk space and more easily observe newly occurring errors on your site.
 
