@@ -14,7 +14,7 @@ class Activation {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function activate() {
+	public function activate() {
 
 		// Create option to store logger status
 

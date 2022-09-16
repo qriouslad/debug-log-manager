@@ -14,7 +14,7 @@ class Deactivation {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function deactivate() {
+	public function deactivate() {
 
 		delete_option( 'debug_log_manager' );
 
