@@ -26,11 +26,13 @@
 		// Get auto-refresh feature status on page load
 
 		var autorefreshStatus = dlmVars.autorefreshStatus;
+		let autoRefreshIntervalId; // variable to store auto refresh interval ID
 
 		$('.debug-autorefresh-switcher').attr('data-status',autorefreshStatus);
 
 		if ( autorefreshStatus == 'enabled' ) {
 			$('.debug-autorefresh-checkbox').prop('checked', true);
+			const autoRefresh = setInterval(getLatestEntries, 5000);
 		} else {
 			$('.debug-autorefresh-checkbox').prop('checked', false);					
 		}
@@ -38,8 +40,6 @@
 		// Toggle WP_DEBUG logging status on click
 
 		$('.debug-log-switcher').click( function() {
-
-			var status = this.dataset.status;
 
 			$.ajax({
 				url: ajaxurl,
@@ -52,12 +52,9 @@
 					// console.log(dataObject);
 					$('#debug-log-status').empty();
 					$('#debug-log-status').prepend(dataObject.message);
-					if ( status == 'disabled' ) {
-						$('.debug-log-switcher').attr('data-status','enabled');
-					} else if ( status == 'enabled' ) {
-						$('.debug-log-switcher').attr('data-status','disabled');								
-					}
+
 					if ( dataObject.status == 'enabled' ) {
+						$('.debug-log-switcher').attr('data-status','enabled');
 						// Redraw table with new data: https://stackoverflow.com/a/25929434
 						var table = $("#debug-log").DataTable();
 						table.clear().rows.add(dataObject.entries); 
@@ -75,7 +72,10 @@
 								textColor: '#ffffff'
 							});
 						}
-					}
+					} else if ( dataObject.status == 'disabled' ) {
+						$('.debug-log-switcher').attr('data-status','disabled');								
+					} else {}
+
 					if ( dataObject.copy == true ) {
 						// When entries are copied from an existing debug.log file
 						$.toast({
@@ -104,8 +104,6 @@
 
 		$('.debug-autorefresh-switcher').click( function() {
 
-			var status = this.dataset.status;
-
 			$.ajax({
 				url: ajaxurl,
 				data: {
@@ -116,12 +114,12 @@
 					const dataObject = JSON.parse(data); // create an object
 					$('#debug-autorefresh-status').empty();
 					$('#debug-autorefresh-status').prepend(dataObject.message);
-					if ( status == 'disabled' ) {
-						$('.debug-log-switcher').attr('data-status','enabled');
-						const autoRefresh = setInterval(getLatestEntries, 5000); // every 5 seconds
-					} else if ( status == 'enabled' ) {
-						$('.debug-log-switcher').attr('data-status','disabled');
-						clearInterval(autoRefresh);								
+					if ( dataObject.status == 'enabled' ) {
+						$('.debug-autorefresh-switcher').attr('data-status','enabled');
+						autoRefreshIntervalId = setInterval(getLatestEntries, 5000); // every 5 seconds
+					} else if ( dataObject.status == 'disabled' ) {
+						$('.debug-autorefresh-switcher').attr('data-status','disabled');
+						clearInterval(autoRefreshIntervalId);
 					}
 				},
 				error:function(errorThrown) {
