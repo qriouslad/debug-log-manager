@@ -161,7 +161,7 @@ class Debug_Log {
 				$data = array(
 					'status'	=> 'enabled',
 					'copy'		=> $copy,
-					'message' 	=> '<strong>Status</strong>: Logging was enabled on ' . esc_html( $date_time ),
+					'message' 	=> '<strong>Status</strong>: Error logging enabled on ' . esc_html( $date_time ),
 					'entries'	=> $entries,
 					'size'		=> $file_size,
 				);
@@ -188,7 +188,7 @@ class Debug_Log {
 				$data = array(
 					'status'	=> 'disabled',
 					'copy'		=> false,
-					'message' 	=> '<strong>Status</strong>: Logging was disabled on ' . esc_html( $date_time ),
+					'message' 	=> '<strong>Status</strong>: Error logging disabled on ' . esc_html( $date_time ),
 					'entries'	=> '',
 					'size'		=> '',
 				);
@@ -293,9 +293,6 @@ class Debug_Log {
 	public function get_entries_datatable() {
 
 		?>
-
-		<div class="dlm-log-management"><div class="dlm-log-status-toggle"><input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label></div><?php echo $this->get_status(); ?><span id="dlm-copy-success" style="display:none;">Entries from existing debug.log file copied below...</span><span id="dlm-update-success" style="display:none;">Latest entries shown below...</span></div>
-
 		<table id="debug-log" class="wp-list-table widefat striped">
 			<thead>
 				<tr>
