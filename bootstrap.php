@@ -57,6 +57,8 @@ class Debug_Log_Manager {
 		// Register ajax calls
 		$this->debug_log = new DLM\Classes\Debug_Log;
 		add_action( 'wp_ajax_toggle_debugging', [ $this->debug_log, 'toggle_debugging' ] );
+		add_action( 'wp_ajax_toggle_autorefresh', [ $this->debug_log, 'toggle_autorefresh' ] );
+		add_action( 'wp_ajax_get_latest_entries', [ $this->debug_log, 'get_latest_entries' ] );
 		add_action( 'wp_ajax_clear_log', [ $this->debug_log, 'clear_log' ] );
 
 	}
@@ -148,7 +150,20 @@ class Debug_Log_Manager {
 				</div>
 			</div>
 			<div class="dlm-body">
-				<div class="dlm-log-management"><div class="dlm-log-status-toggle"><input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label></div><?php echo $this->debug_log->get_status(); ?></div>
+				<div class="dlm-log-management">
+					<div class="dlm-logging-status">
+						<div class="dlm-log-status-toggle">
+							<input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label>
+						</div>
+						<?php echo $this->debug_log->get_status(); ?>
+					</div>
+					<div class="dlm-autorefresh-status">
+						<div class="dlm-log-autorefresh-toggle">
+							<input type="checkbox" id="debug-autorefresh-checkbox" class="inset-3 debug-autorefresh-checkbox"><label for="debug-autorefresh-checkbox" class="green debug-autorefresh-switcher"></label>
+						</div>
+						<?php echo $this->debug_log->get_autorefresh_status(); ?>
+					</div>
+				</div>
 				<?php
 					$this->debug_log->get_entries_datatable();
 				?>
@@ -183,11 +198,19 @@ class Debug_Log_Manager {
 		$log_info = get_option( 'debug_log_manager' );
 		$log_status = $log_info['status'];
 
+		if ( false !== get_option( 'debug_log_manager_autorefresh' ) ) {
+			$autorefresh_status = get_option( 'debug_log_manager_autorefresh' );
+		} else {
+			$autorefresh_status = 'disabled';
+	        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
+		}
+
 		wp_localize_script( 
 			'dlm-app', 
-			'dlmvars', 
+			'dlmVars', 
 			array(
-				'logStatus'	=> $log_status,
+				'logStatus'			=> $log_status,
+				'autorefreshStatus'	=> $autorefresh_status,
 			) 
 		);
 

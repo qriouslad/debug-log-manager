@@ -32,7 +32,29 @@ class Debug_Log {
 		$status 	= $value['status'];
 		$date_time 	= wp_date( 'M j, Y - H:i:s', strtotime( $value['on'] ) );
 
-		return '<div id="debug-log-status" class="dlm-log-status"><strong>Status</strong>: Logging was '. esc_html( $status ) .' on '. esc_html( $date_time ) .'<div id="dlm-log-toggle-hint"></div></div>';
+		return '<div id="debug-log-status" class="dlm-log-status"><strong>Error Logging</strong>:  '. esc_html( ucfirst( $status ) ) .' on '. esc_html( $date_time ) .'<div id="dlm-log-toggle-hint"></div></div>';
+
+	}
+
+	/**
+	 * Get log auto-refresh status
+	 *
+	 * @since 1.3.0
+	 */
+	public function get_autorefresh_status() {
+
+		if ( false !== get_option( 'debug_log_manager_autorefresh' ) ) {
+
+			$autorefresh_status = get_option( 'debug_log_manager_autorefresh' );
+
+		} else {
+
+			$autorefresh_status = 'disabled';
+	        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
+
+		}
+
+		return '<div id="debug-autorefresh-status" class="dlm-autorefresh-status"><strong>Auto-Refresh</strong>: ' . ucfirst( $autorefresh_status ) . '</div>';
 
 	}
 
@@ -108,7 +130,7 @@ class Debug_Log {
 
 				foreach ( $errors_master_list as $error ) {
 
-					$localized_timestamp 	= wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+					$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
 					$occurrence_count 		= count( $error['occurrences'] );
 
 					$entry = array( 
@@ -161,7 +183,7 @@ class Debug_Log {
 				$data = array(
 					'status'	=> 'enabled',
 					'copy'		=> $copy,
-					'message' 	=> '<strong>Status</strong>: Error logging enabled on ' . esc_html( $date_time ),
+					'message' 	=> '<strong>Error Logging</strong>: Enabled on ' . esc_html( $date_time ),
 					'entries'	=> $entries,
 					'size'		=> $file_size,
 				);
@@ -188,9 +210,48 @@ class Debug_Log {
 				$data = array(
 					'status'	=> 'disabled',
 					'copy'		=> false,
-					'message' 	=> '<strong>Status</strong>: Error logging disabled on ' . esc_html( $date_time ),
+					'message' 	=> '<strong>Error Logging</strong>: Disabled on ' . esc_html( $date_time ),
 					'entries'	=> '',
 					'size'		=> '',
+				);
+
+				echo json_encode( $data );
+
+			} else {}
+
+		}
+
+	}
+
+	/**
+	 * Toggle auto-refresh of entries table
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_autorefresh() {
+
+		if ( isset( $_REQUEST ) ) {
+
+			$autorefresh_status = get_option( 'debug_log_manager_autorefresh' );
+
+			if ( $autorefresh_status == 'disabled' ) {
+
+		        update_option( 'debug_log_manager_autorefresh', 'enabled', false );
+
+				$data = array(
+					'status'	=> 'enabled',
+					'message' 	=> '<strong>Auto-Refresh</strong>: Enabled',
+				);
+
+				echo json_encode( $data );
+
+			} elseif ( $autorefresh_status == 'enabled' ) {
+
+		        update_option( 'debug_log_manager_autorefresh', 'disabled', false );
+
+				$data = array(
+					'status'	=> 'disabled',
+					'message' 	=> '<strong>Auto-Refresh</strong>: Disabled',
 				);
 
 				echo json_encode( $data );
@@ -284,6 +345,43 @@ class Debug_Log {
 
 	}
 
+	/**
+	 * Get the latest entries for auto-refresh feature
+	 *
+	 * @since 1.0.0
+	 */
+	public function get_latest_entries() {
+
+		$errors_master_list = json_decode( $this->get_processed_entries(), true );
+
+		$n = 1;
+		$entries = array();
+
+		foreach ( $errors_master_list as $error ) {
+
+			$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+			$occurrence_count 		= count( $error['occurrences'] );
+
+			$entry = array( 
+					$n, 
+					$error['type'], 
+					$error['details'], 
+					$localized_timestamp . '<br /><span class="dlm-faint">(' . $occurrence_count . ' occurrences logged)<span>',
+			);
+
+			$entries[] = $entry;
+
+			$n++;
+
+		}
+
+		$data = array(
+			'entries'	=> $entries,
+		);
+
+		echo json_encode( $data );
+
+	}
 
 	/**
 	 * Get debug log in data table format

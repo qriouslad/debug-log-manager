@@ -77,16 +77,21 @@
 
 .dlm-log-management {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
 }
 
-.dlm-log-status-toggle {
+.dlm-logging-status,
+.dlm-autorefresh-status {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 .dlm-log-status {
     line-height: 30px;
+    margin-right: 20px;
 }
 
 .dlm-faint {

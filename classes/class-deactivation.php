@@ -17,6 +17,7 @@ class Deactivation {
 	public function deactivate() {
 
 		delete_option( 'debug_log_manager' );
+		delete_option( 'debug_log_manager_autorefresh' );
 
 	}
 

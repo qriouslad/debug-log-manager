@@ -12,15 +12,27 @@
 			stickyClass: 'dlm-sticky' // Class applied to element when it's stuck. Class name or false.
 		})
 
-		// Set WP_DEBUG logging status toggle/switcher position on page load
+		// Get WP_DEBUG logging status toggle/switcher position on page load
 
-		var log_status = dlmvars.logStatus;
-		$('.debug-log-switcher').attr('data-status',log_status);
+		var logStatus = dlmVars.logStatus;
+		$('.debug-log-switcher').attr('data-status',logStatus);
 
-		if ( log_status == 'enabled' ) {
+		if ( logStatus == 'enabled' ) {
 			$('.debug-log-checkbox').prop('checked', true);
 		} else {
 			$('.debug-log-checkbox').prop('checked', false);					
+		}
+
+		// Get auto-refresh feature status on page load
+
+		var autorefreshStatus = dlmVars.autorefreshStatus;
+
+		$('.debug-autorefresh-switcher').attr('data-status',autorefreshStatus);
+
+		if ( autorefreshStatus == 'enabled' ) {
+			$('.debug-autorefresh-checkbox').prop('checked', true);
+		} else {
+			$('.debug-autorefresh-checkbox').prop('checked', false);					
 		}
 
 		// Toggle WP_DEBUG logging status on click
@@ -88,6 +100,37 @@
 
 		});
 
+		// Toggle auto-refresh feature on click
+
+		$('.debug-autorefresh-switcher').click( function() {
+
+			var status = this.dataset.status;
+
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'toggle_autorefresh'
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					$('#debug-autorefresh-status').empty();
+					$('#debug-autorefresh-status').prepend(dataObject.message);
+					if ( status == 'disabled' ) {
+						$('.debug-log-switcher').attr('data-status','enabled');
+						const autoRefresh = setInterval(getLatestEntries, 5000); // every 5 seconds
+					} else if ( status == 'enabled' ) {
+						$('.debug-log-switcher').attr('data-status','disabled');
+						clearInterval(autoRefresh);								
+					}
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+
+		});
+
 		// Clear log file
 		
 		$('#dlm-log-clear').click( function() {
@@ -126,6 +169,28 @@
 			pageLength: 10,
 			order: [ 0, "asc" ]
 		});
+
+		// Auto reload page / refresh table
+
+		function getLatestEntries() {
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'get_latest_entries'
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					var table = $("#debug-log").DataTable();
+					table.clear().rows.add(dataObject.entries); 
+					table.columns.adjust().draw();
+					$("#debug-log").css("width","100%"); // prevent strange table width shrinkage issue
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});	
+		}
 
 	});
 
