@@ -25,6 +25,12 @@ class Activation {
 
         update_option( 'debug_log_manager', $option_value, false );
 
+        // Create option to store auto-refresh feature status
+
+        $autorefresh_status = 'disabled';
+
+        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
+
         // Create debug.log file in custom location for use in WP_DEBUG_LOG constant
         
         $uploads_path = wp_upload_dir()['basedir'] . '/debug-log-manager';

@@ -57,6 +57,8 @@ class Debug_Log_Manager {
 		// Register ajax calls
 		$this->debug_log = new DLM\Classes\Debug_Log;
 		add_action( 'wp_ajax_toggle_debugging', [ $this->debug_log, 'toggle_debugging' ] );
+		add_action( 'wp_ajax_toggle_autorefresh', [ $this->debug_log, 'toggle_autorefresh' ] );
+		add_action( 'wp_ajax_get_latest_entries', [ $this->debug_log, 'get_latest_entries' ] );
 		add_action( 'wp_ajax_clear_log', [ $this->debug_log, 'clear_log' ] );
 
 	}
@@ -118,7 +120,7 @@ class Debug_Log_Manager {
 	 */
 	public function footer_text() {
 		?>
-			<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank">Debug Log Manager</a> (<a href="https://github.com/qriouslad/debug-log-manager" target="_blank">github</a>) is built using <a href="https://datatables.net/" target="_blank">DataTables.js</a> and <a href="https://github.com/AndrewHenderson/jSticky" target="_blank">jSticky</a>.
+			<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank">Debug Log Manager</a> (<a href="https://github.com/qriouslad/debug-log-manager" target="_blank">github</a>) is built using <a href="https://datatables.net/" target="_blank">DataTables.js</a>, <a href="https://github.com/AndrewHenderson/jSticky" target="_blank">jSticky</a> and <a href="https://github.com/kamranahmedse/jquery-toast-plugin" target="_blank">jQuery Toast</a>.
 		<?php
 	}
 
@@ -148,12 +150,26 @@ class Debug_Log_Manager {
 				</div>
 			</div>
 			<div class="dlm-body">
+				<div class="dlm-log-management">
+					<div class="dlm-logging-status">
+						<div class="dlm-log-status-toggle">
+							<input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label>
+						</div>
+						<?php echo $this->debug_log->get_status(); ?>
+					</div>
+					<div class="dlm-autorefresh-status">
+						<div class="dlm-log-autorefresh-toggle">
+							<input type="checkbox" id="debug-autorefresh-checkbox" class="inset-3 debug-autorefresh-checkbox"><label for="debug-autorefresh-checkbox" class="green debug-autorefresh-switcher"></label>
+						</div>
+						<?php echo $this->debug_log->get_autorefresh_status(); ?>
+					</div>
+				</div>
 				<?php
 					$this->debug_log->get_entries_datatable();
 				?>
 			</div>
 			<div class="dlm-footer">
-				<div class="dlm-log-file"><strong>Log file</strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)<span id="dlm-clear-success" style="display:none;">Log file has been cleared...</span></div>
+				<div class="dlm-log-file"><strong>Log file</strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
 				<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear">Clear Log</button>
 			</div>
 		</div>
@@ -171,20 +187,30 @@ class Debug_Log_Manager {
 
 		wp_enqueue_style( 'dlm-admin', DLM_URL . 'assets/css/admin.css', array(), DLM_VERSION );
 		wp_enqueue_style( 'dlm-datatables', DLM_URL . 'assets/css/datatables.min.css', array(), DLM_VERSION );
+		wp_enqueue_style( 'dlm-toast', DLM_URL . 'assets/css/jquery.toast.min.css', array(), DLM_VERSION );
 		wp_enqueue_script( 'dlm-app', DLM_URL . 'assets/js/app.js', array(), DLM_VERSION, false );
 		wp_enqueue_script( 'dlm-jsticky', DLM_URL . 'assets/js/jquery.jsticky.min.js', array( 'jquery' ), DLM_VERSION, false );
 		wp_enqueue_script( 'dlm-datatables', DLM_URL . 'assets/js/datatables.min.js', array( 'jquery' ), DLM_VERSION, false );
+		wp_enqueue_script( 'dlm-toast', DLM_URL . 'assets/js/jquery.toast.min.js', array( 'jquery' ), DLM_VERSION, false );
 
 		// Pass on data from PHP to JS
 
 		$log_info = get_option( 'debug_log_manager' );
 		$log_status = $log_info['status'];
 
+		if ( false !== get_option( 'debug_log_manager_autorefresh' ) ) {
+			$autorefresh_status = get_option( 'debug_log_manager_autorefresh' );
+		} else {
+			$autorefresh_status = 'disabled';
+	        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
+		}
+
 		wp_localize_script( 
 			'dlm-app', 
-			'dlmvars', 
+			'dlmVars', 
 			array(
-				'logStatus'	=> $log_status,
+				'logStatus'			=> $log_status,
+				'autorefreshStatus'	=> $autorefresh_status,
 			) 
 		);
 

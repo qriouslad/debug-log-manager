@@ -77,16 +77,21 @@
 
 .dlm-log-management {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
 }
 
-.dlm-log-status-toggle {
+.dlm-logging-status,
+.dlm-autorefresh-status {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 .dlm-log-status {
     line-height: 30px;
+    margin-right: 20px;
 }
 
 .dlm-faint {
@@ -95,15 +100,6 @@
 
 #dlm-log-file-size {
     font-weight: bold;
-}
-
-#dlm-copy-success,
-#dlm-update-success,
-#dlm-clear-success {
-    margin-left: 8px;
-    font-style: italic;
-    font-weight: bold;
-    color: #5CB85C;
 }
 
 /* CSS On / Off switcher -- https://codepen.io/MoorLex/pen/GZaavy */
@@ -199,4 +195,19 @@ th.debug-log-error-type {
 
 th.debug-log-error-details {
     
+}
+
+/* jQuery Toast */
+
+.jq-toast-single h2 {
+    margin: 0 0 4px !important;
+}
+
+.jq-toast-single {
+    font-size: 14px !important;
+}
+
+.jq-toast-wrap.bottom-right {
+    bottom: 10px !important;
+    right: 20px !important;
 }

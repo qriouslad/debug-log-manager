@@ -12,15 +12,27 @@
 			stickyClass: 'dlm-sticky' // Class applied to element when it's stuck. Class name or false.
 		})
 
-		// Set WP_DEBUG logging status toggle/switcher position on page load
+		// Get WP_DEBUG logging status toggle/switcher position on page load
 
-		var log_status = dlmvars.logStatus;
-		$('.debug-log-switcher').attr('data-status',log_status);
+		var logStatus = dlmVars.logStatus;
+		$('.debug-log-switcher').attr('data-status',logStatus);
 
-		if ( log_status == 'enabled' ) {
+		if ( logStatus == 'enabled' ) {
 			$('.debug-log-checkbox').prop('checked', true);
 		} else {
 			$('.debug-log-checkbox').prop('checked', false);					
+		}
+
+		// Get auto-refresh feature status on page load
+
+		var autorefreshStatus = dlmVars.autorefreshStatus;
+
+		$('.debug-autorefresh-switcher').attr('data-status',autorefreshStatus);
+
+		if ( autorefreshStatus == 'enabled' ) {
+			$('.debug-autorefresh-checkbox').prop('checked', true);
+		} else {
+			$('.debug-autorefresh-checkbox').prop('checked', false);					
 		}
 
 		// Toggle WP_DEBUG logging status on click
@@ -51,14 +63,65 @@
 						table.clear().rows.add(dataObject.entries); 
 						table.columns.adjust().draw();
 						if ( dataObject.copy == false ) {
-							$('#dlm-update-success').show().delay(2500).fadeOut(); // show update success message						
+							$.toast({
+								// heading: 'Success!',
+								text: 'Error logging has been enabled and latest entries have been loaded.',
+								showHideTransition: 'slide',
+								icon: 'success',
+								allowToastClose: true,
+								hideAfter: 7500, // true, false or number (miliseconds)
+								position: 'bottom-right',
+								bgColor: '#52a552',
+								textColor: '#ffffff'
+							});
 						}
 					}
 					if ( dataObject.copy == true ) {
 						// When entries are copied from an existing debug.log file
-						$('#dlm-copy-success').show().delay(5000).fadeOut(); // show copy success message
+						$.toast({
+							// heading: 'Success!',
+							text: 'Entries have been copied from existing debug.log file.',
+							showHideTransition: 'slide',
+							icon: 'success',
+							allowToastClose: true,
+							hideAfter: 7500, // true, false or number (miliseconds)
+							position: 'bottom-right',
+							bgColor: '#52a552',
+							textColor: '#ffffff'
+						});
 						$('#dlm-log-file-size').empty();
 						$('#dlm-log-file-size').prepend(dataObject.size); // fill in debug.log file size
+					}
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+
+		});
+
+		// Toggle auto-refresh feature on click
+
+		$('.debug-autorefresh-switcher').click( function() {
+
+			var status = this.dataset.status;
+
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'toggle_autorefresh'
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					$('#debug-autorefresh-status').empty();
+					$('#debug-autorefresh-status').prepend(dataObject.message);
+					if ( status == 'disabled' ) {
+						$('.debug-log-switcher').attr('data-status','enabled');
+						const autoRefresh = setInterval(getLatestEntries, 5000); // every 5 seconds
+					} else if ( status == 'enabled' ) {
+						$('.debug-log-switcher').attr('data-status','disabled');
+						clearInterval(autoRefresh);								
 					}
 				},
 				error:function(errorThrown) {
@@ -82,7 +145,17 @@
 					table.clear().draw();
 					$('#dlm-log-file-size').empty();
 					$('#dlm-log-file-size').prepend('0 B')
-					$('#dlm-clear-success').show().delay(2500).fadeOut();
+					$.toast({
+						// heading: 'Success!',
+						text: 'Log file has been cleared.',
+						showHideTransition: 'slide',
+						icon: 'success',
+						allowToastClose: true,
+						hideAfter: 7500, // true, false or number (miliseconds)
+						position: 'bottom-right',
+						bgColor: '#52a552',
+						textColor: '#ffffff'
+					});
 				},
 				error:function(errorThrown) {
 					console.log(errorThrown);
@@ -96,6 +169,28 @@
 			pageLength: 10,
 			order: [ 0, "asc" ]
 		});
+
+		// Auto reload page / refresh table
+
+		function getLatestEntries() {
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'get_latest_entries'
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					var table = $("#debug-log").DataTable();
+					table.clear().rows.add(dataObject.entries); 
+					table.columns.adjust().draw();
+					$("#debug-log").css("width","100%"); // prevent strange table width shrinkage issue
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});	
+		}
 
 	});
 
