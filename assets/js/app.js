@@ -51,12 +51,32 @@
 						table.clear().rows.add(dataObject.entries); 
 						table.columns.adjust().draw();
 						if ( dataObject.copy == false ) {
-							$('#dlm-update-success').show().delay(2500).fadeOut(); // show update success message						
+							$.toast({
+								// heading: 'Success!',
+								text: 'Error logging has been enabled and latest entries have been loaded.',
+								showHideTransition: 'slide',
+								icon: 'success',
+								allowToastClose: true,
+								hideAfter: 7500, // true, false or number (miliseconds)
+								position: 'bottom-right',
+								bgColor: '#52a552',
+								textColor: '#ffffff'
+							});
 						}
 					}
 					if ( dataObject.copy == true ) {
 						// When entries are copied from an existing debug.log file
-						$('#dlm-copy-success').show().delay(5000).fadeOut(); // show copy success message
+						$.toast({
+							// heading: 'Success!',
+							text: 'Entries have been copied from existing debug.log file.',
+							showHideTransition: 'slide',
+							icon: 'success',
+							allowToastClose: true,
+							hideAfter: 7500, // true, false or number (miliseconds)
+							position: 'bottom-right',
+							bgColor: '#52a552',
+							textColor: '#ffffff'
+						});
 						$('#dlm-log-file-size').empty();
 						$('#dlm-log-file-size').prepend(dataObject.size); // fill in debug.log file size
 					}
@@ -82,7 +102,17 @@
 					table.clear().draw();
 					$('#dlm-log-file-size').empty();
 					$('#dlm-log-file-size').prepend('0 B')
-					$('#dlm-clear-success').show().delay(2500).fadeOut();
+					$.toast({
+						// heading: 'Success!',
+						text: 'Log file has been cleared.',
+						showHideTransition: 'slide',
+						icon: 'success',
+						allowToastClose: true,
+						hideAfter: 7500, // true, false or number (miliseconds)
+						position: 'bottom-right',
+						bgColor: '#52a552',
+						textColor: '#ffffff'
+					});
 				},
 				error:function(errorThrown) {
 					console.log(errorThrown);
