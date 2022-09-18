@@ -30,7 +30,7 @@ class Debug_Log {
 
 		$value 		= get_option( 'debug_log_manager' );
 		$status 	= $value['status'];
-		$date_time 	= wp_date( 'j-M-Y - H:i:s', strtotime( $value['on'] ) );
+		$date_time 	= wp_date( 'M j, Y - H:i:s', strtotime( $value['on'] ) );
 
 		return '<div id="debug-log-status" class="dlm-log-status"><strong>Status</strong>: Logging was '. esc_html( $status ) .' on '. esc_html( $date_time ) .'<div id="dlm-log-toggle-hint"></div></div>';
 
@@ -48,8 +48,8 @@ class Debug_Log {
 			$log_info 				= get_option( 'debug_log_manager' );
 	        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
 
-			$date_time 				= wp_date( 'j-M-Y - H:i:s' ); // Localized according to WP timezone settings
-			$date_time_for_option 	= date( 'j-M-Y H:i:s' ); // in UTC
+			$date_time 				= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
+			$date_time_for_option 	= date( 'M j, Y H:i:s' ); // in UTC
 
 			if ( 'disabled' == $log_info['status']  ) {
 
@@ -314,7 +314,7 @@ class Debug_Log {
 
 		foreach ( $errors_master_list as $error ) {
 
-			$localized_timestamp 	= wp_date( 'j-M-Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+			$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
 			$occurrence_count 		= count( $error['occurrences'] );
 			?>
 
