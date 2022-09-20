@@ -176,7 +176,7 @@ class Debug_Log {
 
 				$log_file_path 		= get_option( 'debug_log_manager_file_path' );
 				$log_file_shortpath = str_replace( sanitize_text_field( $_SERVER['DOCUMENT_ROOT'] ), "", $log_file_path );
-				$file_size 			= size_format( wp_filesize( $log_file_path ) );
+				$file_size 			= size_format( (int) filesize( $log_file_path ) );
 
 				// Assemble data to return
 
