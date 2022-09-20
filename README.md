@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.2  
-Stable tag: 1.3.2  
+Stable tag: 1.3.3  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -55,7 +55,7 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
-### 1.3.1 (2022.09.20)
+### 1.3.3 (2022.09.20)
 
 * Bug fix: undefined function wp_filesize() in bootstrap.php. Props to [@gleysen](https://wordpress.org/support/users/gleysen/) for [reporting it](https://wordpress.org/support/topic/error-when-loading-2/).
 
