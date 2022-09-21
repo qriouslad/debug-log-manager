@@ -406,7 +406,7 @@ class Debug_Log {
 				<option value="PHP Deprecated">PHP Deprecated</option>
 				<option value="PHP Parse">PHP Parse</option>
 				<option value="Database">Database</option>
-				<option value="Javascript">Javascript</option>
+				<option value="JavaScript">JavaScript</option>
 				<option value="Other">Other</option>				
 			</select>
 		</div>
