@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.2  
-Stable tag: 1.5.0  
+Stable tag: 1.5.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -27,7 +27,7 @@ Debug Log Manager allows you to:
 * **Enable auto-refresh** to automatically load new log entries. No need to manually reload the browser tab, or to ```tail -f``` the log file on the command line.
 * **Easily clear the debug.log file** to save disk space and more easily observe newly occurring errors on your site.
 
-A more compact version of Debug Log Manager is included as part of the [System Dashboard plugin](https://wordpress.org/plugins/system-dashboard/), should you prefer a single plugin that does more.
+A simpler and more compact version of Debug Log Manager is included as part of the [System Dashboard plugin](https://wordpress.org/plugins/system-dashboard/), should you prefer a single plugin that does more.
 
 ### Give Back
 
@@ -56,9 +56,13 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 1.5.1 (2022.09.21)
+
+* Fix typo in Error Type dropdown filter for 'JavaScript' preventing filter to work properly for this error type.
+
 ### 1.5.0 (2022.09.21)
 
-* Add Error Type dropdown filter
+* Add Error Type dropdown filter.
 
 ### 1.4.0 (2022.09.21)
 
