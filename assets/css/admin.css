@@ -197,6 +197,12 @@ th.debug-log-error-details {
     
 }
 
+.wp-core-ui select.dlm-error-type-filter {
+    margin-left: 6px;
+    min-height: 40px;
+    border-color: #aaa;
+}
+
 /* jQuery Toast */
 
 .jq-toast-single h2 {
