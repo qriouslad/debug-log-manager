@@ -54,12 +54,17 @@ class Debug_Log_Manager {
 
 		}
 
+		// Enqueue public scripts and styles
+		add_action( 'wp_enqueue_scripts', [ $this, 'public_scripts' ] );
+
 		// Register ajax calls
 		$this->debug_log = new DLM\Classes\Debug_Log;
 		add_action( 'wp_ajax_toggle_debugging', [ $this->debug_log, 'toggle_debugging' ] );
 		add_action( 'wp_ajax_toggle_autorefresh', [ $this->debug_log, 'toggle_autorefresh' ] );
 		add_action( 'wp_ajax_get_latest_entries', [ $this->debug_log, 'get_latest_entries' ] );
 		add_action( 'wp_ajax_clear_log', [ $this->debug_log, 'clear_log' ] );
+		add_action( 'wp_ajax_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
+		add_action( 'wp_ajax_nopriv_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 
 	}
 
@@ -196,7 +201,7 @@ class Debug_Log_Manager {
 		// Pass on data from PHP to JS
 
 		$log_info = get_option( 'debug_log_manager' );
-		$log_status = $log_info['status'];
+		$log_status = $log_info['status']; // WP_DEBUG log status: enabled / disabled
 
 		if ( false !== get_option( 'debug_log_manager_autorefresh' ) ) {
 			$autorefresh_status = get_option( 'debug_log_manager_autorefresh' );
@@ -211,9 +216,42 @@ class Debug_Log_Manager {
 			array(
 				'logStatus'			=> $log_status,
 				'autorefreshStatus'	=> $autorefresh_status,
+				'jsErrorLogging'	=> array(
+					'status'	=> '',
+					'url'		=> admin_url( 'admin-ajax.php' ),
+					'nonce'		=> wp_create_nonce( DLM_SLUG ),
+					'action'	=> 'log_js_errors',
+				),
 			) 
 		);
 
+	}
+
+	/**
+	 * Enqueue public scripts
+	 *
+	 * @since 1.4.0
+	 */
+	public function public_scripts() {
+
+		wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );
+
+		$log_info = get_option( 'debug_log_manager' );
+		$log_status = $log_info['status']; // WP_DEBUG log status: enabled / disabled
+
+		wp_localize_script( 
+			'dlm-public', 
+			'dlmVars', 
+			array(
+				'logStatus'			=> $log_status,
+				'jsErrorLogging'	=> array(
+					'status'	=> '',
+					'url'		=> admin_url( 'admin-ajax.php' ),
+					'nonce'		=> wp_create_nonce( DLM_SLUG ),
+					'action'	=> 'log_js_errors',
+				),
+			) 
+		);
 	}
 
 }
