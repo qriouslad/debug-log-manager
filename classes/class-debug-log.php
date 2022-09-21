@@ -314,9 +314,15 @@ class Debug_Log {
 			} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
 				$error_type 	= 'PHP Deprecated';
 				$error_details 	= str_replace( "PHP Deprecated: ", "", $error );
+			} elseif ( strpos( $error, 'PHP Parse' ) !==false ) {
+				$error_type 	= 'PHP Parse';
+				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
 			} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
-				$error_type 	= 'WP DB error';
+				$error_type 	= 'Database';
 				$error_details 	= str_replace( "WordPress database error ", "", $error );
+			} elseif ( strpos( $error, 'JavaScript Error' ) !==false ) {
+				$error_type 	= 'JavaScript';
+				$error_details 	= str_replace( "JavaScript Error: ", "", $error );
 			} else {
 				$error_type 	= 'Other';
 				$error_details 	= $error;
@@ -444,6 +450,30 @@ class Debug_Log {
 		file_put_contents( $debug_log_file_path, '' );
 
 		echo true;
+
+	}
+
+	/**
+	 * Log javascript errors
+	 *
+	 * @since 1.4.0
+	 */
+	public function log_js_errors() {
+
+		// Since we are using XHR for the js error logging, JSON data comes in via php://input
+		$request = json_decode(urldecode(file_get_contents('php://input')), true); // an array
+
+		// Verify error content and nonce and then log the JS error
+		// Source: https://plugins.svn.wordpress.org/lh-javascript-error-log/trunk/lh-javascript-error-log.php
+		if ( isset( $request['message'] ) && isset( $request['script'] ) && isset( $request['lineNo'] ) && isset( $request['columnNo'] ) && ! empty( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], DLM_SLUG ) ) {
+
+				error_log( 'JavaScript Error: ' . $request['message'] . ' in ' . $request['script'] . ' on line ' . $request['lineNo'] . ' column ' . $request['columnNo'] . ' at ' . get_site_url() . $request['pageUrl'] );
+
+		} else {
+
+			wp_die();
+
+		}
 
 	}
 
