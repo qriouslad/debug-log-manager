@@ -397,6 +397,19 @@ class Debug_Log {
 	public function get_entries_datatable() {
 
 		?>
+		<div>
+			<select id="errorTypeFilter" class="dlm-error-type-filter">
+				<option value="">All Error Types</option>
+				<option value="PHP Fatal">PHP Fatal</option>
+				<option value="PHP Warning">PHP Warning</option>
+				<option value="PHP Notice">PHP Notice</option>
+				<option value="PHP Deprecated">PHP Deprecated</option>
+				<option value="PHP Parse">PHP Parse</option>
+				<option value="Database">Database</option>
+				<option value="Javascript">Javascript</option>
+				<option value="Other">Other</option>				
+			</select>
+		</div>
 		<table id="debug-log" class="wp-list-table widefat striped">
 			<thead>
 				<tr>

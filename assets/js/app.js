@@ -190,8 +190,41 @@
 
 		$("#debug-log").DataTable({
 			pageLength: 10,
-			order: [ 0, "asc" ]
+			order: [ 0, "asc" ],
+			searching: true
 		});
+
+		// Create Error Type filter drop down
+		// https://clintmcmahon.com/add-a-custom-search-filter-to-datatables-header/
+
+		var debugLogTable = $("#debug-log").DataTable();
+		$("#debug-log_filter.dataTables_filter").append($("#errorTypeFilter"));
+
+		var errorTypeIndex = 0;
+
+		$("#debug-log th").each(function (i) {
+			if ( $($(this)).html() == "Error Type" ) {
+				errorTypeIndex = i;
+				return false;
+			}
+		});
+
+		$.fn.dataTable.ext.search.push(
+			function (settings, data, dataIndex) {
+				var selectedItem = $("#errorTypeFilter").val();
+				var errorType = data[errorTypeIndex];
+				if (selectedItem === "" || errorType.includes(selectedItem)) {
+					return true;
+				}
+				return false;
+			}
+		);
+
+		$("#errorTypeFilter").change(function (e) {
+			debugLogTable.draw();
+		});
+
+		debugLogTable.draw();
 
 		// Auto reload page / refresh table
 

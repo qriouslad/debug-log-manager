@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.2  
-Stable tag: 1.4.0  
+Stable tag: 1.5.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -55,6 +55,10 @@ A more compact version of Debug Log Manager is included as part of the [System D
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 1.5.0 (2022.09.21)
+
+* Add Error Type dropdown filter
 
 ### 1.4.0 (2022.09.21)
 
