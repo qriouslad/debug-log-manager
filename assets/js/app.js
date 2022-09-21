@@ -1,6 +1,8 @@
 (function( $ ) {
 	'use strict';
 
+	let autoRefreshIntervalId; // variable to store auto refresh interval ID
+
 	$(document).ready( function() {
 
 		// Make page header sticky on scroll. Using https://github.com/AndrewHenderson/jSticky
@@ -26,20 +28,26 @@
 		// Get auto-refresh feature status on page load
 
 		var autorefreshStatus = dlmVars.autorefreshStatus;
-		let autoRefreshIntervalId; // variable to store auto refresh interval ID
 
 		$('.debug-autorefresh-switcher').attr('data-status',autorefreshStatus);
 
 		if ( autorefreshStatus == 'enabled' ) {
 			$('.debug-autorefresh-checkbox').prop('checked', true);
-			const autoRefresh = setInterval(getLatestEntries, 5000);
+			if ( logStatus == 'enabled' ) {
+				autoRefreshIntervalId = setInterval(getLatestEntries, 5000);
+			} else {
+				clearInterval(autoRefreshIntervalId);
+			}
 		} else {
-			$('.debug-autorefresh-checkbox').prop('checked', false);					
+			$('.debug-autorefresh-checkbox').prop('checked', false);
+			clearInterval(autoRefreshIntervalId);				
 		}
 
 		// Toggle WP_DEBUG logging status on click
 
 		$('.debug-log-switcher').click( function() {
+
+			var autorefreshStatus = $('.debug-autorefresh-switcher')[0].dataset.status;
 
 			$.ajax({
 				url: ajaxurl,
@@ -52,6 +60,7 @@
 					// console.log(dataObject);
 					$('#debug-log-status').empty();
 					$('#debug-log-status').prepend(dataObject.message);
+					// console.log('WP_DEBUG: ' + dataObject.status)
 
 					if ( dataObject.status == 'enabled' ) {
 						$('.debug-log-switcher').attr('data-status','enabled');
@@ -72,8 +81,17 @@
 								textColor: '#ffffff'
 							});
 						}
+						if ( autorefreshStatus == 'enabled' ) {
+							autoRefreshIntervalId = setInterval(getLatestEntries, 5000);
+						} else {
+							clearInterval(autoRefreshIntervalId);
+						}
 					} else if ( dataObject.status == 'disabled' ) {
-						$('.debug-log-switcher').attr('data-status','disabled');								
+						$('.debug-log-switcher').attr('data-status','disabled');
+						clearInterval(autoRefreshIntervalId);
+						if ( autorefreshStatus == 'enabled' ) {
+							$('.debug-autorefresh-switcher').click();
+						}
 					} else {}
 
 					if ( dataObject.copy == true ) {
@@ -104,6 +122,8 @@
 
 		$('.debug-autorefresh-switcher').click( function() {
 
+			var logStatus = $('.debug-log-switcher')[0].dataset.status;
+
 			$.ajax({
 				url: ajaxurl,
 				data: {
@@ -114,9 +134,14 @@
 					const dataObject = JSON.parse(data); // create an object
 					$('#debug-autorefresh-status').empty();
 					$('#debug-autorefresh-status').prepend(dataObject.message);
+					// console.log('Auto refresh: ' + dataObject.status)
 					if ( dataObject.status == 'enabled' ) {
 						$('.debug-autorefresh-switcher').attr('data-status','enabled');
-						autoRefreshIntervalId = setInterval(getLatestEntries, 5000); // every 5 seconds
+						if ( logStatus == 'enabled' ) {
+							autoRefreshIntervalId = setInterval(getLatestEntries, 5000); // every 5 seconds
+						} else {
+							clearInterval(autoRefreshIntervalId);
+						}
 					} else if ( dataObject.status == 'disabled' ) {
 						$('.debug-autorefresh-switcher').attr('data-status','disabled');
 						clearInterval(autoRefreshIntervalId);
