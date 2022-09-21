@@ -5,14 +5,14 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.2  
-Stable tag: 1.3.3  
+Stable tag: 1.4.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 ![](.wordpress-org/banner-772x250.png)
 
-Log errors via WP_DEBUG. Create, view and clear debug.log file.
+Log PHP, database and JavaScript errors via WP_DEBUG. Create, view, filter and clear the debug.log file.
 
 ## Description
 
@@ -21,6 +21,7 @@ Debug Log Manager allows you to:
 * **Enable [WP_DEBUG](https://wordpress.org/support/article/debugging-in-wordpress/) with one click** to log PHP and database errors when you need to, and disable it when you're done. No need to manually edit wp-config.php file. 
 * **Create the debug.log file for you** in a non-default location with a custom file name for enhanced security. 
 * **Copy the content of the default / existing debug.log file** into the custom debug.log file, and delete the default / existing debug.log file. So there is continuation in logging and enhanced security going forward.
+* **Log PHP, database and JavaScript errors** by default.
 * Parse the debug.log file and **view distinct errors and when they last occurred**, which is better than looking at the raw log file (potentially) full of repetitive errors. 
 * **Quickly find and filter more specific errors** for your debugging work.
 * **Enable auto-refresh** to automatically load new log entries. No need to manually reload the browser tab, or to ```tail -f``` the log file on the command line.
@@ -54,6 +55,12 @@ A more compact version of Debug Log Manager is included as part of the [System D
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 1.4.0 (2022.09.21)
+
+* JavaScript errors on wp-admin and the front end is now logged by default.
+* Improve copy around error types for simplicity and clarity.
+* Fix an issue where AJAX calls for the auto-refresh feature won't properly stop in multiple scenarios of clicking the Error Logging and/or Auto-Refresh toggles.
 
 ### 1.3.3 (2022.09.20)
 
