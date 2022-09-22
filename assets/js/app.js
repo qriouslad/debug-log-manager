@@ -226,6 +226,29 @@
 
 		debugLogTable.draw();
 
+		// Disable auto-refresh if pagination button is clicked, otherwise it will cause the refresh to return pagination to page 1
+		
+		$('#debug-log_paginate').click( function() {
+
+			var autorefreshStatus = $('.debug-autorefresh-switcher')[0].dataset.status;
+
+			if ( autorefreshStatus == 'enabled' ) {
+				$('.debug-autorefresh-switcher').click();
+				$.toast({
+					// heading: 'Success!',
+					text: 'Pagination is active. Auto-refresh has been disabled.',
+					showHideTransition: 'slide',
+					// icon: 'success',
+					allowToastClose: false,
+					hideAfter: 5000, // true, false or number (miliseconds)
+					position: 'bottom-right',
+					// bgColor: '#52a552',
+					// textColor: '#ffffff'
+				});
+			}
+
+		});
+
 		// Auto reload page / refresh table
 
 		function getLatestEntries() {
