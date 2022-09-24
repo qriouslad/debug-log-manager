@@ -18,6 +18,9 @@ class Debug_Log_Manager {
 	// For the debug log object
 	private $debug_log;
 
+	// For the wp-config object
+	private $wp_config;
+
 	/**
 	 * Creates or returns a single instance of this class
 	 *
@@ -59,6 +62,7 @@ class Debug_Log_Manager {
 
 		// Register ajax calls
 		$this->debug_log = new DLM\Classes\Debug_Log;
+		$this->wp_config = new DLM\Classes\WP_Config_Transformer;
 		add_action( 'wp_ajax_toggle_debugging', [ $this->debug_log, 'toggle_debugging' ] );
 		add_action( 'wp_ajax_toggle_autorefresh', [ $this->debug_log, 'toggle_autorefresh' ] );
 		add_action( 'wp_ajax_get_latest_entries', [ $this->debug_log, 'get_latest_entries' ] );
@@ -174,8 +178,14 @@ class Debug_Log_Manager {
 				?>
 			</div>
 			<div class="dlm-footer">
-				<div class="dlm-log-file"><strong>Log file</strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
-				<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear">Clear Log</button>
+				<div class="dlm-log-file">
+					<div class="dlm-log-file-location"><strong>Log file</strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
+					<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear">Clear Log</button>
+				</div>
+				<hr />
+				<?php
+					echo $this->wp_config->wpconfig_file( 'status' );
+				?>
 			</div>
 		</div>
 

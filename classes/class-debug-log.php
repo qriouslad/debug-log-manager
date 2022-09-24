@@ -274,16 +274,24 @@ class Debug_Log {
 
         // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
         $log 	= file_get_contents( $debug_log_file_path );
+        $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
+        $log = str_replace( "[internal function]", "^internal function^", $log );
         $lines 	= explode("[", $log);
 
         // Put back the missing '[' after explode operation
         $prepended_lines = array();
         foreach ( $lines as $line ) {
         	if ( !empty($line) ) {
-        		$line 				= str_replace( "]", "]@@@", $line ); // add line break after time stamp
+        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
         		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
-        		$line 				= str_replace( "#", "<hr />#", $line ); // add line break on stack trace lines
-        		$line 				= str_replace( "Argument <hr />#", "Argument #", $line ); // add line break on stack trace lines
+				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
+	        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+	        	}
+        		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
+        		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
+        		$line = str_replace( "^internal function^", "[internal function]", $line );
 	        	$prepended_line 	= '[' . $line;
 	        	$prepended_lines[] 	= $prepended_line;
         	}
@@ -297,30 +305,35 @@ class Debug_Log {
 
 		foreach( $latest_lines as $line ) {
 
-			$line = explode("@@@ ", $line);
+			$line = explode("@@@ ", $line); // split the line using the '@@@' marker/separator defined earlier
 
 			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
-			$error = $line[1];
+			if ( array_key_exists('1', $line) ) {
+				$error = $line[1];
+			} else {
+				$error = 'No error message specified...';
+			}
 
-			if ( strpos( $error, 'PHP Fatal' ) !==false ) {
+			if ( strpos( $error, 'PHP Fatal' ) !== false ) {
 				$error_type 	= 'PHP Fatal';
-				$error_details 	= str_replace( "PHP Fatal: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Warning' ) !==false ) {
+				$error_details 	= str_replace( "PHP Fatal error: ", "", $error );
+				$error_details 	= str_replace( "PHP Fatal: ", "", $error_details );
+			} elseif ( strpos( $error, 'PHP Warning' ) !== false ) {
 				$error_type 	= 'PHP Warning';
 				$error_details 	= str_replace( "PHP Warning: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Notice' ) !==false ) {
+			} elseif ( strpos( $error, 'PHP Notice' ) !== false ) {
 				$error_type 	= 'PHP Notice';
 				$error_details 	= str_replace( "PHP Notice: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Deprecated' ) !==false ) {
+			} elseif ( strpos( $error, 'PHP Deprecated' ) !== false ) {
 				$error_type 	= 'PHP Deprecated';
 				$error_details 	= str_replace( "PHP Deprecated: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Parse' ) !==false ) {
+			} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
 				$error_type 	= 'PHP Parse';
 				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
-			} elseif ( strpos( $error, 'WordPress database error' ) !==false ) {
+			} elseif ( strpos( $error, 'WordPress database error' ) !== false ) {
 				$error_type 	= 'Database';
 				$error_details 	= str_replace( "WordPress database error ", "", $error );
-			} elseif ( strpos( $error, 'JavaScript Error' ) !==false ) {
+			} elseif ( strpos( $error, 'JavaScript Error' ) !== false ) {
 				$error_type 	= 'JavaScript';
 				$error_details 	= str_replace( "JavaScript Error: ", "", $error );
 			} else {
