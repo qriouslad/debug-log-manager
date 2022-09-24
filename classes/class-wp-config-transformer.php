@@ -35,16 +35,45 @@ class WP_Config_Transformer {
 	 *
 	 * @since 1.0.0
 	 */
-	public function wpconfig_file_path() {
+	public function wpconfig_file( $type = 'path' ) {
 
-		$file = ABSPATH . 'wp-config.php';
-		if ( ! file_exists( $file ) ) {
-			if ( file_exists( dirname( ABSPATH ) . '/wp-config.php') ) {
-				$file = dirname( ABSPATH ) . '/wp-config.php'; // wp-config.php file is in the folder above the WP root folder
-			}
+		// From wp-load.php
+
+		if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
+
+			/** The config file resides in ABSPATH */
+			$file = ABSPATH . 'wp-config.php';
+			$location = 'WordPress root directory';
+
+
+		} elseif ( @file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! @file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+
+			/** The config file resides one level above ABSPATH but is not part of another installation */
+			$file = dirname( ABSPATH ) . '/wp-config.php';
+			$location = 'parent directory of WordPress root';
+
+		} else {
+
+			$file = 'Undetectable.';
+			$location = 'not in WordPress root or it\'s parent directory';
+
 		}
 
-        return $file;
+		if ( !is_writable( $file ) ) {
+			$writeability = 'not writeable';
+        } else {
+        	$writeability = 'writeable';
+        }
+
+		if ( $type == 'path' ) {
+	        return $file;
+		} elseif ( $type == 'location' ) {
+			return $location;
+		} elseif ( $type == 'writeability' ) {
+			return $writeability;
+		} elseif ( $type == 'status' ) {
+        	return '<div class="dlm-wpconfig-status" style="display: none;">The wp-config.php file is located in ' . $location . ' ('. $file . ') and is ' . $writeability .'.</div>';
+		}
 
 	}
 
@@ -56,7 +85,7 @@ class WP_Config_Transformer {
 	 */
 	public function configs( $return_type = 'raw' ) {
 
-		$src = file_get_contents( $this->wpconfig_file_path() );
+		$src = file_get_contents( $this->wpconfig_file( 'path' ) );
 
 		$configs             = array();
 		$configs['constant'] = array();
@@ -124,7 +153,7 @@ class WP_Config_Transformer {
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function exists( $type, $name ) {
-		$wp_config_src = file_get_contents( $this->wpconfig_file_path() );
+		$wp_config_src = file_get_contents( $this->wpconfig_file( 'path' ) );
 
 		if ( ! trim( $wp_config_src ) ) {
 			throw new Exception( 'Config file is empty.' );
@@ -154,7 +183,7 @@ class WP_Config_Transformer {
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
 	public function get_value( $type, $name ) {
-		$wp_config_src = file_get_contents( $this->wpconfig_file_path() );
+		$wp_config_src = file_get_contents( $this->wpconfig_file( 'path' ) );
 
 		if ( ! trim( $wp_config_src ) ) {
 			throw new Exception( 'Config file is empty.' );
@@ -302,7 +331,7 @@ class WP_Config_Transformer {
 			return false;
 		}
 
-		$wp_config_src = file_get_contents( $this->wpconfig_file_path() );
+		$wp_config_src = file_get_contents( $this->wpconfig_file( 'path' ) );
 		$this->wp_config_src = str_replace( array( "\n\r", "\r" ), "\n", $wp_config_src );
 		$this->wp_configs = $this->configs( 'raw' );
 
@@ -378,7 +407,7 @@ class WP_Config_Transformer {
 			return false;
 		}
 
-		$result = file_put_contents( $this->wpconfig_file_path(), $contents, LOCK_EX );
+		$result = file_put_contents( $this->wpconfig_file( 'path' ), $contents, LOCK_EX );
 
 		if ( false === $result ) {
 			throw new Exception( 'Failed to update the config file.' );
