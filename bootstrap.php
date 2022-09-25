@@ -47,15 +47,35 @@ class Debug_Log_Manager {
 		// Add action links
 		add_filter( 'plugin_action_links_'.DLM_SLUG.'/'.DLM_SLUG.'.php', [ $this, 'action_links' ] );
 
-		if ( is_admin() && $this->is_dlm() ) {
+		if ( is_admin() ) {
 
-			// Update footer text
-			add_filter( 'admin_footer_text', [ $this, 'footer_text' ] );
+			if ( $this->is_dlm() ) {
 
-			// Enqueue admin scripts and styles only on the plugin's main page
-			add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
+				// Update footer text
+				add_filter( 'admin_footer_text', [ $this, 'footer_text' ] );
+
+				// Enqueue admin scripts and styles only on the plugin's main page
+				add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
+
+			}
 
 		}
+
+		// Add admin bar icon if error logging is enabled and admin URL is not the plugin's main page. It will show on on the front end too (when logged-in), as we're also logging JavaScript errors.
+
+		$logging_info 	= get_option( 'debug_log_manager' );
+		$logging_status = $logging_info['status'];
+
+		if ( ( $logging_status == 'enabled' ) && ! $this->is_dlm() ) {
+
+			// https://developer.wordpress.org/reference/hooks/admin_bar_menu/
+			add_action( 'admin_bar_menu', [ $this, 'admin_bar_icon' ] );
+
+		}
+
+		// Add inline CSS for the admin bar icon (menu item)
+		add_action( 'admin_enqueue_scripts', [ $this, 'admin_bar_icon_css' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'admin_bar_icon_css' ] );
 
 		// Enqueue public scripts and styles
 		add_action( 'wp_enqueue_scripts', [ $this, 'public_scripts' ] );
@@ -131,6 +151,29 @@ class Debug_Log_Manager {
 		?>
 			<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank">Debug Log Manager</a> (<a href="https://github.com/qriouslad/debug-log-manager" target="_blank">github</a>) is built using <a href="https://datatables.net/" target="_blank">DataTables.js</a>, <a href="https://github.com/AndrewHenderson/jSticky" target="_blank">jSticky</a> and <a href="https://github.com/kamranahmedse/jquery-toast-plugin" target="_blank">jQuery Toast</a>.
 		<?php
+	}
+
+	/**
+	 * Add debug icon in the admin bar
+	 *
+	 * @since 1.6.0
+	 */
+	public function admin_bar_icon( WP_Admin_Bar $wp_admin_bar ) {
+
+		// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_menu/
+		// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_node/ for more examples
+		$wp_admin_bar->add_menu( array(
+			'id'		=> DLM_SLUG,
+			'parent'	=> 'top-secondary',
+			'group'		=> null,
+			'title'		=> '<span class="dashicons dashicons-warning"></span>',
+			'href'		=> admin_url( 'tools.php?page=' . DLM_SLUG ),
+			'meta'		=> array(
+				'class'		=> 'dlm-admin-bar-icon',
+				'title'		=> 'Error logging is enabled. Click to access the Debug Log Manager.'
+			),
+		) );
+
 	}
 
 	/**
@@ -234,6 +277,42 @@ class Debug_Log_Manager {
 				),
 			) 
 		);
+
+	}
+
+	/**
+	 * Admin bar icon's inline css
+	 *
+	 * @since 1.6.0
+	 */
+	public function admin_bar_icon_css() {
+
+		// https://developer.wordpress.org/reference/functions/wp_add_inline_style/
+		wp_add_inline_style( 'admin-bar', '
+
+			#wpadminbar .dlm-admin-bar-icon .dashicons { 
+				font-family: dashicons; 
+				font-size: 20px; 
+				width: 20px; 
+				height: 20px; 
+				line-height: 32px; 
+			}
+
+			#wpadminbar .quicklinks ul li.dlm-admin-bar-icon a { 
+				background: green;
+			}
+
+			#wpadminbar:not(.mobile) .ab-top-menu>li:hover>.ab-item { 
+				transition: .25s;
+			}
+
+			#wpadminbar:not(.mobile) .ab-top-menu>li.dlm-admin-bar-icon:hover>.ab-item,
+			#wpadminbar:not(.mobile) .ab-top-menu>li.dlm-admin-bar-icon>.ab-item:focus { 
+				background: #006600; 
+				color: #fff; 
+			}
+
+		' );
 
 	}
 
