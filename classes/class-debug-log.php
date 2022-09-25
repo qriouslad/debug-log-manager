@@ -274,12 +274,14 @@ class Debug_Log {
 
         // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
         $log 	= file_get_contents( $debug_log_file_path );
+
         $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
         $log = str_replace( "[internal function]", "^internal function^", $log );
-        $lines 	= explode("[", $log);
 
-        // Put back the missing '[' after explode operation
+        // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
+        $lines 	= explode("[", $log);
         $prepended_lines = array();
+
         foreach ( $lines as $line ) {
         	if ( !empty($line) ) {
         		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
@@ -292,7 +294,7 @@ class Debug_Log {
         		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
         		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
         		$line = str_replace( "^internal function^", "[internal function]", $line );
-	        	$prepended_line 	= '[' . $line;
+	        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
 	        	$prepended_lines[] 	= $prepended_line;
         	}
         }
@@ -305,7 +307,7 @@ class Debug_Log {
 
 		foreach( $latest_lines as $line ) {
 
-			$line = explode("@@@ ", $line); // split the line using the '@@@' marker/separator defined earlier
+			$line = explode("@@@ ", $line); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
 
 			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
 			if ( array_key_exists('1', $line) ) {
