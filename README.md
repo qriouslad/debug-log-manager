@@ -53,6 +53,10 @@ A simpler and more compact version of Debug Log Manager is included as part of t
 
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
+### Will this work with the managed WordPress hosting I am on?
+
+Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off). If you find it's not working with your managed host, please post in the support forum about the issue / error you encounter. I may ask for a test site that I can work with.
+
 ## Changelog
 
 ### 1.5.3 (2022.09.24)
