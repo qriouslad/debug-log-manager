@@ -174,6 +174,17 @@ input[type="checkbox"].inset-3 + label:after {
 
 /* DataTables */
 
+/* https://stackoverflow.com/a/20206637 */
+table#debug-log {
+    table-layout: fixed;
+    width: 100%;
+}
+
+table#debug-log td {
+    word-wrap:  break-word; /* All browsers since IE 5.5+ */
+    overflow-wrap: break-word; /* Renamed property in CSS3 draft spec */
+}
+
 .dataTables_wrapper .dataTables_length,
 .dataTables_wrapper .dataTables_filter {
     margin-bottom: 8px;
