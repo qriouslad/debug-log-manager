@@ -229,9 +229,17 @@ class WP_Config_Transformer {
 			$raw_input = false;			
 		}
 
+		$wp_config_src = file_get_contents( $this->wpconfig_file( 'path' ) );
+
+		if ( false !== strpos( $wp_config_src, "Happy publishing" ) ) {
+			$anchor = "/* That's all, stop editing! Happy publishing. */";
+		} elseif ( false !== strpos( $wp_config_src, "Happy blogging" ) ) {
+			$anchor = "/* That's all, stop editing! Happy blogging. */";
+		} else {}
+
 		$defaults = array(
 			'raw'       => $raw_input, // Display value in raw format without quotes.
-			'anchor'    => "/* That's all, stop editing! Happy publishing. */", // Config placement anchor string.
+			'anchor'    => $anchor, // Config placement anchor string.
 			'separator' => PHP_EOL, // Separator between config definition and anchor string.
 			'placement' => 'before', // Config placement direction (insert before or after).
 		);
