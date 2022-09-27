@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.8  
 Tested up to: 6.0.2  
-Stable tag: 1.6.2  
+Stable tag: 1.6.3  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -60,9 +60,13 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 1.6.3 (2022.09.27)
+
+* Further fixes (HTML, CSS, JS) to ensure error details are properly wrapped inside the data table and not cause the table to overflow the page width. This includes scenarios when auto-refresh is enabled and pagination is in use.
+
 ### 1.6.2 (2022.09.26)
 
-* CSS fix to ensure error messages are properly wrapped inside the data table and not cause the table to overflow the page width.
+* CSS fix to ensure error details are properly wrapped inside the data table and not cause the table to overflow the page width.
 
 ### 1.6.1 (2022.09.26)
 

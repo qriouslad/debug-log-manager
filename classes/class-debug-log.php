@@ -428,10 +428,10 @@ class Debug_Log {
 		<table id="debug-log" class="wp-list-table widefat striped">
 			<thead>
 				<tr>
-					<th class="debug-log-number">#</th>
-					<th class="debug-log-error-type">Error Type</th>
-					<th class="debug-log-error-details">Details</th>
-					<th class="debug-log-timestamp">Last Occurrence</th>
+					<th class="dlm-entry-no">#</th>
+					<th class="dlm-entry-type">Error Type</th>
+					<th class="dlm-entry-details">Details</th>
+					<th class="dlm-entry-datetime">Last Occurrence</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -448,10 +448,10 @@ class Debug_Log {
 			?>
 
 			<tr>
-				<td><?php echo esc_html( $n ); ?></td>
-				<td><?php echo esc_html( $error['type'] ); ?></td>
-				<td><?php echo wp_kses( $error['details'], 'post' ); ?></td>
-				<td><?php echo esc_html( $localized_timestamp ); ?><br /><span class="dlm-faint">(<?php echo esc_html( $occurrence_count ); ?> occurrences logged)<span></td>
+				<td class="dlm-entry-no"><?php echo esc_html( $n ); ?></td>
+				<td class="dlm-entry-type"><?php echo esc_html( $error['type'] ); ?></td>
+				<td class="dlm-entry-details"><?php echo wp_kses( $error['details'], 'post' ); ?></td>
+				<td class="dlm-entry-datetime"><?php echo esc_html( $localized_timestamp ); ?><br /><span class="dlm-faint">(<?php echo esc_html( $occurrence_count ); ?> occurrences logged)<span></td>
 			</tr>
 
 			<?php
