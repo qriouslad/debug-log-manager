@@ -193,7 +193,7 @@
 			order: [ 0, "asc" ],
 			searching: true
 		});
-
+		
 		// Create Error Type filter drop down
 		// https://clintmcmahon.com/add-a-custom-search-filter-to-datatables-header/
 
@@ -264,6 +264,10 @@
 					table.clear().rows.add(dataObject.entries); 
 					table.columns.adjust().draw();
 					$("#debug-log").css("width","100%"); // prevent strange table width shrinkage issue
+					$("#debug-log .dlm-entry-no").css("width","16px"); // prevent strange table width shrinkage issue
+					$("#debug-log .dlm-entry-type").css("width","96px"); // prevent strange table width shrinkage issue
+					$("#debug-log .dlm-entry-datetime").css("width","160px"); // prevent strange table width shrinkage issue
+					$("#debug-log .dlm-entry-details").css("width","calc(100% - 16px - 96px - 160px)"); // prevent strange table width shrinkage issue
 				},
 				error:function(errorThrown) {
 					console.log(errorThrown);

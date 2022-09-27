@@ -180,7 +180,32 @@ table#debug-log {
     width: 100%;
 }
 
-table#debug-log td {
+table.dataTable {
+    margin: 0 auto 8px;
+}
+
+table.dataTable thead th, 
+table.dataTable tfoot th {
+    font-weight: 500 !important;
+}
+
+#debug-log .dlm-entry-no {
+    width: 16px;
+}
+
+#debug-log .dlm-entry-type {
+    width: 96px;
+}
+
+#debug-log .dlm-entry-datetime {
+    width: 160px;
+}
+
+#debug-log .dlm-entry-details {
+    width: calc(100% - 16px - 96px - 160px);
+}
+
+#debug-log td {
     word-wrap:  break-word; /* All browsers since IE 5.5+ */
     overflow-wrap: break-word; /* Renamed property in CSS3 draft spec */
 }
@@ -190,29 +215,8 @@ table#debug-log td {
     margin-bottom: 8px;
 }
 
-table.dataTable {
-    margin: 0 auto 8px;
-}
-
 .dataTables_wrapper .dataTables_length select {
     min-width: 52px;
-}
-
-table.dataTable thead th, 
-table.dataTable tfoot th {
-    font-weight: 500 !important;
-}
-
-th.debug-log-timestamp {
-    min-width: 160px;
-}
-
-th.debug-log-error-type {
-    min-width: 90px;
-}
-
-th.debug-log-error-details {
-    
 }
 
 .wp-core-ui select.dlm-error-type-filter {
