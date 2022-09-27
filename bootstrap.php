@@ -63,7 +63,12 @@ class Debug_Log_Manager {
 
 		// Add admin bar icon if error logging is enabled and admin URL is not the plugin's main page. It will show on on the front end too (when logged-in), as we're also logging JavaScript errors.
 
-		$logging_info 	= get_option( 'debug_log_manager' );
+        $default_value = array(
+            'status'    => 'disabled',
+            'on'        => date( 'Y-m-d H:i:s' ),
+        );
+
+		$logging_info 	= get_option( 'debug_log_manager', $default_value );
 		$logging_status = $logging_info['status'];
 
 		if ( ( $logging_status == 'enabled' ) && ! $this->is_dlm() ) {
@@ -253,7 +258,12 @@ class Debug_Log_Manager {
 
 		// Pass on data from PHP to JS
 
-		$log_info = get_option( 'debug_log_manager' );
+        $default_value = array(
+            'status'    => 'disabled',
+            'on'        => date( 'Y-m-d H:i:s' ),
+        );
+
+		$log_info = get_option( 'debug_log_manager', $default_value );
 		$log_status = $log_info['status']; // WP_DEBUG log status: enabled / disabled
 
 		if ( false !== get_option( 'debug_log_manager_autorefresh' ) ) {
@@ -325,7 +335,12 @@ class Debug_Log_Manager {
 
 		wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );
 
-		$log_info = get_option( 'debug_log_manager' );
+        $default_value = array(
+            'status'    => 'disabled',
+            'on'        => date( 'Y-m-d H:i:s' ),
+        );
+
+		$log_info = get_option( 'debug_log_manager', $default_value );
 		$log_status = $log_info['status']; // WP_DEBUG log status: enabled / disabled
 
 		wp_localize_script( 
