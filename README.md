@@ -3,9 +3,9 @@
 Contributors: qriouslad  
 Donate link: https://paypal.me/qriouslad  
 Tags: debug, errors, developer  
-Requires at least: 4.8  
+Requires at least: 4.6  
 Tested up to: 6.0.2  
-Stable tag: 1.6.4  
+Stable tag: 1.7.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -33,6 +33,7 @@ A simpler and more compact version of Debug Log Manager is included as part of t
 
 * [A nice review](https://wordpress.org/plugins/debug-log-manager/#reviews) would be great!
 * [Give feedback](https://wordpress.org/support/plugin/debug-log-manager/) and help improve future versions.
+* [Help translate](https://make.wordpress.org/polyglots/handbook/translating/glotpress-translate-wordpress-org/) at (https://translate.wordpress.org/)[https://translate.wordpress.org/].
 * [Github repo](https://github.com/qriouslad/debug-log-manager) to contribute code.
 * [Donate](https://paypal.me/qriouslad) and support my work.
 
@@ -60,9 +61,13 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 1.7.0 (2022.09.28)
+
+* Internationalize the plugin. i.e. make it ready for localization (translation into various languages) at (https://translate.wordpress.org/)[https://translate.wordpress.org/]. Find your locale and help make Debug Log Manager available in your languange. Thank you!
+
 ### 1.6.4 (2022.09.27)
 
-* Fix PHP Warning isseu: "Trying to access array offset on value of type bool" reported by [@brianhenryie](https://wordpress.org/support/topic/first-impressions-8/#post-16042768) and [@hogash](https://github.com/qriouslad/debug-log-manager/issues/2).
+* Fix PHP Warning issue: "Trying to access array offset on value of type bool" reported by [@brianhenryie](https://wordpress.org/support/topic/first-impressions-8/#post-16042768) and [@hogash](https://github.com/qriouslad/debug-log-manager/issues/2).
 
 ### 1.6.3 (2022.09.27)
 

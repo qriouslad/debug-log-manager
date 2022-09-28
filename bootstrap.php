@@ -123,8 +123,8 @@ class Debug_Log_Manager {
 
 		add_submenu_page(
 			'tools.php',
-			'Debug Log Manager',
-			'Debug Log Manager',
+			__( 'Debug Log Manager', 'debug-log-manager' ),
+			__( 'Debug Log Manager', 'debug-log-manager' ),
 			'manage_options',
 			'debug-log-manager',
 			[ $this, 'create_main_page' ]
@@ -139,7 +139,7 @@ class Debug_Log_Manager {
 	 */
 	public function action_links( $links ) {
 
-		$settings_link = '<a href="tools.php?page='.DLM_SLUG.'">View Debug Log</a>';
+		$settings_link = '<a href="tools.php?page='.DLM_SLUG.'">' . esc_html__( 'View Debug Log', 'debug-log-manager' ) . '</a>';
 
 		array_unshift($links, $settings_link); 
 
@@ -154,7 +154,7 @@ class Debug_Log_Manager {
 	 */
 	public function footer_text() {
 		?>
-			<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank">Debug Log Manager</a> (<a href="https://github.com/qriouslad/debug-log-manager" target="_blank">github</a>) is built using <a href="https://datatables.net/" target="_blank">DataTables.js</a>, <a href="https://github.com/AndrewHenderson/jSticky" target="_blank">jSticky</a> and <a href="https://github.com/kamranahmedse/jquery-toast-plugin" target="_blank">jQuery Toast</a>.
+			<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank"><?php esc_html_e( 'Debug Log Manager', 'debug-log-manager' ); ?></a> (<a href="https://github.com/qriouslad/debug-log-manager" target="_blank">github</a>) <?php esc_html_e( 'is built using', 'debug-log-manager' ); ?> <a href="https://datatables.net/" target="_blank">DataTables.js</a>, <a href="https://github.com/AndrewHenderson/jSticky" target="_blank">jSticky</a> <?php esc_html_e( 'and', 'debug-log-manager' ); ?> <a href="https://github.com/kamranahmedse/jquery-toast-plugin" target="_blank">jQuery Toast</a>.
 		<?php
 	}
 
@@ -175,7 +175,7 @@ class Debug_Log_Manager {
 			'href'		=> admin_url( 'tools.php?page=' . DLM_SLUG ),
 			'meta'		=> array(
 				'class'		=> 'dlm-admin-bar-icon',
-				'title'		=> 'Error logging is enabled. Click to access the Debug Log Manager.'
+				'title'		=> esc_attr__( 'Error logging is enabled. Click to access the Debug Log Manager.', 'debug-log-manager' )
 			),
 		) );
 
@@ -197,13 +197,13 @@ class Debug_Log_Manager {
 		<div class="wrap dlm-main-page">
 			<div id="dlm-header" class="dlm-header">
 				<div class="dlm-header-left">
-					<h1 class="dlm-heading">Debug Log Manager <small>by <a href="https://bowo.io" target="_blank">bowo.io</a></small></h1>
+					<h1 class="dlm-heading"><?php esc_html_e( 'Debug Log Manager', 'debug-log-manager' ); ?> <small><?php esc_html_e( 'by', 'debug-log-manager' ); ?> <a href="https://bowo.io" target="_blank">bowo.io</a></small></h1>
 				</div>
 				<div class="dlm-header-right">
-					<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank" class="dlm-header-action"><span>&#8505;</span> Info</a>
-					<a href="https://wordpress.org/plugins/debug-log-manager/#reviews" target="_blank" class="dlm-header-action"><span>★</span> Review</a>
-					<a href="https://wordpress.org/support/plugin/debug-log-manager/" target="_blank" class="dlm-header-action">✚ Feedback</a>
-					<a href="https://paypal.me/qriouslad" target="_blank" class="dlm-header-action">&#10084; Donate</a>
+					<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank" class="dlm-header-action"><span>&#8505;</span> <?php esc_html_e( 'Info', 'debug-log-manager' ); ?></a>
+					<a href="https://wordpress.org/plugins/debug-log-manager/#reviews" target="_blank" class="dlm-header-action"><span>★</span> <?php esc_html_e( 'Review', 'debug-log-manager' ); ?></a>
+					<a href="https://wordpress.org/support/plugin/debug-log-manager/" target="_blank" class="dlm-header-action">✚ <?php esc_html_e( 'Feedback', 'debug-log-manager' ); ?></a>
+					<a href="https://paypal.me/qriouslad" target="_blank" class="dlm-header-action">&#10084; <?php esc_html_e( 'Donate', 'debug-log-manager' ); ?></a>
 				</div>
 			</div>
 			<div class="dlm-body">
@@ -227,8 +227,8 @@ class Debug_Log_Manager {
 			</div>
 			<div class="dlm-footer">
 				<div class="dlm-log-file">
-					<div class="dlm-log-file-location"><strong>Log file</strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
-					<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear">Clear Log</button>
+					<div class="dlm-log-file-location"><strong><?php esc_html_e( 'Log file', 'debug-log-manager' ); ?></strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
+					<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear"><?php esc_html_e( 'Clear Log', 'debug-log-manager' ); ?></button>
 				</div>
 				<hr />
 				<?php
@@ -284,6 +284,27 @@ class Debug_Log_Manager {
 					'url'		=> admin_url( 'admin-ajax.php' ),
 					'nonce'		=> wp_create_nonce( DLM_SLUG ),
 					'action'	=> 'log_js_errors',
+				),
+				'toastMessage'		=> array(
+					'toggleDebugSuccess'	=> __( 'Error logging has been enabled and the latest entries have been loaded.', 'debug-log-manager' ),
+					'copySuccess'			=> __( 'Entries have been copied from an existing debug.log file.', 'debug-log-manager' ),
+					'logFileCleared'		=> __( 'Log file has been cleared.', 'debug-log-manager' ),
+					'paginationActive'		=> __( 'Pagination is active. Auto-refresh has been disabled.', 'debug-log-manager' ),
+				),
+				'dataTable'			=> array(
+					'emptyTable'	=> __( 'No data available in table', 'debug-log-manager' ),
+					'info'			=> __( 'Showing _START_ to _END_ of _TOTAL_ entries', 'debug-log-manager' ),
+					'infoEmpty'		=> __( 'Showing 0 to 0 of 0 entries', 'debug-log-manager' ),
+					'infoFiltered'	=> __( '(filtered from _MAX_ total entries)', 'debug-log-manager' ),
+					'lengthMenu'	=> __( 'Show _MENU_ entries', 'debug-log-manager' ),
+					'search'		=> __( 'Search:', 'debug-log-manager' ),
+					'zeroRecords'	=> __( 'No matching records found', 'debug-log-manager' ),
+					'paginate'		=> array(
+					    'first'		=> __( 'First', 'debug-log-manager' ),
+					    'last'		=> __( 'Last', 'debug-log-manager' ),
+					    'next'		=> __( 'Next', 'debug-log-manager' ),
+					    'previous'	=> __( 'Previous', 'debug-log-manager' ),
+					),
 				),
 			) 
 		);

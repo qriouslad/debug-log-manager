@@ -32,7 +32,15 @@ class Debug_Log {
 		$status 	= $value['status'];
 		$date_time 	= wp_date( 'M j, Y - H:i:s', strtotime( $value['on'] ) );
 
-		return '<div id="debug-log-status" class="dlm-log-status"><strong>Error Logging</strong>:  '. esc_html( ucfirst( $status ) ) .' on '. esc_html( $date_time ) .'<div id="dlm-log-toggle-hint"></div></div>';
+		if ( 'enabled' == $status ) {
+
+			return '<div id="debug-log-status" class="dlm-log-status"><strong>' . esc_html__( 'Error Logging', 'debug-log-manager' ) . '</strong>: ' . ucfirst( esc_html__( 'enabled', 'debug-log-manager' ) ) . ' ' . esc_html__( 'on', 'debug-log-manager' ) . ' ' . esc_html( $date_time ) . '</div>';
+
+		} elseif ( 'disabled' == $status ) {
+
+			return '<div id="debug-log-status" class="dlm-log-status"><strong>' . esc_html__( 'Error Logging', 'debug-log-manager' ) . '</strong>: ' . ucfirst( esc_html__( 'disabled', 'debug-log-manager' ) ) . ' ' . esc_html__( 'on', 'debug-log-manager' ) . ' ' . esc_html( $date_time ) . '</div>';
+
+		} else {}
 
 	}
 
@@ -54,7 +62,15 @@ class Debug_Log {
 
 		}
 
-		return '<div id="debug-autorefresh-status" class="dlm-autorefresh-status"><strong>Auto-Refresh</strong>: ' . ucfirst( $autorefresh_status ) . '</div>';
+		if ( 'enabled' == $autorefresh_status ) {
+
+			return '<div id="debug-autorefresh-status" class="dlm-autorefresh-status"><strong>Auto-Refresh</strong>: ' . ucfirst( esc_html__( 'enabled', 'debug-log-manager' ) ) . '</div>';
+
+		} elseif ( 'disabled' == $autorefresh_status ) {
+
+			return '<div id="debug-autorefresh-status" class="dlm-autorefresh-status"><strong>Auto-Refresh</strong>: ' . ucfirst( esc_html__( 'disabled', 'debug-log-manager' ) ) . '</div>';
+
+		}
 
 	}
 
@@ -137,7 +153,7 @@ class Debug_Log {
 							$n, 
 							$error['type'], 
 							$error['details'], 
-							$localized_timestamp . '<br /><span class="dlm-faint">(' . $occurrence_count . ' occurrences logged)<span>',
+							$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
 					);
 
 					$entries[] = $entry;
@@ -183,7 +199,7 @@ class Debug_Log {
 				$data = array(
 					'status'	=> 'enabled',
 					'copy'		=> $copy,
-					'message' 	=> '<strong>Error Logging</strong>: Enabled on ' . esc_html( $date_time ),
+					'message' 	=> '<strong>' . esc_html__( 'Error Logging', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Enabled on', 'debug-log-manager' ) . ' ' . esc_html( $date_time ),
 					'entries'	=> $entries,
 					'size'		=> $file_size,
 				);
@@ -210,7 +226,7 @@ class Debug_Log {
 				$data = array(
 					'status'	=> 'disabled',
 					'copy'		=> false,
-					'message' 	=> '<strong>Error Logging</strong>: Disabled on ' . esc_html( $date_time ),
+					'message' 	=> '<strong>' . esc_html__( 'Error Logging', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Disabled on', 'debug-log-manager' ) . ' ' . esc_html( $date_time ),
 					'entries'	=> '',
 					'size'		=> '',
 				);
@@ -240,7 +256,7 @@ class Debug_Log {
 
 				$data = array(
 					'status'	=> 'enabled',
-					'message' 	=> '<strong>Auto-Refresh</strong>: Enabled',
+					'message' 	=> '<strong>' . esc_html__( 'Auto-Refresh', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Enabled', 'debug-log-manager' ),
 				);
 
 				echo json_encode( $data );
@@ -251,7 +267,7 @@ class Debug_Log {
 
 				$data = array(
 					'status'	=> 'disabled',
-					'message' 	=> '<strong>Auto-Refresh</strong>: Disabled',
+					'message' 	=> '<strong>' . esc_html__( 'Auto-Refresh', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Disabled', 'debug-log-manager' ),
 				);
 
 				echo json_encode( $data );
@@ -317,29 +333,29 @@ class Debug_Log {
 			}
 
 			if ( strpos( $error, 'PHP Fatal' ) !== false ) {
-				$error_type 	= 'PHP Fatal';
+				$error_type 	= __( 'PHP Fatal', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Fatal error: ", "", $error );
 				$error_details 	= str_replace( "PHP Fatal: ", "", $error_details );
 			} elseif ( strpos( $error, 'PHP Warning' ) !== false ) {
-				$error_type 	= 'PHP Warning';
+				$error_type 	= __( 'PHP Warning', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Warning: ", "", $error );
 			} elseif ( strpos( $error, 'PHP Notice' ) !== false ) {
-				$error_type 	= 'PHP Notice';
+				$error_type 	= __( 'PHP Notice', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Notice: ", "", $error );
 			} elseif ( strpos( $error, 'PHP Deprecated' ) !== false ) {
-				$error_type 	= 'PHP Deprecated';
+				$error_type 	= __( 'PHP Deprecated', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Deprecated: ", "", $error );
 			} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
-				$error_type 	= 'PHP Parse';
+				$error_type 	= __( 'PHP Parse', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
 			} elseif ( strpos( $error, 'WordPress database error' ) !== false ) {
-				$error_type 	= 'Database';
+				$error_type 	= __( 'Database', 'debug-log-manager' );
 				$error_details 	= str_replace( "WordPress database error ", "", $error );
 			} elseif ( strpos( $error, 'JavaScript Error' ) !== false ) {
-				$error_type 	= 'JavaScript';
+				$error_type 	= __( 'JavaScript', 'debug-log-manager' );
 				$error_details 	= str_replace( "JavaScript Error: ", "", $error );
 			} else {
-				$error_type 	= 'Other';
+				$error_type 	= __( 'Other', 'debug-log-manager' );
 				$error_details 	= $error;
 			}
 
@@ -387,7 +403,7 @@ class Debug_Log {
 					$n, 
 					$error['type'], 
 					$error['details'], 
-					$localized_timestamp . '<br /><span class="dlm-faint">(' . $occurrence_count . ' occurrences logged)<span>',
+					$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
 			);
 
 			$entries[] = $entry;
@@ -414,24 +430,24 @@ class Debug_Log {
 		?>
 		<div>
 			<select id="errorTypeFilter" class="dlm-error-type-filter">
-				<option value="">All Error Types</option>
-				<option value="PHP Fatal">PHP Fatal</option>
-				<option value="PHP Warning">PHP Warning</option>
-				<option value="PHP Notice">PHP Notice</option>
-				<option value="PHP Deprecated">PHP Deprecated</option>
-				<option value="PHP Parse">PHP Parse</option>
-				<option value="Database">Database</option>
-				<option value="JavaScript">JavaScript</option>
-				<option value="Other">Other</option>				
+				<option value=""><?php esc_html_e( 'All Error Types', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'PHP Fatal', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Fatal', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'PHP Warning', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Warning', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'PHP Notice', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Notice', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'PHP Deprecated', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Deprecated', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'PHP Parse', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Parse', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'Database', 'debug-log-manager' ); ?>"><?php esc_html_e( 'Database', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'JavaScript', 'debug-log-manager' ); ?>"><?php esc_html_e( 'JavaScript', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'Other', 'debug-log-manager' ); ?>"><?php esc_html_e( 'Other', 'debug-log-manager' ); ?></option>				
 			</select>
 		</div>
 		<table id="debug-log" class="wp-list-table widefat striped">
 			<thead>
 				<tr>
 					<th class="dlm-entry-no">#</th>
-					<th class="dlm-entry-type">Error Type</th>
-					<th class="dlm-entry-details">Details</th>
-					<th class="dlm-entry-datetime">Last Occurrence</th>
+					<th class="dlm-entry-type"><?php esc_html_e( 'Error Type', 'debug-log-manager' ); ?></th>
+					<th class="dlm-entry-details"><?php esc_html_e( 'Details', 'debug-log-manager' ); ?></th>
+					<th class="dlm-entry-datetime"><?php esc_html_e( 'Last Occurrence', 'debug-log-manager' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -451,7 +467,7 @@ class Debug_Log {
 				<td class="dlm-entry-no"><?php echo esc_html( $n ); ?></td>
 				<td class="dlm-entry-type"><?php echo esc_html( $error['type'] ); ?></td>
 				<td class="dlm-entry-details"><?php echo wp_kses( $error['details'], 'post' ); ?></td>
-				<td class="dlm-entry-datetime"><?php echo esc_html( $localized_timestamp ); ?><br /><span class="dlm-faint">(<?php echo esc_html( $occurrence_count ); ?> occurrences logged)<span></td>
+				<td class="dlm-entry-datetime"><?php echo esc_html( $localized_timestamp ); ?><br /><span class="dlm-faint">(<?php printf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ); ?>)<span></td>
 			</tr>
 
 			<?php
