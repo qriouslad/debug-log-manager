@@ -3,9 +3,9 @@
 Contributors: qriouslad  
 Donate link: https://paypal.me/qriouslad  
 Tags: debug, errors, developer  
-Requires at least: 4.8  
+Requires at least: 4.6  
 Tested up to: 6.0.2  
-Stable tag: 1.6.4  
+Stable tag: 1.7.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -33,6 +33,7 @@ A simpler and more compact version of Debug Log Manager is included as part of t
 
 * [A nice review](https://wordpress.org/plugins/debug-log-manager/#reviews) would be great!
 * [Give feedback](https://wordpress.org/support/plugin/debug-log-manager/) and help improve future versions.
+* [Help translate](https://make.wordpress.org/polyglots/handbook/translating/glotpress-translate-wordpress-org/) at (https://translate.wordpress.org/)[https://translate.wordpress.org/].
 * [Github repo](https://github.com/qriouslad/debug-log-manager) to contribute code.
 * [Donate](https://paypal.me/qriouslad) and support my work.
 
@@ -59,6 +60,10 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 1.7.0 (2022.09.28)
+
+* Internationalize the plugin. i.e. make it ready for localization (translation into various languages) at (https://translate.wordpress.org/)[https://translate.wordpress.org/]. Find your locale and help make Debug Log Manager available in your languange. Thank you!
 
 ### 1.6.4 (2022.09.27)
 
