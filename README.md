@@ -62,7 +62,7 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ### 1.6.4 (2022.09.27)
 
-* Fix PHP Warning isseu: "Trying to access array offset on value of type bool" reported by [@brianhenryie](https://wordpress.org/support/topic/first-impressions-8/#post-16042768) and [@hogash](https://github.com/qriouslad/debug-log-manager/issues/2).
+* Fix PHP Warning issue: "Trying to access array offset on value of type bool" reported by [@brianhenryie](https://wordpress.org/support/topic/first-impressions-8/#post-16042768) and [@hogash](https://github.com/qriouslad/debug-log-manager/issues/2).
 
 ### 1.6.3 (2022.09.27)
 
