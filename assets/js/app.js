@@ -71,7 +71,7 @@
 						if ( dataObject.copy == false ) {
 							$.toast({
 								// heading: 'Success!',
-								text: 'Error logging has been enabled and latest entries have been loaded.',
+								text: dlmVars.toastMessage.toggleDebugSuccess,
 								showHideTransition: 'slide',
 								icon: 'success',
 								allowToastClose: true,
@@ -98,7 +98,7 @@
 						// When entries are copied from an existing debug.log file
 						$.toast({
 							// heading: 'Success!',
-							text: 'Entries have been copied from existing debug.log file.',
+							text: dlmVars.toastMessage.copySuccess,
 							showHideTransition: 'slide',
 							icon: 'success',
 							allowToastClose: true,
@@ -170,7 +170,7 @@
 					$('#dlm-log-file-size').prepend('0 B')
 					$.toast({
 						// heading: 'Success!',
-						text: 'Log file has been cleared.',
+						text: dlmVars.toastMessage.logFileCleared,
 						showHideTransition: 'slide',
 						icon: 'success',
 						allowToastClose: true,
@@ -186,12 +186,30 @@
 			});
 		});
 
-		// Initialize log entries dataTable
+		// Initialize log entries dataTable with localization enabled
+		// https://datatables.net/manual/i18n
+		// https://datatables.net/plug-ins/i18n/
+		// https://datatables.net/plug-ins/i18n/English.html
 
 		$("#debug-log").DataTable({
 			pageLength: 10,
 			order: [ 0, "asc" ],
-			searching: true
+			searching: true,
+			language: {
+				emptyTable: dlmVars.dataTable.emptyTable,
+				info: dlmVars.dataTable.info,
+				infoEmpty: dlmVars.dataTable.infoEmpty,
+				infoFiltered: dlmVars.dataTable.infoFiltered,
+				lengthMenu: dlmVars.dataTable.lengthMenu,
+				search: dlmVars.dataTable.search,
+				zeroRecords: dlmVars.dataTable.zeroRecords,
+				paginate: {
+				    first: dlmVars.dataTable.paginate.first,
+				    last: dlmVars.dataTable.paginate.last,
+				    next: dlmVars.dataTable.paginate.next,
+				    previous: dlmVars.dataTable.paginate.previous
+				},
+			}
 		});
 		
 		// Create Error Type filter drop down
@@ -236,7 +254,7 @@
 				$('.debug-autorefresh-switcher').click();
 				$.toast({
 					// heading: 'Success!',
-					text: 'Pagination is active. Auto-refresh has been disabled.',
+					text: dlmVars.toastMessage.paginationActive,
 					showHideTransition: 'slide',
 					// icon: 'success',
 					allowToastClose: false,
