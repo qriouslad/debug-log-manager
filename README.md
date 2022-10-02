@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 6.0.2  
-Stable tag: 1.7.0  
+Stable tag: 1.8.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,7 @@ Debug Log Manager allows you to:
 * **Enable auto-refresh** to automatically load new log entries. No need to manually reload the browser tab, or to ```tail -f``` the log file on the command line.
 * **Easily clear the debug.log file** to save disk space and more easily observe newly occurring errors on your site.
 * **Show an indicator on the admin bar** when error logging is enabled.
+* **Add a dashboard widget** showing the latest errors logged.
 
 A simpler and more compact version of Debug Log Manager is included as part of the [System Dashboard plugin](https://wordpress.org/plugins/system-dashboard/), should you prefer a single plugin that does more.
 
@@ -33,7 +34,7 @@ A simpler and more compact version of Debug Log Manager is included as part of t
 
 * [A nice review](https://wordpress.org/plugins/debug-log-manager/#reviews) would be great!
 * [Give feedback](https://wordpress.org/support/plugin/debug-log-manager/) and help improve future versions.
-* [Help translate](https://make.wordpress.org/polyglots/handbook/translating/glotpress-translate-wordpress-org/) at (https://translate.wordpress.org/)[https://translate.wordpress.org/].
+* [Help translate](https://translate.wordpress.org/projects/wp-plugins/debug-log-manager/) into your language.
 * [Github repo](https://github.com/qriouslad/debug-log-manager) to contribute code.
 * [Donate](https://paypal.me/qriouslad) and support my work.
 
@@ -61,9 +62,13 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 1.8.0 (2022.10.02)
+
+* Add dashboard widget showing the latest errors logged, the error logging status and a link to the Debug Log Manager page.
+
 ### 1.7.0 (2022.09.28)
 
-* Internationalize the plugin. i.e. make it ready for localization (translation into various languages) at (https://translate.wordpress.org/)[https://translate.wordpress.org/]. Find your locale and help make Debug Log Manager available in your languange. Thank you!
+* Internationalize the plugin. i.e. make it ready for localization (translation into various languages). Do help [make Debug Log Manager available in your language](https://translate.wordpress.org/projects/wp-plugins/debug-log-manager/). Thank you!
 
 ### 1.6.4 (2022.09.27)
 
