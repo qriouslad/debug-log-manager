@@ -78,6 +78,10 @@ class Debug_Log_Manager {
 
 		}
 
+		// Add dashboard widget
+		
+		add_action( 'wp_dashboard_setup', [ $this, 'add_dashboard_widget' ] );
+
 		// Add inline CSS for the admin bar icon (menu item)
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_bar_icon_css' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'admin_bar_icon_css' ] );
@@ -238,6 +242,33 @@ class Debug_Log_Manager {
 		</div>
 
 		<?php
+
+	}
+
+	/**
+	 * Add dashboard widget with latest errors
+	 *
+	 * @since 1.8.0
+	 */
+	public function add_dashboard_widget() {
+
+		wp_add_dashboard_widget(
+			'debug_log_manager_widget', // widget ID
+			__( 'Debug Log | Latest Errors', 'debug-log-manager' ), // widget title
+			array( $this, 'get_dashboard_widget_entries' ), // callback #1 to display entries
+			// array( $this, 'dashboard_widget_settings' ), // callback #2 for settings
+		);
+
+	}
+
+	/**
+	 * Load latest errors for dashboard widget
+	 *
+	 * @since 1.8.0
+	 */
+	public function get_dashboard_widget_entries() {
+
+		$this->debug_log->get_dashboard_widget_entries();
 
 	}
 

@@ -483,6 +483,97 @@ class Debug_Log {
 	}
 
 	/**
+	 * Get entries for dashboard widget
+	 *
+	 * @since 1.8.0
+	 */
+	public function get_dashboard_widget_entries() {
+
+		$errors_master_list = json_decode( $this->get_processed_entries(), true );
+
+		$n = 1;
+
+		?>
+		<style>
+
+			#debug_log_manager_widget.postbox .inside {
+				margin: 0;
+				padding: 0;
+			}
+
+			.dlm-dashboard-widget-entry {
+				padding: 12px;
+				border-bottom: 1px solid #e6e7e7;
+			}
+
+			.dlm-dashboard-widget-entry:nth-child(odd) {
+				background-color: #f6f7f7;
+			}
+
+			.dlm-dashboard-widget-entry-meta {
+				display: flex;
+			}
+
+			.dlm-dashboard-widget-entry-type {
+				margin-right: 4px;
+				font-weight: 600;
+			}
+
+			.dlm-dashboard-widget-footer {
+				width: 100%;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 12px;
+				background-color: #f6f7f7;
+			}
+
+		</style>
+		<div class="dlm-dashboard-widget-entries">
+		<?php
+
+		foreach ( $errors_master_list as $error ) {
+
+			if ( $n <= 10 ) {
+
+				$localized_timestamp 	= wp_date( 'M j, Y, H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+				$occurrence_count 		= count( $error['occurrences'] );
+
+				?>
+					<div class="dlm-dashboard-widget-entry">
+						<div class="dlm-dashboard-widget-entry-meta">
+							<div class="dlm-dashboard-widget-entry-type">
+								<?php echo esc_html( $error['type'] ); ?>
+							</div>
+							<div class="dlm-dashboard-widget-entry-datetime">
+								| <?php echo esc_html( $localized_timestamp ); ?>
+							</div>
+						</div>
+						<div class="dlm-dashboard-widget-entry-message">
+							<?php echo wp_kses( $error['details'], 'post' ); ?>
+						</div>
+					</div>
+				<?php
+
+			}
+
+			$n++;
+
+		}
+
+		?>
+		</div>
+		<div class="dlm-dashboard-widget-footer">
+			<div class="dlm-dashboard-widget-logging-status">
+				<?php echo $this->get_status(); ?>
+			</div>
+			<a href="<?php echo get_dashboard_url(); ?>tools.php?page=debug-log-manager" class="button"><?php esc_html_e( 'Go to Debug Log Manager', 'debug-log-manager' ); ?></a>
+		</div>
+		<?php
+
+	}
+
+	/**
 	 * Clear log file
 	 *
 	 * @since 1.0.0
