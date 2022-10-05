@@ -523,6 +523,8 @@ class Debug_Log {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
+				width: 100%;
+				box-sizing: border-box;
 				padding: 12px;
 				background-color: #f6f7f7;
 			}
