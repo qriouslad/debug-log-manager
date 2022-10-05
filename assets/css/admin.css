@@ -31,7 +31,6 @@
 .dlm-footer {
     display: flex;
     flex-direction: column;
-    width: 100%;
     padding: 12px 20px;
     background-color: #fafafa;
     border-top: 1px solid #f5f5f5;

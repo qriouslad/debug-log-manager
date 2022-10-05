@@ -520,7 +520,6 @@ class Debug_Log {
 			}
 
 			.dlm-dashboard-widget-footer {
-				width: 100%;
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
