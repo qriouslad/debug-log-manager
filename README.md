@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 6.0.2  
-Stable tag: 1.8.1  
+Stable tag: 1.8.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -64,9 +64,9 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
-### 1.8.1 (2022.10.05)
+### 1.8.2 (2022.10.05)
 
-* CSS fixes for dashboard widget and main page footer
+* CSS fixes for dashboard widget footer as well as main page header and footer sizing.
 
 ### 1.8.0 (2022.10.02)
 
