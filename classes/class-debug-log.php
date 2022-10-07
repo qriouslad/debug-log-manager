@@ -504,6 +504,8 @@ class Debug_Log {
 			.dlm-dashboard-widget-entry {
 				padding: 12px;
 				border-bottom: 1px solid #e6e7e7;
+			    word-wrap:  break-word; /* All browsers since IE 5.5+ */
+			    overflow-wrap: break-word; /* Renamed property in CSS3 draft spec */
 			}
 
 			.dlm-dashboard-widget-entry:nth-child(odd) {
