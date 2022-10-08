@@ -492,6 +492,7 @@ class Debug_Log {
 		$errors_master_list = json_decode( $this->get_processed_entries(), true );
 
 		$n = 1;
+		$entries_to_show = 5;
 
 		?>
 		<style>
@@ -537,7 +538,7 @@ class Debug_Log {
 
 		foreach ( $errors_master_list as $error ) {
 
-			if ( $n <= 10 ) {
+			if ( $n <= $entries_to_show ) {
 
 				$localized_timestamp 	= wp_date( 'M j, Y, H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
 				$occurrence_count 		= count( $error['occurrences'] );
