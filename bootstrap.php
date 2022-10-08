@@ -234,7 +234,6 @@ class Debug_Log_Manager {
 					<div class="dlm-log-file-location"><strong><?php esc_html_e( 'Log file', 'debug-log-manager' ); ?></strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
 					<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear"><?php esc_html_e( 'Clear Log', 'debug-log-manager' ); ?></button>
 				</div>
-				<hr />
 				<?php
 					echo $this->wp_config->wpconfig_file( 'status' );
 				?>
