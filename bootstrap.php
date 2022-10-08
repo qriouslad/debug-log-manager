@@ -255,8 +255,8 @@ class Debug_Log_Manager {
 		wp_add_dashboard_widget(
 			'debug_log_manager_widget', // widget ID
 			__( 'Debug Log | Latest Errors', 'debug-log-manager' ), // widget title
-			array( $this, 'get_dashboard_widget_entries' ), // callback #1 to display entries
-			// array( $this, 'dashboard_widget_settings' ), // callback #2 for settings
+			array( $this, 'get_dashboard_widget_entries' ) // callback #1 to display entries
+			// array( $this, 'dashboard_widget_settings' ) // callback #2 for configuration
 		);
 
 	}
