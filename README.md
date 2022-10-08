@@ -5,14 +5,14 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 6.0.2  
-Stable tag: 1.8.4  
+Stable tag: 1.8.5  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 ![](.wordpress-org/banner-772x250.png)
 
-Log PHP, database and JavaScript errors via WP_DEBUG. Create, view, filter and clear the debug.log file.
+Log PHP, database and JavaScript errors via WP_DEBUG with one click. Conveniently create, view, filter and clear the debug.log file.
 
 ## Description
 
@@ -63,6 +63,11 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 1.8.5 (2022.10.08)
+
+* Smooth out the behaviour of scroll-to-fix-on-top the position of DLM page's header.
+* Change default number of entries to show on dashboard widget from 10 to 5.
 
 ### 1.8.4 (2022.10.08)
 

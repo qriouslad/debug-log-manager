@@ -8,7 +8,7 @@
 		// Make page header sticky on scroll. Using https://github.com/AndrewHenderson/jSticky
 		
 		$('#dlm-header').sticky({
-			topSpacing: 8, // Space between element and top of the viewport (in pixels)
+			topSpacing: 0, // Space between element and top of the viewport (in pixels)
 			zIndex: 100, // z-index
 			stopper: '', // Id, class, or number value
 			stickyClass: 'dlm-sticky' // Class applied to element when it's stuck. Class name or false.

@@ -234,7 +234,6 @@ class Debug_Log_Manager {
 					<div class="dlm-log-file-location"><strong><?php esc_html_e( 'Log file', 'debug-log-manager' ); ?></strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
 					<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear"><?php esc_html_e( 'Clear Log', 'debug-log-manager' ); ?></button>
 				</div>
-				<hr />
 				<?php
 					echo $this->wp_config->wpconfig_file( 'status' );
 				?>
@@ -283,7 +282,7 @@ class Debug_Log_Manager {
 		wp_enqueue_style( 'dlm-datatables', DLM_URL . 'assets/css/datatables.min.css', array(), DLM_VERSION );
 		wp_enqueue_style( 'dlm-toast', DLM_URL . 'assets/css/jquery.toast.min.css', array(), DLM_VERSION );
 		wp_enqueue_script( 'dlm-app', DLM_URL . 'assets/js/app.js', array(), DLM_VERSION, false );
-		wp_enqueue_script( 'dlm-jsticky', DLM_URL . 'assets/js/jquery.jsticky.min.js', array( 'jquery' ), DLM_VERSION, false );
+		wp_enqueue_script( 'dlm-jsticky', DLM_URL . 'assets/js/jquery.jsticky.mod.min.js', array( 'jquery' ), DLM_VERSION, false );
 		wp_enqueue_script( 'dlm-datatables', DLM_URL . 'assets/js/datatables.min.js', array( 'jquery' ), DLM_VERSION, false );
 		wp_enqueue_script( 'dlm-toast', DLM_URL . 'assets/js/jquery.toast.min.js', array( 'jquery' ), DLM_VERSION, false );
 
