@@ -12,6 +12,7 @@
     padding: 20px;
     background-color: #fafafa;
     border-bottom: 1px solid #f5f5f5;
+    transition: .25s;
 }
 
 .dlm-header.dlm-sticky {
