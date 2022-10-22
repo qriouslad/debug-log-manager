@@ -44,6 +44,9 @@ class Debug_Log_Manager {
 		// Register admin menu and subsequently the main admin page
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
 
+		// Do not display any admin notices while viewing logs.
+		add_action( 'admin_notices', [ $this, 'suppress_admin_notices'], 0 );
+
 		// Add action links
 		add_filter( 'plugin_action_links_'.DLM_SLUG.'/'.DLM_SLUG.'.php', [ $this, 'action_links' ] );
 
@@ -242,6 +245,22 @@ class Debug_Log_Manager {
 
 		<?php
 
+	}
+
+	/**
+	 * To stop other plugins' admin notices overlaying in the Debug Log Manager UI, remove them.
+	 *
+	 * @hooked admin_notices
+	 *
+	 * @since 1.8.7
+	 */
+	public function suppress_admin_notices() {
+
+		global $plugin_page;
+
+		if( 'debug-log-manager' === $plugin_page ) {
+			remove_all_actions('admin_notices');
+		}
 	}
 
 	/**
