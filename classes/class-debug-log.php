@@ -30,7 +30,12 @@ class Debug_Log {
 
 		$value 		= get_option( 'debug_log_manager' );
 		$status 	= $value['status'];
-		$date_time 	= wp_date( 'M j, Y - H:i:s', strtotime( $value['on'] ) );
+
+		if ( function_exists( 'wp_date' ) ) {
+			$date_time 	= wp_date( 'M j, Y - H:i:s', strtotime( $value['on'] ) );
+		} else {
+			$date_time 	= date_i18n( 'M j, Y - H:i:s', strtotime( $value['on'] ) );
+		}
 
 		if ( 'enabled' == $status ) {
 
@@ -86,7 +91,12 @@ class Debug_Log {
 			$log_info 				= get_option( 'debug_log_manager' );
 	        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
 
-			$date_time 				= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
+			if ( function_exists( 'wp_date' ) ) {
+				$date_time 	= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
+			} else {
+				$date_time 	= date_i18n( 'M j, Y - H:i:s' );
+
+			}
 			$date_time_for_option 	= date( 'M j, Y H:i:s' ); // in UTC
 
 			if ( 'disabled' == $log_info['status']  ) {
@@ -146,7 +156,12 @@ class Debug_Log {
 
 				foreach ( $errors_master_list as $error ) {
 
-					$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+					if ( function_exists( 'wp_date' ) ) {
+						$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+					} else {
+						$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+					}
+
 					$occurrence_count 		= count( $error['occurrences'] );
 
 					$entry = array( 
@@ -396,7 +411,12 @@ class Debug_Log {
 
 		foreach ( $errors_master_list as $error ) {
 
-			$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+			if ( function_exists( 'wp_date' ) ) {
+				$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+			} else {
+				$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+			}
+
 			$occurrence_count 		= count( $error['occurrences'] );
 
 			$entry = array( 
@@ -459,7 +479,12 @@ class Debug_Log {
 
 		foreach ( $errors_master_list as $error ) {
 
-			$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+			if ( function_exists( 'wp_date' ) ) {
+				$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+			} else {
+				$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+			}
+
 			$occurrence_count 		= count( $error['occurrences'] );
 			?>
 
@@ -540,7 +565,12 @@ class Debug_Log {
 
 			if ( $n <= $entries_to_show ) {
 
-				$localized_timestamp 	= wp_date( 'M j, Y, H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+				if ( function_exists( 'wp_date' ) ) {
+					$localized_timestamp 	= wp_date( 'M j, Y, H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+				} else {
+					$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+				}
+
 				$occurrence_count 		= count( $error['occurrences'] );
 
 				?>
