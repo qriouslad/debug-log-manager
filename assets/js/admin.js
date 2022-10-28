@@ -6,7 +6,7 @@
 	$(document).ready( function() {
 
 		// Make page header sticky on scroll. Using https://github.com/AndrewHenderson/jSticky
-		
+
 		$('#dlm-header').sticky({
 			topSpacing: 0, // Space between element and top of the viewport (in pixels)
 			zIndex: 100, // z-index
@@ -22,7 +22,7 @@
 		if ( logStatus == 'enabled' ) {
 			$('.debug-log-checkbox').prop('checked', true);
 		} else {
-			$('.debug-log-checkbox').prop('checked', false);					
+			$('.debug-log-checkbox').prop('checked', false);
 		}
 
 		// Get auto-refresh feature status on page load
@@ -40,7 +40,7 @@
 			}
 		} else {
 			$('.debug-autorefresh-checkbox').prop('checked', false);
-			clearInterval(autoRefreshIntervalId);				
+			clearInterval(autoRefreshIntervalId);
 		}
 
 		// Toggle WP_DEBUG logging status on click
@@ -66,7 +66,7 @@
 						$('.debug-log-switcher').attr('data-status','enabled');
 						// Redraw table with new data: https://stackoverflow.com/a/25929434
 						var table = $("#debug-log").DataTable();
-						table.clear().rows.add(dataObject.entries); 
+						table.clear().rows.add(dataObject.entries);
 						table.columns.adjust().draw();
 						if ( dataObject.copy == false ) {
 							$.toast({
@@ -155,7 +155,7 @@
 		});
 
 		// Clear log file
-		
+
 		$('#dlm-log-clear').click( function() {
 
 			$.ajax({
@@ -204,14 +204,14 @@
 				search: dlmVars.dataTable.search,
 				zeroRecords: dlmVars.dataTable.zeroRecords,
 				paginate: {
-				    first: dlmVars.dataTable.paginate.first,
-				    last: dlmVars.dataTable.paginate.last,
-				    next: dlmVars.dataTable.paginate.next,
-				    previous: dlmVars.dataTable.paginate.previous
+					first: dlmVars.dataTable.paginate.first,
+					last: dlmVars.dataTable.paginate.last,
+					next: dlmVars.dataTable.paginate.next,
+					previous: dlmVars.dataTable.paginate.previous
 				},
 			}
 		});
-		
+
 		// Create Error Type filter drop down
 		// https://clintmcmahon.com/add-a-custom-search-filter-to-datatables-header/
 
@@ -245,7 +245,7 @@
 		debugLogTable.draw();
 
 		// Disable auto-refresh if pagination button is clicked, otherwise it will cause the refresh to return pagination to page 1
-		
+
 		$('#debug-log_paginate').click( function() {
 
 			var autorefreshStatus = $('.debug-autorefresh-switcher')[0].dataset.status;
@@ -279,7 +279,7 @@
 					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
 					const dataObject = JSON.parse(data); // create an object
 					var table = $("#debug-log").DataTable();
-					table.clear().rows.add(dataObject.entries); 
+					table.clear().rows.add(dataObject.entries);
 					table.columns.adjust().draw();
 					$("#debug-log").css("width","100%"); // prevent strange table width shrinkage issue
 					$("#debug-log .dlm-entry-no").css("width","16px"); // prevent strange table width shrinkage issue
@@ -290,7 +290,7 @@
 				error:function(errorThrown) {
 					console.log(errorThrown);
 				}
-			});	
+			});
 		}
 
 	}); // end of (document).ready();
@@ -301,7 +301,7 @@
 
 		// Log javascript errors in wp-admin via XHR https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
 		// Code source: https://plugins.svn.wordpress.org/javascript-error-reporting-client/tags/1.0.3/public/js/jerc.js
-		
+
 		window.onerror = function(msg, url, lineNo, columnNo, error) {
 
 			var data = {
