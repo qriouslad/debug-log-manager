@@ -66,10 +66,10 @@ class Debug_Log_Manager {
 
 		// Add admin bar icon if error logging is enabled and admin URL is not the plugin's main page. It will show on on the front end too (when logged-in), as we're also logging JavaScript errors.
 
-        $default_value = array(
-            'status'    => 'disabled',
-            'on'        => date( 'Y-m-d H:i:s' ),
-        );
+		$default_value = array(
+			'status'    => 'disabled',
+			'on'        => date( 'Y-m-d H:i:s' ),
+		);
 
 		$logging_info 	= get_option( 'debug_log_manager', $default_value );
 		$logging_status = $logging_info['status'];
@@ -82,7 +82,7 @@ class Debug_Log_Manager {
 		}
 
 		// Add dashboard widget
-		
+
 		add_action( 'wp_dashboard_setup', [ $this, 'add_dashboard_widget' ] );
 
 		// Add inline CSS for the admin bar icon (menu item)
@@ -148,9 +148,9 @@ class Debug_Log_Manager {
 
 		$settings_link = '<a href="tools.php?page='.DLM_SLUG.'">' . esc_html__( 'View Debug Log', 'debug-log-manager' ) . '</a>';
 
-		array_unshift($links, $settings_link); 
+		array_unshift($links, $settings_link);
 
-		return $links; 
+		return $links;
 
 	}
 
@@ -307,10 +307,10 @@ class Debug_Log_Manager {
 
 		// Pass on data from PHP to JS
 
-        $default_value = array(
-            'status'    => 'disabled',
-            'on'        => date( 'Y-m-d H:i:s' ),
-        );
+		$default_value = array(
+			'status'    => 'disabled',
+			'on'        => date( 'Y-m-d H:i:s' ),
+		);
 
 		$log_info = get_option( 'debug_log_manager', $default_value );
 		$log_status = $log_info['status']; // WP_DEBUG log status: enabled / disabled
@@ -319,12 +319,12 @@ class Debug_Log_Manager {
 			$autorefresh_status = get_option( 'debug_log_manager_autorefresh' );
 		} else {
 			$autorefresh_status = 'disabled';
-	        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
+			update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
 		}
 
-		wp_localize_script( 
-			'dlm-app', 
-			'dlmVars', 
+		wp_localize_script(
+			'dlm-app',
+			'dlmVars',
 			array(
 				'logStatus'			=> $log_status,
 				'autorefreshStatus'	=> $autorefresh_status,
@@ -349,13 +349,13 @@ class Debug_Log_Manager {
 					'search'		=> __( 'Search:', 'debug-log-manager' ),
 					'zeroRecords'	=> __( 'No matching records found', 'debug-log-manager' ),
 					'paginate'		=> array(
-					    'first'		=> __( 'First', 'debug-log-manager' ),
-					    'last'		=> __( 'Last', 'debug-log-manager' ),
-					    'next'		=> __( 'Next', 'debug-log-manager' ),
-					    'previous'	=> __( 'Previous', 'debug-log-manager' ),
+						'first'		=> __( 'First', 'debug-log-manager' ),
+						'last'		=> __( 'Last', 'debug-log-manager' ),
+						'next'		=> __( 'Next', 'debug-log-manager' ),
+						'previous'	=> __( 'Previous', 'debug-log-manager' ),
 					),
 				),
-			) 
+			)
 		);
 
 	}
@@ -370,26 +370,26 @@ class Debug_Log_Manager {
 		// https://developer.wordpress.org/reference/functions/wp_add_inline_style/
 		wp_add_inline_style( 'admin-bar', '
 
-			#wpadminbar .dlm-admin-bar-icon .dashicons { 
-				font-family: dashicons; 
-				font-size: 20px; 
-				width: 20px; 
-				height: 20px; 
-				line-height: 32px; 
+			#wpadminbar .dlm-admin-bar-icon .dashicons {
+				font-family: dashicons;
+				font-size: 20px;
+				width: 20px;
+				height: 20px;
+				line-height: 32px;
 			}
 
-			#wpadminbar .quicklinks ul li.dlm-admin-bar-icon a { 
+			#wpadminbar .quicklinks ul li.dlm-admin-bar-icon a {
 				background: green;
 			}
 
-			#wpadminbar:not(.mobile) .ab-top-menu>li:hover>.ab-item { 
+			#wpadminbar:not(.mobile) .ab-top-menu>li:hover>.ab-item {
 				transition: .25s;
 			}
 
 			#wpadminbar:not(.mobile) .ab-top-menu>li.dlm-admin-bar-icon:hover>.ab-item,
-			#wpadminbar:not(.mobile) .ab-top-menu>li.dlm-admin-bar-icon>.ab-item:focus { 
-				background: #006600; 
-				color: #fff; 
+			#wpadminbar:not(.mobile) .ab-top-menu>li.dlm-admin-bar-icon>.ab-item:focus {
+				background: #006600;
+				color: #fff;
 			}
 
 		' );
@@ -405,17 +405,17 @@ class Debug_Log_Manager {
 
 		wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );
 
-        $default_value = array(
-            'status'    => 'disabled',
-            'on'        => date( 'Y-m-d H:i:s' ),
-        );
+		$default_value = array(
+			'status'    => 'disabled',
+			'on'        => date( 'Y-m-d H:i:s' ),
+		);
 
 		$log_info = get_option( 'debug_log_manager', $default_value );
 		$log_status = $log_info['status']; // WP_DEBUG log status: enabled / disabled
 
-		wp_localize_script( 
-			'dlm-public', 
-			'dlmVars', 
+		wp_localize_script(
+			'dlm-public',
+			'dlmVars',
 			array(
 				'logStatus'			=> $log_status,
 				'jsErrorLogging'	=> array(
@@ -424,7 +424,7 @@ class Debug_Log_Manager {
 					'nonce'		=> wp_create_nonce( DLM_SLUG ),
 					'action'	=> 'log_js_errors',
 				),
-			) 
+			)
 		);
 	}
 

@@ -18,46 +18,46 @@ class Activation {
 
 		// Create option to store logger status
 
-        $option_value = array(
-            'status'    => 'disabled',
-            'on'        => date( 'Y-m-d H:i:s' ),
-        );
+		$option_value = array(
+			'status'    => 'disabled',
+			'on'        => date( 'Y-m-d H:i:s' ),
+		);
 
-        update_option( 'debug_log_manager', $option_value, false );
+		update_option( 'debug_log_manager', $option_value, false );
 
-        // Create option to store auto-refresh feature status
+		// Create option to store auto-refresh feature status
 
-        $autorefresh_status = 'disabled';
+		$autorefresh_status = 'disabled';
 
-        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
+		update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
 
-        // Create debug.log file in custom location for use in WP_DEBUG_LOG constant
-        
-        $uploads_path = wp_upload_dir()['basedir'] . '/debug-log-manager';
+		// Create debug.log file in custom location for use in WP_DEBUG_LOG constant
 
-        $plain_domain = str_replace( array( ".", "-" ), "", sanitize_text_field( $_SERVER['SERVER_NAME'] ) ); // e.g. wwwgooglecom
+		$uploads_path = wp_upload_dir()['basedir'] . '/debug-log-manager';
 
-        $unique_key = date( 'YmdHi' );
+		$plain_domain = str_replace( array( ".", "-" ), "", sanitize_text_field( $_SERVER['SERVER_NAME'] ) ); // e.g. wwwgooglecom
 
-        $debug_log_file_path = $uploads_path . '/' . $plain_domain . '_' . $unique_key .'_debug.log';
+		$unique_key = date( 'YmdHi' );
 
-        $debug_log_file_path_in_option = get_option( 'debug_log_manager_file_path' );
+		$debug_log_file_path = $uploads_path . '/' . $plain_domain . '_' . $unique_key .'_debug.log';
 
-        if ( $debug_log_file_path_in_option === false ) {
+		$debug_log_file_path_in_option = get_option( 'debug_log_manager_file_path' );
 
-	        update_option( 'debug_log_manager_file_path', $debug_log_file_path, false );
+		if ( $debug_log_file_path_in_option === false ) {
 
-	        $debug_log_file_path_in_option = get_option( 'debug_log_manager_file_path' );
+			update_option( 'debug_log_manager_file_path', $debug_log_file_path, false );
 
-        }
+			$debug_log_file_path_in_option = get_option( 'debug_log_manager_file_path' );
 
-        if ( ! is_dir( $uploads_path ) ) {
-            mkdir( $uploads_path ); // create directory in /uploads folder
-        }
+		}
 
-        if ( ! is_file( $debug_log_file_path_in_option ) ) {
-            file_put_contents( $debug_log_file_path_in_option, '' ); // create empty log file
-        } else {}        
+		if ( ! is_dir( $uploads_path ) ) {
+			mkdir( $uploads_path ); // create directory in /uploads folder
+		}
+
+		if ( ! is_file( $debug_log_file_path_in_option ) ) {
+			file_put_contents( $debug_log_file_path_in_option, '' ); // create empty log file
+		}
 
 	}
 

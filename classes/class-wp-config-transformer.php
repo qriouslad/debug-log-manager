@@ -10,7 +10,7 @@ use Exception;
  * @since 1.0.0
  * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
  */
-class WP_Config_Transformer {	
+class WP_Config_Transformer {
 
 	/**
 	 * The wp-config.php source file
@@ -61,25 +61,25 @@ class WP_Config_Transformer {
 
 		if ( !is_writable( $file ) ) {
 			$writeability = 'not writeable';
-        } else {
-        	$writeability = 'writeable';
-        }
+		} else {
+			$writeability = 'writeable';
+		}
 
 		if ( $type == 'path' ) {
-	        return $file;
+			return $file;
 		} elseif ( $type == 'location' ) {
 			return $location;
 		} elseif ( $type == 'writeability' ) {
 			return $writeability;
 		} elseif ( $type == 'status' ) {
-        	return '<div class="dlm-wpconfig-status" style="display: none;">The wp-config.php file is located in ' . $location . ' ('. $file . ') and is ' . $writeability .'.</div>';
+			return '<div class="dlm-wpconfig-status" style="display: none;">The wp-config.php file is located in ' . $location . ' ('. $file . ') and is ' . $writeability .'.</div>';
 		}
 
 	}
 
 	/**
 	 * Get configs in wp-config.php
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @link https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php
 	 */
@@ -89,7 +89,7 @@ class WP_Config_Transformer {
 
 		$configs             = array();
 		$configs['constant'] = array();
-		$configs['variable'] = array();		
+		$configs['variable'] = array();
 
 		// Strip comments.
 		foreach ( token_get_all( $src ) as $token ) {
@@ -226,7 +226,7 @@ class WP_Config_Transformer {
 		if ( in_array( $value, array( 'true', 'false' ), true ) ) {
 			$raw_input = true;
 		} else {
-			$raw_input = false;			
+			$raw_input = false;
 		}
 
 		$wp_config_src = file_get_contents( $this->wpconfig_file( 'path' ) );

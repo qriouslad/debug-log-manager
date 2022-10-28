@@ -63,7 +63,7 @@ class Debug_Log {
 		} else {
 
 			$autorefresh_status = 'disabled';
-	        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
+			update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
 
 		}
 
@@ -89,7 +89,7 @@ class Debug_Log {
 		if ( isset( $_REQUEST ) ) {
 
 			$log_info 				= get_option( 'debug_log_manager' );
-	        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
+			$dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
 
 			if ( function_exists( 'wp_date' ) ) {
 				$date_time 	= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
@@ -119,7 +119,7 @@ class Debug_Log {
 					}
 
 					if ( is_bool( $wp_debug_log_const ) ) {
-						// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log. 
+						// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log.
 
 						if ( is_file( WP_CONTENT_DIR . '/debug.log' ) ) {
 							// Copy existing debug log content to this plugin's debug log.
@@ -164,10 +164,10 @@ class Debug_Log {
 
 					$occurrence_count 		= count( $error['occurrences'] );
 
-					$entry = array( 
-							$n, 
-							$error['type'], 
-							$error['details'], 
+					$entry = array(
+							$n,
+							$error['type'],
+							$error['details'],
 							$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
 					);
 
@@ -267,7 +267,7 @@ class Debug_Log {
 
 			if ( $autorefresh_status == 'disabled' ) {
 
-		        update_option( 'debug_log_manager_autorefresh', 'enabled', false );
+				update_option( 'debug_log_manager_autorefresh', 'enabled', false );
 
 				$data = array(
 					'status'	=> 'enabled',
@@ -278,7 +278,7 @@ class Debug_Log {
 
 			} elseif ( $autorefresh_status == 'enabled' ) {
 
-		        update_option( 'debug_log_manager_autorefresh', 'disabled', false );
+				update_option( 'debug_log_manager_autorefresh', 'disabled', false );
 
 				$data = array(
 					'status'	=> 'disabled',
@@ -301,40 +301,40 @@ class Debug_Log {
 	 */
 	public function get_processed_entries() {
 
-        $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
+		$debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 
-        // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
-        $log 	= file_get_contents( $debug_log_file_path );
+		// Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
+		$log 	= file_get_contents( $debug_log_file_path );
 
-        $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
-        $log = str_replace( "[internal function]", "^internal function^", $log );
+		$log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
+		$log = str_replace( "[internal function]", "^internal function^", $log );
 
-        // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
-        $lines 	= explode("[", $log);
-        $prepended_lines = array();
+		// We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
+		$lines 	= explode("[", $log);
+		$prepended_lines = array();
 
-        foreach ( $lines as $line ) {
-        	if ( !empty($line) ) {
-        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
-        		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
+		foreach ( $lines as $line ) {
+			if ( !empty($line) ) {
+				$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
+				$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
 				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
-	        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
-	        	}
-        		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
-        		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
-        		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
-        		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
-        		$line = str_replace( "^internal function^", "[internal function]", $line );
-	        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
-	        	$prepended_lines[] 	= $prepended_line;
-        	}
-        }
+					$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+				}
+				$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
+				$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
+				$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
+				$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
+				$line = str_replace( "^internal function^", "[internal function]", $line );
+				$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
+				$prepended_lines[] 	= $prepended_line;
+			}
+		}
 
-        $lines_newest_first 	= array_reverse( $prepended_lines );
-        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
+		$lines_newest_first 	= array_reverse( $prepended_lines );
+		$latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
 
-        // Will hold error details types
-        $errors_master_list = array();
+		// Will hold error details types
+		$errors_master_list = array();
 
 		foreach( $latest_lines as $line ) {
 
@@ -419,10 +419,10 @@ class Debug_Log {
 
 			$occurrence_count 		= count( $error['occurrences'] );
 
-			$entry = array( 
-					$n, 
-					$error['type'], 
-					$error['details'], 
+			$entry = array(
+					$n,
+					$error['type'],
+					$error['details'],
 					$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
 			);
 
@@ -458,7 +458,7 @@ class Debug_Log {
 				<option value="<?php esc_attr_e( 'PHP Parse', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Parse', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'Database', 'debug-log-manager' ); ?>"><?php esc_html_e( 'Database', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'JavaScript', 'debug-log-manager' ); ?>"><?php esc_html_e( 'JavaScript', 'debug-log-manager' ); ?></option>
-				<option value="<?php esc_attr_e( 'Other', 'debug-log-manager' ); ?>"><?php esc_html_e( 'Other', 'debug-log-manager' ); ?></option>				
+				<option value="<?php esc_attr_e( 'Other', 'debug-log-manager' ); ?>"><?php esc_html_e( 'Other', 'debug-log-manager' ); ?></option>
 			</select>
 		</div>
 		<table id="debug-log" class="wp-list-table widefat striped">
@@ -530,8 +530,8 @@ class Debug_Log {
 			.dlm-dashboard-widget-entry {
 				padding: 12px;
 				border-bottom: 1px solid #e6e7e7;
-			    word-wrap:  break-word; /* All browsers since IE 5.5+ */
-			    overflow-wrap: break-word; /* Renamed property in CSS3 draft spec */
+				word-wrap:  break-word; /* All browsers since IE 5.5+ */
+				overflow-wrap: break-word; /* Renamed property in CSS3 draft spec */
 			}
 
 			.dlm-dashboard-widget-entry:nth-child(odd) {
@@ -614,7 +614,7 @@ class Debug_Log {
 	 */
 	public function clear_log() {
 
-        $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
+		$debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 
 		file_put_contents( $debug_log_file_path, '' );
 
