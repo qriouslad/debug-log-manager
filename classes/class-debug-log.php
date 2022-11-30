@@ -347,26 +347,30 @@ class Debug_Log {
 				$error = 'No error message specified...';
 			}
 
-			if ( strpos( $error, 'PHP Fatal' ) !== false ) {
+			if ( ( false !== strpos( $error, 'PHP Fatal' )) || ( false !== strpos( $error, 'FATAL' ) ) ) {
 				$error_type 	= __( 'PHP Fatal', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Fatal error: ", "", $error );
 				$error_details 	= str_replace( "PHP Fatal: ", "", $error_details );
-			} elseif ( strpos( $error, 'PHP Warning' ) !== false ) {
+				$error_details 	= str_replace( "FATAL ", "", $error_details );
+			} elseif ( ( false !== strpos( $error, 'PHP Warning' ) ) || (  false !== strpos( $error, 'E_WARNING' ) ) ) {
 				$error_type 	= __( 'PHP Warning', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Warning: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Notice' ) !== false ) {
+				$error_details 	= str_replace( "E_WARNING: ", "", $error_details );
+			} elseif ( ( false !== strpos( $error, 'PHP Notice' ) ) || ( false !== strpos( $error, 'E_NOTICE' ) ) ) {
 				$error_type 	= __( 'PHP Notice', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Notice: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Deprecated' ) !== false ) {
+				$error_details 	= str_replace( "E_NOTICE: ", "", $error_details );
+			} elseif ( false !== strpos( $error, 'PHP Deprecated' ) ) {
 				$error_type 	= __( 'PHP Deprecated', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Deprecated: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
+			} elseif ( ( false !== strpos( $error, 'PHP Parse' ) ) || ( false !== strpos( $error, 'E_PARSE' ) ) ) {
 				$error_type 	= __( 'PHP Parse', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
-			} elseif ( strpos( $error, 'WordPress database error' ) !== false ) {
+				$error_details 	= str_replace( "E_PARSE: ", "", $error_details );
+			} elseif ( false !== strpos( $error, 'WordPress database error' ) ) {
 				$error_type 	= __( 'Database', 'debug-log-manager' );
 				$error_details 	= str_replace( "WordPress database error ", "", $error );
-			} elseif ( strpos( $error, 'JavaScript Error' ) !== false ) {
+			} elseif ( false !== strpos( $error, 'JavaScript Error' ) ) {
 				$error_type 	= __( 'JavaScript', 'debug-log-manager' );
 				$error_details 	= str_replace( "JavaScript Error: ", "", $error );
 			} else {
