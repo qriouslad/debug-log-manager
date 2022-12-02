@@ -659,6 +659,24 @@ class Debug_Log {
 				background-color: #f6f7f7;
 			}
 
+			.dlm-dashboard-widget-entry-message a.error-source-uri {
+			    position: relative;
+			    top: -1px;
+			    margin-left: 2px;
+			    color: #777;
+			    text-decoration: none;
+			}
+
+			.dlm-dashboard-widget-entry-message a.error-source-uri span {
+			    font-size: 18px;
+			    width: 18px;
+			    height: 18px;
+			}
+
+			.dlm-dashboard-widget-entry-message a.error-source-uri:hover {
+			    color: #2271b1;
+			}
+
 			.dlm-dashboard-widget-entry-meta {
 				display: flex;
 			}
