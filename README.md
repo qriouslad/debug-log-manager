@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://paypal.me/qriouslad  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
-Tested up to: 6.0.2  
-Stable tag: 1.8.7  
+Tested up to: 6.1.1  
+Stable tag: 1.9.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -23,6 +23,7 @@ Debug Log Manager allows you to:
 * **Copy the content of the default / existing debug.log file** into the custom debug.log file, and delete the default / existing debug.log file. So there is continuation in logging and enhanced security going forward.
 * Parse the debug.log file and **view distinct errors and when they last occurred**, which is better than looking at the raw log file (potentially) full of repetitive errors. 
 * **Quickly find and filter more specific errors** for your debugging work.
+* **Make error details easier to read** by identifying error source (core / plugin / theme) and separating file path and line number.
 * **Enable auto-refresh** to automatically load new log entries. No need to manually reload the browser tab, or to ```tail -f``` the log file on the command line.
 * **Easily clear the debug.log file** to save disk space and more easily observe newly occurring errors on your site.
 * **Show an indicator on the admin bar** when error logging is enabled.
@@ -44,13 +45,19 @@ A simpler and more compact version of Debug Log Manager is included as part of t
 * [Variable Inspector](https://wordpress.org/plugins/variable-inspector/): Inspect PHP variables on a central dashboard in wp-admin for convenient debugging.
 * [Code Explorer](https://wordpress.org/plugins/code-explorer/): Fast directory explorer and file/code viewer with syntax highlighting.
 * [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
+* [Admin and Site Enhancements](https://wordpress.org/plugins/admin-site-enhancements/) helps you to easily enhance various admin workflows and site aspects while replacing multiple plugins doing it.
+* [Flexible Scroll Top](https://wordpress.org/plugins/flexible-scroll-top/) and [Floating Share Buttons](https://wordpress.org/plugins/floating-share-button/) is a lightweight combo with minimalist UI.
 
 ## Screenshots
 
 1. Debug Log Manager main page
    ![Debug Log Manager main page](.wordpress-org/screenshot-1.png)
-2. Admin bar indicator and dashboard widget
-   ![Admin bar indicator and dashboard widget](.wordpress-org/screenshot-2.png)
+2. Debug log entries sample
+   ![Debug log entries sample](.wordpress-org/screenshot-2.png)
+3. More debug log entries sample
+   ![More debug log entries sample](.wordpress-org/screenshot-3.png)
+4. Admin bar indicator and dashboard widget
+   ![Admin bar indicator and dashboard widget](.wordpress-org/screenshot-4.png)
 
 ## Frequently Asked Questions
 
@@ -63,6 +70,11 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 1.9.0 (2022.12.02)
+
+* Detect PHP Exception error type and add it to the entries table filter.
+* Make error entries easier to read by identifying error source (core / plugin / theme) and separating file path and line number.
 
 ### 1.8.7 (2022.10.22)
 
