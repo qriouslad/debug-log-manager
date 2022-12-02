@@ -209,6 +209,23 @@ table.dataTable tfoot th {
     width: calc(100% - 16px - 96px - 160px);
 }
 
+#debug-log .dlm-entry-details a.error-source-uri {
+    position: relative;
+    top: -1px;
+    margin-left: 2px;
+    color: #777;
+}
+
+#debug-log .dlm-entry-details a.error-source-uri span {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+#debug-log .dlm-entry-details a.error-source-uri:hover {
+    color: #2271b1;
+}
+
 #debug-log td {
     word-wrap:  break-word; /* All browsers since IE 5.5+ */
     overflow-wrap: break-word; /* Renamed property in CSS3 draft spec */

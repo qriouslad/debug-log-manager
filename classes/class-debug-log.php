@@ -303,7 +303,7 @@ class Debug_Log {
 
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 
-        // Read the erros log file, reverse the order of the entries, prune to the latest 5000 entries
+        // Read the erros log file 
         $log 	= file_get_contents( $debug_log_file_path );
 
         $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
@@ -330,48 +330,168 @@ class Debug_Log {
         	}
         }
 
-        $lines_newest_first 	= array_reverse( $prepended_lines );
-        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 );
+        $lines_newest_first 	= array_reverse( $prepended_lines ); // reverse the order of the entries
+        $latest_lines 			= array_slice( $lines_newest_first, 0, 50000 ); // prune to the latest 50000 entries
 
         // Will hold error details types
         $errors_master_list = array();
 
 		foreach( $latest_lines as $line ) {
 
-			$line = explode("@@@ ", $line); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
+			$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
 
 			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
 			if ( array_key_exists('1', $line) ) {
 				$error = $line[1];
-			} else {
-				$error = 'No error message specified...';
-			}
 
-			if ( strpos( $error, 'PHP Fatal' ) !== false ) {
+				// Check if there is a file path to pluck out of the error line
+				if ( false !== strpos( $error, ABSPATH ) ) {
+
+					// Separata file path and error line from error message
+
+					// Handling for PHP Fatal errors with stack trace included
+					if ( false !== strpos( $error, 'Stack trace:' ) ) {
+						$error_parts = explode( 'Stack trace:', $error );
+						$error_message = str_replace( '<hr />', '', $error_parts[0] );
+						$error_stack_trace = ' ' . $error_parts[1];
+
+						$error_message_parts = explode( ' in /', $error_message );
+
+						// Reconstruct the error details without error file path and line info
+						$error = $error_message_parts[0] . '<hr />Stack trace:' . $error_stack_trace;
+						// Shorten the file path in the error details
+						$error = str_replace( ABSPATH, '/', $error );
+
+						$error_file = '/' . $error_message_parts[1];
+						$error_file_info = explode ( ':', $error_file );
+						$error_file_path = $error_file_info[0];
+						if ( array_key_exists('1', $error_file_info) ) {
+							$error_file_line = $error_file_info[1];
+						}
+					} else {
+						$error_message_parts = explode( ' in /', $error );
+
+						$error = $error_message_parts[0];
+						$error_file = '/' . $error_message_parts[1];
+
+						$error_file_info = explode ( ' on line ', $error_file );
+						$error_file_path = $error_file_info[0];
+						if ( array_key_exists('1', $error_file_info) ) {
+							$error_file_line = $error_file_info[1];
+						}
+					}
+
+					// Shorten the file path where the error occurred
+					$error_file_path = str_replace( ABSPATH, '/', $error_file_path );
+
+					// Define whether source of error is WP Core, Theme, Plugin or Other
+
+					if ( ( false !== strpos( $error_file, '/wp-admin/' ) ) || 
+						   ( false !== strpos( $error_file, '/wp-includes/' ) ) ) {
+						$error_source = __( 'WordPress core', 'debug-log-manager' );
+					} elseif ( ( false !== strpos( $error_file, '/wp-content/themes/' ) ) ) {
+						$error_source = __( 'Theme', 'debug-log-manager' );
+					} elseif ( ( false !== strpos( $error_file, '/wp-content/plugins/' ) ) ) {
+						$error_source = __( 'Plugin', 'debug-log-manager' );
+					} else {
+						$error_source = '';	
+					}
+
+					// Get plugin/theme directory name of error file when error source is plugin or theme
+
+					if ( ( 'Plugin' == $error_source ) || ( 'Theme' == $error_source ) ) {
+						$error_file_path_parts = explode( '/', $error_file_path );
+						$error_file_directory = $error_file_path_parts[3];
+					}
+
+					// Get plugin name
+
+					$plugins = get_plugins();
+
+					if ( 'Plugin' == $error_source ) {
+						foreach ( $plugins as $plugin_file_name => $plugin_info ) {
+							if ( false !== strpos( $plugin_file_name, $error_file_directory ) ) {
+								$error_source_plugin_name = $plugin_info['Name'];
+								$error_source_plugin_uri = $plugin_info['PluginURI'];
+								// $error_source_plugin_version = $plugin_info['Version'];
+							}
+						}
+					}
+
+					// Get theme name
+
+					if ( 'Theme' == $error_source ) {
+						$theme = wp_get_theme( $error_file_directory );
+						if ( $theme->exists() ) {
+							$error_source_theme_name = $theme->get( 'Name' );
+							$error_source_theme_uri = $theme->get( 'ThemeURI' );
+							// $error_source_theme_version = $theme->get( 'Version' );
+						} else {
+							$error_source_theme_name = $error_file_directory;
+						}
+					}
+
+				} else {
+
+					$error_source = '';	
+					$error_file_path = '';
+					$error_file_line = '';
+
+				}
+
+			} else {
+
+				$error = __( 'No error message specified...', 'debug-log-manager' );
+				$error_source = '';	
+				$error_file_path = '';
+				$error_file_line = '';
+
+			}
+			
+			if ( ( false !== strpos( $error, 'PHP Fatal' )) || ( false !== strpos( $error, 'FATAL' ) ) ) {
 				$error_type 	= __( 'PHP Fatal', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Fatal error: ", "", $error );
 				$error_details 	= str_replace( "PHP Fatal: ", "", $error_details );
-			} elseif ( strpos( $error, 'PHP Warning' ) !== false ) {
+				$error_details 	= str_replace( "FATAL ", "", $error_details );
+			} elseif ( ( false !== strpos( $error, 'PHP Warning' ) ) || (  false !== strpos( $error, 'E_WARNING' ) ) ) {
 				$error_type 	= __( 'PHP Warning', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Warning: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Notice' ) !== false ) {
+				$error_details 	= str_replace( "E_WARNING: ", "", $error_details );
+			} elseif ( ( false !== strpos( $error, 'PHP Notice' ) ) || ( false !== strpos( $error, 'E_NOTICE' ) ) ) {
 				$error_type 	= __( 'PHP Notice', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Notice: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Deprecated' ) !== false ) {
+				$error_details 	= str_replace( "E_NOTICE: ", "", $error_details );
+			} elseif ( false !== strpos( $error, 'PHP Deprecated' ) ) {
 				$error_type 	= __( 'PHP Deprecated', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Deprecated: ", "", $error );
-			} elseif ( strpos( $error, 'PHP Parse' ) !== false ) {
+			} elseif ( ( false !== strpos( $error, 'PHP Parse' ) ) || ( false !== strpos( $error, 'E_PARSE' ) ) ) {
 				$error_type 	= __( 'PHP Parse', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
-			} elseif ( strpos( $error, 'WordPress database error' ) !== false ) {
+				$error_details 	= str_replace( "E_PARSE: ", "", $error_details );
+			} elseif ( false !== strpos( $error, 'EXCEPTION:' ) ) {
+				$error_type 	= __( 'PHP Exception', 'debug-log-manager' );
+				$error_details 	= str_replace( "EXCEPTION: ", "", $error );
+			} elseif ( false !== strpos( $error, 'WordPress database error' ) ) {
 				$error_type 	= __( 'Database', 'debug-log-manager' );
 				$error_details 	= str_replace( "WordPress database error ", "", $error );
-			} elseif ( strpos( $error, 'JavaScript Error' ) !== false ) {
+			} elseif ( false !== strpos( $error, 'JavaScript Error' ) ) {
 				$error_type 	= __( 'JavaScript', 'debug-log-manager' );
 				$error_details 	= str_replace( "JavaScript Error: ", "", $error );
 			} else {
 				$error_type 	= __( 'Other', 'debug-log-manager' );
 				$error_details 	= $error;
+			}
+
+			// Append error source, file path and line number info to error details
+
+			if ( ! empty( $error_source ) ) {
+				if ( 'WordPress core' == $error_source ) {
+					$error_details = $error_details . '<hr />' . $error_source . '<br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+				} elseif ( 'Theme' == $error_source ) {
+					$error_details = $error_details . '<hr />' . $error_source . ': ' . $error_source_theme_name . '<a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-uri"><span class="dashicons dashicons-external"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+				} elseif ( 'Plugin' == $error_source ) {
+					$error_details = $error_details . '<hr />' . $error_source . ': ' . $error_source_plugin_name . '<a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-uri"><span class="dashicons dashicons-external"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+				}
 			}
 
 			// https://www.php.net/manual/en/function.array-search.php#120784
@@ -456,6 +576,7 @@ class Debug_Log {
 				<option value="<?php esc_attr_e( 'PHP Notice', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Notice', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Deprecated', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Deprecated', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Parse', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Parse', 'debug-log-manager' ); ?></option>
+				<option value="<?php esc_attr_e( 'PHP Exception', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Exception', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'Database', 'debug-log-manager' ); ?>"><?php esc_html_e( 'Database', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'JavaScript', 'debug-log-manager' ); ?>"><?php esc_html_e( 'JavaScript', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'Other', 'debug-log-manager' ); ?>"><?php esc_html_e( 'Other', 'debug-log-manager' ); ?></option>				
@@ -536,6 +657,24 @@ class Debug_Log {
 
 			.dlm-dashboard-widget-entry:nth-child(odd) {
 				background-color: #f6f7f7;
+			}
+
+			.dlm-dashboard-widget-entry-message a.error-source-uri {
+			    position: relative;
+			    top: -1px;
+			    margin-left: 2px;
+			    color: #777;
+			    text-decoration: none;
+			}
+
+			.dlm-dashboard-widget-entry-message a.error-source-uri span {
+			    font-size: 18px;
+			    width: 18px;
+			    height: 18px;
+			}
+
+			.dlm-dashboard-widget-entry-message a.error-source-uri:hover {
+			    color: #2271b1;
 			}
 
 			.dlm-dashboard-widget-entry-meta {
