@@ -23,6 +23,7 @@
 		// Plugin selector label
 		$(".fileedit-sub label#theme-plugin-editor-selector").text($(".fileedit-sub label#theme-plugin-editor-selector").text().replace("edit", "view"));
 
+		$('.editor-notices').hide();
 		$('.submit').hide();
 
 	}
@@ -34,6 +35,7 @@
 
 		$('.fileedit-sub h2').text($(".fileedit-sub h2").text().replace("Viewing", "Editing"));
 
+		$('.editor-notices').show();
 		$('.submit').show();
 	}
 
