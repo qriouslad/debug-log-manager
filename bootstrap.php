@@ -112,6 +112,7 @@ class Debug_Log_Manager {
 		add_action( 'wp_ajax_toggle_autorefresh', [ $this->debug_log, 'toggle_autorefresh' ] );
 		add_action( 'wp_ajax_get_latest_entries', [ $this->debug_log, 'get_latest_entries' ] );
 		add_action( 'wp_ajax_clear_log', [ $this->debug_log, 'clear_log' ] );
+		add_action( 'wp_ajax_disable_wp_file_editor', [ $this->debug_log, 'disable_wp_file_editor' ] );
 		add_action( 'wp_ajax_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		add_action( 'wp_ajax_nopriv_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 
@@ -246,9 +247,13 @@ class Debug_Log_Manager {
 				?>
 			</div>
 			<div class="dlm-footer">
-				<div class="dlm-log-file">
+				<div id="dlm-log-file-location-section" class="dlm-footer-section">
 					<div class="dlm-log-file-location"><strong><?php esc_html_e( 'Log file', 'debug-log-manager' ); ?></strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
-					<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear"><?php esc_html_e( 'Clear Log', 'debug-log-manager' ); ?></button>
+					<button id="dlm-log-clear" class="button button-small button-secondary dlm-footer-button dlm-log-clear"><?php esc_html_e( 'Clear Log', 'debug-log-manager' ); ?></button>
+				</div>
+				<div id="dlm-disable-wp-file-editor-section" class="dlm-footer-section dlm-top-border" style="display:none;">
+					<div><?php esc_html_e( 'Once error logging is enabled, the core\'s plugin/theme editor stays enabled even if error logging has been disabled later on. This allows for viewing the files where errors occurred even when logging has been disabled. You can optionally disable the editor here once you\'re done debugging.', 'debug-log-manager' ); ?></div>
+					<button id="dlm-disable-wp-file-editor" class="button button-small button-secondary dlm-footer-button dlm-disable-wp-file-editor"><?php esc_html_e( 'Disable Editor', 'debug-log-manager' ); ?></button>
 				</div>
 				<?php
 					echo $this->wp_config->wpconfig_file( 'status' );
@@ -371,6 +376,7 @@ class Debug_Log_Manager {
 					'toggleDebugSuccess'	=> __( 'Error logging has been enabled and the latest entries have been loaded.', 'debug-log-manager' ),
 					'copySuccess'			=> __( 'Entries have been copied from an existing debug.log file.', 'debug-log-manager' ),
 					'logFileCleared'		=> __( 'Log file has been cleared.', 'debug-log-manager' ),
+					'editoDisabled'			=> __( 'WordPress plugin/theme editor has been disabled. ', 'debug-log-manager' ),
 					'paginationActive'		=> __( 'Pagination is active. Auto-refresh has been disabled.', 'debug-log-manager' ),
 				),
 				'dataTable'			=> array(
