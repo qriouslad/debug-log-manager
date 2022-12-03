@@ -41,11 +41,21 @@
     border-top: 1px solid #f5f5f5;
 }
 
-.dlm-log-file {
+.dlm-footer-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+}
+
+.dlm-top-border {
+    border-top: 1px solid #dcdcde;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.dlm-footer-button {
+    margin-left: 12px !important;
 }
 
 .wrap h1.dlm-heading {
@@ -209,24 +219,47 @@ table.dataTable tfoot th {
     width: calc(100% - 16px - 96px - 160px);
 }
 
-#debug-log .dlm-entry-details a.error-source-uri,
-#debug-log tr td:nth-child(3) a.error-source-uri {
-    position: relative;
-    top: -1px;
-    margin-left: 2px;
-    color: #777;
+#debug-log .dlm-entry-details a.error-source-link,
+#debug-log tr td:nth-child(3) a.error-source-link {
+    color: #50575e;
 }
 
-#debug-log .dlm-entry-details a.error-source-uri span,
-#debug-log tr td:nth-child(3) a.error-source-uri span {
+#debug-log .dlm-entry-details a.error-source-link span,
+#debug-log tr td:nth-child(3) a.error-source-link span {
+    position: relative;
+    margin-left: 2px;
+    color: #777;
     font-size: 18px;
     width: 18px;
     height: 18px;
+    transition: .25s;
 }
 
-#debug-log .dlm-entry-details a.error-source-uri:hover,
-#debug-log tr td:nth-child(3) a.error-source-uri:hover {
+#debug-log .dlm-entry-details a.error-source-link span.offset-up,
+#debug-log tr td:nth-child(3) a.error-source-link span.offset-up {
+    top: -1px;
+}
+
+#debug-log .dlm-entry-details a.error-source-link span.offset-down,
+#debug-log tr td:nth-child(3) a.error-source-link span.offset-down {
+    top: 1px;
+}
+
+#debug-log .dlm-entry-details a.error-source-link:hover,
+#debug-log tr td:nth-child(3) a.error-source-link:hover,
+#debug-log .dlm-entry-details a.error-source-link:hover span,
+#debug-log tr td:nth-child(3) a.error-source-link:hover span {
     color: #2271b1;
+}
+
+#debug-log .dlm-entry-details a.error-source-link:hover,
+#debug-log tr td:nth-child(3) a.error-source-link:hover {
+    text-decoration: underline;
+}
+
+#debug-log .dlm-entry-details a.error-source-link:hover span,
+#debug-log tr td:nth-child(3) a.error-source-link:hover span {
+    text-decoration: none;
 }
 
 #debug-log td {
