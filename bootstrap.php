@@ -41,6 +41,8 @@ class Debug_Log_Manager {
 	 */
 	private function __construct() {
 
+		global $pagenow;
+
 		// Register admin menu and subsequently the main admin page
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
 
@@ -63,6 +65,16 @@ class Debug_Log_Manager {
 
 			}
 
+		}
+
+		// Enqueue admin scripts and styles on plugin editor page
+		if ( 'plugin-editor.php' === $pagenow ) {
+			add_action( 'admin_enqueue_scripts', [ $this, 'plugin_editor_scripts' ] );
+		}
+
+		// Enqueue admin scripts and styles on theme editor page
+		if ( 'theme-editor.php' === $pagenow ) {
+			add_action( 'admin_enqueue_scripts', [ $this, 'theme_editor_scripts' ] );
 		}
 
 		// Add admin bar icon if error logging is enabled and admin URL is not the plugin's main page. It will show on on the front end too (when logged-in), as we're also logging JavaScript errors.
@@ -378,6 +390,30 @@ class Debug_Log_Manager {
 				),
 			) 
 		);
+
+	}
+
+	/**
+	 * Scripts for WP plugin editor page
+	 *
+	 * @since 2.0.0
+	 */
+	public function plugin_editor_scripts() {
+
+		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM_URL . 'assets/css/plugin-theme-editor.css', array(), DLM_VERSION );
+		wp_enqueue_script( 'dlm-plugin-editor', DLM_URL . 'assets/js/plugin-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM_VERSION, false );
+
+	}
+
+	/**
+	 * Scripts for WP theme editor page
+	 *
+	 * @since 2.0.0
+	 */
+	public function theme_editor_scripts() {
+
+		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM_URL . 'assets/css/plugin-theme-editor.css', array(), DLM_VERSION );
+		wp_enqueue_script( 'dlm-theme-editor', DLM_URL . 'assets/js/theme-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM_VERSION, false );
 
 	}
 

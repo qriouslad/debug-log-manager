@@ -1,0 +1,16 @@
+.fileedit-title {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.wp-core-ui .fileedit-title .button.button-small {
+	min-height: 30px;
+    height: 30px;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 13px;
+	position: relative;
+    top: 2px;
+    margin-left: 12px;
+}
