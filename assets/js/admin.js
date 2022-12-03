@@ -21,8 +21,10 @@
 
 		if ( logStatus == 'enabled' ) {
 			$('.debug-log-checkbox').prop('checked', true);
+			$('#dlm-disable-wp-file-editor-section').fadeOut();
 		} else {
 			$('.debug-log-checkbox').prop('checked', false);					
+			$('#dlm-disable-wp-file-editor-section').fadeIn();
 		}
 
 		// Get auto-refresh feature status on page load
@@ -64,10 +66,8 @@
 
 					if ( dataObject.status == 'enabled' ) {
 						$('.debug-log-switcher').attr('data-status','enabled');
-						// Redraw table with new data: https://stackoverflow.com/a/25929434
-						var table = $("#debug-log").DataTable();
-						table.clear().rows.add(dataObject.entries); 
-						table.columns.adjust().draw();
+						getLatestEntries();
+						$('#dlm-disable-wp-file-editor-section').fadeOut();
 						if ( dataObject.copy == false ) {
 							$.toast({
 								// heading: 'Success!',
@@ -88,6 +88,7 @@
 						}
 					} else if ( dataObject.status == 'disabled' ) {
 						$('.debug-log-switcher').attr('data-status','disabled');
+						$('#dlm-disable-wp-file-editor-section').fadeIn();
 						clearInterval(autoRefreshIntervalId);
 						if ( autorefreshStatus == 'enabled' ) {
 							$('.debug-autorefresh-switcher').click();
@@ -167,7 +168,7 @@
 					var table = $("#debug-log").DataTable();
 					table.clear().draw();
 					$('#dlm-log-file-size').empty();
-					$('#dlm-log-file-size').prepend('0 B')
+					$('#dlm-log-file-size').prepend('0 B');
 					$.toast({
 						// heading: 'Success!',
 						text: dlmVars.toastMessage.logFileCleared,
@@ -179,6 +180,40 @@
 						bgColor: '#52a552',
 						textColor: '#ffffff'
 					});
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+		});
+
+		// Disable WP core's plugin/theme editor
+		
+		$('#dlm-disable-wp-file-editor').click( function() {
+
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'disable_wp_file_editor'
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					if ( dataObject.status == 'disabled' ) { // plugin/theme editor has been disabled
+						// Redraw table with new data: https://stackoverflow.com/a/25929434
+						getLatestEntries();
+						$.toast({
+							// heading: 'Success!',
+							text: dlmVars.toastMessage.editoDisabled,
+							showHideTransition: 'slide',
+							icon: 'success',
+							allowToastClose: true,
+							hideAfter: 7500, // true, false or number (miliseconds)
+							position: 'bottom-right',
+							bgColor: '#52a552',
+							textColor: '#ffffff'
+						});
+					}
 				},
 				error:function(errorThrown) {
 					console.log(errorThrown);
@@ -278,6 +313,7 @@
 				success:function(data) {
 					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
 					const dataObject = JSON.parse(data); // create an object
+					// Redraw table with new data: https://stackoverflow.com/a/25929434
 					var table = $("#debug-log").DataTable();
 					table.clear().rows.add(dataObject.entries); 
 					table.columns.adjust().draw();

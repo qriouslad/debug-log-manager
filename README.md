@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 6.1.1  
-Stable tag: 1.9.1  
+Stable tag: 2.0.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -24,6 +24,7 @@ Debug Log Manager allows you to:
 * Parse the debug.log file and **view distinct errors and when they last occurred**, which is better than looking at the raw log file (potentially) full of repetitive errors. 
 * **Quickly find and filter more specific errors** for your debugging work.
 * **Make error details easier to read** by identifying error source (core / plugin / theme) and separating file path and line number.
+* **Easily view files where PHP errors occurred**. This includes WordPress core, plugin and theme files.
 * **Enable auto-refresh** to automatically load new log entries. No need to manually reload the browser tab, or to ```tail -f``` the log file on the command line.
 * **Easily clear the debug.log file** to save disk space and more easily observe newly occurring errors on your site.
 * **Show an indicator on the admin bar** when error logging is enabled.
@@ -52,10 +53,10 @@ A simpler and more compact version of Debug Log Manager is included as part of t
 
 1. Debug Log Manager main page
    ![Debug Log Manager main page](.wordpress-org/screenshot-1.png)
-2. Debug log entries sample
-   ![Debug log entries sample](.wordpress-org/screenshot-2.png)
-3. More debug log entries sample
-   ![More debug log entries sample](.wordpress-org/screenshot-3.png)
+2. Fatal errors with the stack trace
+   ![Fatal errors with the stack trace](.wordpress-org/screenshot-2.png)
+3. More log entries sample
+   ![More log entries sample](.wordpress-org/screenshot-3.png)
 4. Admin bar indicator and dashboard widget
    ![Admin bar indicator and dashboard widget](.wordpress-org/screenshot-4.png)
 
@@ -70,6 +71,12 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 2.0.0 (2022.12.03)
+
+* WordPres core, plugin or theme files where PHP errors occurred can now be easily viewed by simply clicking on the file path in each error entry. This is done using core's plugin/theme editor (modified to load in view-only mode) and the [wordpress-develop](https://github.com/WordPress/wordpress-develop) repo on Github for core files.
+* SCRIPT_DEBUG constant is now set to true in wp-config when error logging is enabled, which should help with debugging javascript errors.
+* Added a button to disable plugin/theme editor below the error entries table. This is for when you're done with debugging, i.e. you've disabled error logging and cleared the debug log file, and wants to keep things secure.
 
 ### 1.9.1 (2022.12.02)
 

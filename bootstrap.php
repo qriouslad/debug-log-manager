@@ -41,6 +41,8 @@ class Debug_Log_Manager {
 	 */
 	private function __construct() {
 
+		global $pagenow;
+
 		// Register admin menu and subsequently the main admin page
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
 
@@ -63,6 +65,16 @@ class Debug_Log_Manager {
 
 			}
 
+		}
+
+		// Enqueue admin scripts and styles on plugin editor page
+		if ( 'plugin-editor.php' === $pagenow ) {
+			add_action( 'admin_enqueue_scripts', [ $this, 'plugin_editor_scripts' ] );
+		}
+
+		// Enqueue admin scripts and styles on theme editor page
+		if ( 'theme-editor.php' === $pagenow ) {
+			add_action( 'admin_enqueue_scripts', [ $this, 'theme_editor_scripts' ] );
 		}
 
 		// Add admin bar icon if error logging is enabled and admin URL is not the plugin's main page. It will show on on the front end too (when logged-in), as we're also logging JavaScript errors.
@@ -100,6 +112,7 @@ class Debug_Log_Manager {
 		add_action( 'wp_ajax_toggle_autorefresh', [ $this->debug_log, 'toggle_autorefresh' ] );
 		add_action( 'wp_ajax_get_latest_entries', [ $this->debug_log, 'get_latest_entries' ] );
 		add_action( 'wp_ajax_clear_log', [ $this->debug_log, 'clear_log' ] );
+		add_action( 'wp_ajax_disable_wp_file_editor', [ $this->debug_log, 'disable_wp_file_editor' ] );
 		add_action( 'wp_ajax_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		add_action( 'wp_ajax_nopriv_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 
@@ -234,9 +247,13 @@ class Debug_Log_Manager {
 				?>
 			</div>
 			<div class="dlm-footer">
-				<div class="dlm-log-file">
+				<div id="dlm-log-file-location-section" class="dlm-footer-section">
 					<div class="dlm-log-file-location"><strong><?php esc_html_e( 'Log file', 'debug-log-manager' ); ?></strong>: <?php echo esc_html( $log_file_shortpath ); ?> (<span id="dlm-log-file-size"><?php echo esc_html( $file_size ); ?></span>)</div>
-					<button id="dlm-log-clear" class="button button-small button-secondary dlm-log-clear"><?php esc_html_e( 'Clear Log', 'debug-log-manager' ); ?></button>
+					<button id="dlm-log-clear" class="button button-small button-secondary dlm-footer-button dlm-log-clear"><?php esc_html_e( 'Clear Log', 'debug-log-manager' ); ?></button>
+				</div>
+				<div id="dlm-disable-wp-file-editor-section" class="dlm-footer-section dlm-top-border" style="display:none;">
+					<div><?php esc_html_e( 'Once error logging is enabled, the core\'s plugin/theme editor stays enabled even if error logging has been disabled later on. This allows for viewing the files where errors occurred even when logging has been disabled. You can optionally disable the editor here once you\'re done debugging.', 'debug-log-manager' ); ?></div>
+					<button id="dlm-disable-wp-file-editor" class="button button-small button-secondary dlm-footer-button dlm-disable-wp-file-editor"><?php esc_html_e( 'Disable Editor', 'debug-log-manager' ); ?></button>
 				</div>
 				<?php
 					echo $this->wp_config->wpconfig_file( 'status' );
@@ -359,6 +376,7 @@ class Debug_Log_Manager {
 					'toggleDebugSuccess'	=> __( 'Error logging has been enabled and the latest entries have been loaded.', 'debug-log-manager' ),
 					'copySuccess'			=> __( 'Entries have been copied from an existing debug.log file.', 'debug-log-manager' ),
 					'logFileCleared'		=> __( 'Log file has been cleared.', 'debug-log-manager' ),
+					'editoDisabled'			=> __( 'WordPress plugin/theme editor has been disabled. ', 'debug-log-manager' ),
 					'paginationActive'		=> __( 'Pagination is active. Auto-refresh has been disabled.', 'debug-log-manager' ),
 				),
 				'dataTable'			=> array(
@@ -378,6 +396,30 @@ class Debug_Log_Manager {
 				),
 			) 
 		);
+
+	}
+
+	/**
+	 * Scripts for WP plugin editor page
+	 *
+	 * @since 2.0.0
+	 */
+	public function plugin_editor_scripts() {
+
+		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM_URL . 'assets/css/plugin-theme-editor.css', array(), DLM_VERSION );
+		wp_enqueue_script( 'dlm-plugin-editor', DLM_URL . 'assets/js/plugin-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM_VERSION, false );
+
+	}
+
+	/**
+	 * Scripts for WP theme editor page
+	 *
+	 * @since 2.0.0
+	 */
+	public function theme_editor_scripts() {
+
+		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM_URL . 'assets/css/plugin-theme-editor.css', array(), DLM_VERSION );
+		wp_enqueue_script( 'dlm-theme-editor', DLM_URL . 'assets/js/theme-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM_VERSION, false );
 
 	}
 
