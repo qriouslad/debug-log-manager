@@ -267,6 +267,11 @@ table.dataTable tfoot th {
     overflow-wrap: break-word; /* Renamed property in CSS3 draft spec */
 }
 
+#debug-log td pre {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 .dataTables_wrapper .dataTables_length,
 .dataTables_wrapper .dataTables_filter {
     margin-bottom: 8px;
