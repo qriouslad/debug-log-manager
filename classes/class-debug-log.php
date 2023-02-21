@@ -325,6 +325,9 @@ class Debug_Log {
         $log 	= file_get_contents( $debug_log_file_path );
 
         $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
+
+        $log 	= str_replace( "[\"", "^\"", $log ); // certain error message contains the '["' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^"'
+
         $log = str_replace( "[internal function]", "^internal function^", $log );
 
         // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
@@ -337,16 +340,17 @@ class Debug_Log {
 
         foreach ( $lines as $line ) {
         	if ( !empty($line) ) {
-        		$line 				= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
-        		$line 				= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
+        		$line 			= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
+        		$line 			= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
 				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
-	        		$line 			= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
+	        		$line 		= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
 	        	}
         		$line 			= str_replace( "Argument <hr />#", "Argument #", $line ); // remove hr on certain error message
         		$line 			= str_replace( "parameter <hr />#", "parameter #", $line ); // remove hr on certain error message
         		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
         		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
-        		$line = str_replace( "^internal function^", "[internal function]", $line );
+        		$line 			= str_replace( "^\"", "[\"", $line ); // reverse the temporary replacement of '["' with '^"'
+        		$line 			= str_replace( "^internal function^", "[internal function]", $line );
 	        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
 	        	$prepended_lines[] 	= $prepended_line;
         	}
@@ -505,6 +509,11 @@ class Debug_Log {
 			} else {
 				$error_type 	= __( 'Other', 'debug-log-manager' );
 				$error_details 	= $error;
+				if ( $this->is_json( $error_details ) ) {
+					// For JSON string in error message, originally added via error_log( json_encode( $variable ) )
+					// This will output said JSON string as well-formated array in the log entries table
+					$error_details = '<pre>' . print_r( json_decode( $error_details, true ), true ) . '</pre>';
+				}
 			}
 
 			// Append error source, file path and line number info to error details. If core plugin/theme editor is not disabled, link file path to the editor view.
@@ -893,6 +902,19 @@ class Debug_Log {
 			wp_die();
 
 		}
+
+	}
+
+	/**
+	 * Check if a string is valid JSON
+	 *
+	 * @link https://stackoverflow.com/a/6041773
+	 * @since 2.1.0
+	 */
+	public function is_json( $string ) {
+
+		json_decode( $string );
+		return json_last_error() === JSON_ERROR_NONE;
 
 	}
 
