@@ -367,14 +367,6 @@ class Debug_Log {
 			$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
 
 			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
-
-			// Initialize error-related variables
-			$error = '';
-			$error_source = '';	
-			$error_file = '';
-			$error_file_path = '';
-			$error_file_line = '';
-
 			if ( array_key_exists('1', $line) ) {
 				$error = $line[1];
 
@@ -387,9 +379,7 @@ class Debug_Log {
 					if ( false !== strpos( $error, 'Stack trace:' ) ) {
 						$error_parts = explode( 'Stack trace:', $error );
 						$error_message = str_replace( '<hr />', '', $error_parts[0] );
-						if ( isset( $error_parts[1] ) ) {
-							$error_stack_trace = ' ' . $error_parts[1];
-						}
+						$error_stack_trace = ' ' . $error_parts[1];
 
 						$error_message_parts = explode( ' in /', $error_message );
 
@@ -398,26 +388,22 @@ class Debug_Log {
 						// Shorten the file path in the error details
 						$error = str_replace( ABSPATH, '/', $error );
 
-						if ( isset( $error_message_parts[1] ) ) {
-							$error_file = '/' . $error_message_parts[1];
-							$error_file_info = explode ( ':', $error_file );
-							$error_file_path = $error_file_info[0];
-							if ( array_key_exists('1', $error_file_info) ) {
-								$error_file_line = $error_file_info[1];
-							}
+						$error_file = '/' . $error_message_parts[1];
+						$error_file_info = explode ( ':', $error_file );
+						$error_file_path = $error_file_info[0];
+						if ( array_key_exists('1', $error_file_info) ) {
+							$error_file_line = $error_file_info[1];
 						}
 					} else {
 						$error_message_parts = explode( ' in /', $error );
 
 						$error = $error_message_parts[0];
-						if ( isset( $error_message_parts[1] ) ) {
-							$error_file = '/' . $error_message_parts[1];
+						$error_file = '/' . $error_message_parts[1];
 
-							$error_file_info = explode ( ' on line ', $error_file );
-							$error_file_path = $error_file_info[0];
-							if ( array_key_exists('1', $error_file_info) ) {
-								$error_file_line = $error_file_info[1];
-							}
+						$error_file_info = explode ( ' on line ', $error_file );
+						$error_file_path = $error_file_info[0];
+						if ( array_key_exists('1', $error_file_info) ) {
+							$error_file_line = $error_file_info[1];
 						}
 					}
 
@@ -473,11 +459,20 @@ class Debug_Log {
 						}
 					}
 
+				} else {
+
+					$error_source = '';	
+					$error_file_path = '';
+					$error_file_line = '';
+
 				}
 
 			} else {
 
 				$error = __( 'No error message specified...', 'debug-log-manager' );
+				$error_source = '';	
+				$error_file_path = '';
+				$error_file_line = '';
 
 			}
 			

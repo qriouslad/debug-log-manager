@@ -5,7 +5,7 @@ Donate link: https://paypal.me/qriouslad
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 6.1.1  
-Stable tag: 2.1.0  
+Stable tag: 2.1.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -29,7 +29,7 @@ Debug Log Manager allows you to:
 * **Easily clear the debug.log file** to save disk space and more easily observe newly occurring errors on your site.
 * **Show an indicator on the admin bar** when error logging is enabled.
 * **Add a dashboard widget** showing the latest errors logged.
-* **Use error_log( json_encode( $variable ) )** to output content of a variable in your debug log.
+* **Use `error_log()`** to output error info into your debug log. e.g. `error_log( $error_message )` for simple, string-based error message, or `error_log( json_encode( $error ) )` when inspecting a more complex error info, e.g. array or object.
 
 A simpler and more compact version of Debug Log Manager is included as part of the [System Dashboard plugin](https://wordpress.org/plugins/system-dashboard/), should you prefer a single plugin that does more.
 
@@ -73,9 +73,13 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 2.1.1 (2023.02.25)
+
+* Fixed "Undefined offset" error. Props to [@guyinpv](https://profiles.wordpress.org/guyinpv/) for [reporting the issue](https://wordpress.org/support/topic/undefined-offset-log-message/).
+
 ### 2.1.0 (2023.02.21)
 
-* Correctly parse the content of entries added via the error_log() function. Instead of print_r, please use json_encode, if you're trying to output the content of a PHP $variable into the debug log. e.g. error_log( json_encode( $variable_name ) ). Props to [@guyinpv](https://profiles.wordpress.org/guyinpv/) for [reporting the issue](https://wordpress.org/support/topic/doesnt-show-full-message/).
+* Correctly parse the content of entries added via the `error_log()` function. Instead of `print_r()`, please use `json_encode()`, if you're trying to output a PHP `$variable` containing an array or object into the debug log. e.g. `error_log( json_encode( $variable_name ) )`. Props to [@guyinpv](https://profiles.wordpress.org/guyinpv/) for [reporting the issue](https://wordpress.org/support/topic/doesnt-show-full-message/).
 
 ### 2.0.0 (2022.12.03)
 
