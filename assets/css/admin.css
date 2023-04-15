@@ -287,6 +287,42 @@ table.dataTable tfoot th {
     border-color: #aaa;
 }
 
+/* Button Style - Outlined */
+
+.wp-core-ui .vi-header .button-primary {
+    font-weight: 500;
+    transition: .1s;
+}
+
+.wp-core-ui .button-primary.plugin-sponsor {
+    margin-left: 16px;
+    color: #de4c73;
+    background: transparent;
+    border-color: #de4c73;
+}
+
+.wp-core-ui .button-primary.plugin-sponsor:hover {
+    color: #fff;
+    background: #de4c73;
+}
+
+.wp-core-ui .button-primary.plugin-upgrade {
+    margin-left: 8px;
+    color: green;
+    background: transparent;
+    border-color: green;
+}
+
+.wp-core-ui .button-primary.plugin-upgrade:hover {
+    color: #fff;
+    background: green;
+}
+
+.wp-core-ui .button-primary.plugin-sponsor:focus,
+.wp-core-ui .button-primary.plugin-upgrade:focus {
+    box-shadow: none;
+}
+
 /* jQuery Toast */
 
 .jq-toast-single h2 {

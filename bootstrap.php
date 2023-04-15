@@ -59,6 +59,10 @@ class Debug_Log_Manager {
 
 				// Update footer text
 				add_filter( 'admin_footer_text', [ $this, 'footer_text' ] );
+				
+				// Replace WP version text in footer
+				add_filter( 'update_footer', [ $this, 'footer_version_text' ], 20 );
+
 
 				// Enqueue admin scripts and styles only on the plugin's main page
 				add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
@@ -95,9 +99,8 @@ class Debug_Log_Manager {
 		}
 
 		// Add dashboard widget
-		
 		add_action( 'wp_dashboard_setup', [ $this, 'add_dashboard_widget' ] );
-
+		
 		// Add inline CSS for the admin bar icon (menu item)
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_bar_icon_css' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'admin_bar_icon_css' ] );
@@ -175,8 +178,17 @@ class Debug_Log_Manager {
 	 */
 	public function footer_text() {
 		?>
-			<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank"><?php esc_html_e( 'Debug Log Manager', 'debug-log-manager' ); ?></a> (<a href="https://github.com/qriouslad/debug-log-manager" target="_blank">github</a>) <?php esc_html_e( 'is built using', 'debug-log-manager' ); ?> <a href="https://datatables.net/" target="_blank">DataTables.js</a>, <a href="https://github.com/AndrewHenderson/jSticky" target="_blank">jSticky</a> <?php esc_html_e( 'and', 'debug-log-manager' ); ?> <a href="https://github.com/kamranahmedse/jquery-toast-plugin" target="_blank">jQuery Toast</a>.
+			<a href="https://bowo.io/dotorg-dlm" target="_blank"><?php esc_html_e( 'Debug Log Manager', 'debug-log-manager' ); ?></a> is on <a href="https://bowo.io/github-dlm" target="_blank">github</a>
 		<?php
+	}
+	
+	/**
+	 * Replace WP version number text in footer
+	 * 
+	 * @since 2.1.4
+	 */
+	public function footer_version_text() {
+        return 'Also by Bowo &#8594; <a href="https://bowo.io/wpn-dlm" target="_blank">WordPress Newsboard</a>: The latest from 100+ sources';		
 	}
 
 	/**
@@ -218,13 +230,12 @@ class Debug_Log_Manager {
 		<div class="wrap dlm-main-page">
 			<div id="dlm-header" class="dlm-header">
 				<div class="dlm-header-left">
-					<h1 class="dlm-heading"><?php esc_html_e( 'Debug Log Manager', 'debug-log-manager' ); ?> <small><?php esc_html_e( 'by', 'debug-log-manager' ); ?> <a href="https://bowo.io" target="_blank">bowo.io</a></small></h1>
+					<h1 class="dlm-heading"><?php esc_html_e( 'Debug Log Manager', 'debug-log-manager' ); ?> <small><?php esc_html_e( 'by', 'debug-log-manager' ); ?> <a href="https://bowo.io/bowoio-dlm" target="_blank">Bowo</a></small></h1>
 				</div>
 				<div class="dlm-header-right">
-					<a href="https://wordpress.org/plugins/debug-log-manager/" target="_blank" class="dlm-header-action"><span>&#8505;</span> <?php esc_html_e( 'Info', 'debug-log-manager' ); ?></a>
-					<a href="https://wordpress.org/plugins/debug-log-manager/#reviews" target="_blank" class="dlm-header-action"><span>★</span> <?php esc_html_e( 'Review', 'debug-log-manager' ); ?></a>
-					<a href="https://wordpress.org/support/plugin/debug-log-manager/" target="_blank" class="dlm-header-action">✚ <?php esc_html_e( 'Feedback', 'debug-log-manager' ); ?></a>
-					<a href="https://paypal.me/qriouslad" target="_blank" class="dlm-header-action">&#10084; <?php esc_html_e( 'Donate', 'debug-log-manager' ); ?></a>
+					<a href="https://bowo.io/review-dlm" target="_blank" class="dlm-header-action"><span>★</span> <?php esc_html_e( 'Review', 'debug-log-manager' ); ?></a>
+					<a href="https://bowo.io/feedback-dlm" target="_blank" class="dlm-header-action">✚ <?php esc_html_e( 'Feedback', 'debug-log-manager' ); ?></a>
+					<a href="https://bowo.io/sponsor-dlm" target="_blank" class="button button-primary plugin-sponsor">&#10084; <?php esc_html_e( 'Sponsor', 'debug-log-manager' ); ?></a>
 				</div>
 			</div>
 			<div class="dlm-body">
