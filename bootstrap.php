@@ -198,19 +198,26 @@ class Debug_Log_Manager {
 	 */
 	public function admin_bar_icon( WP_Admin_Bar $wp_admin_bar ) {
 
-		// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_menu/
-		// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_node/ for more examples
-		$wp_admin_bar->add_menu( array(
-			'id'		=> DLM_SLUG,
-			'parent'	=> 'top-secondary',
-			'group'		=> null,
-			'title'		=> '<span class="dashicons dashicons-warning"></span>',
-			'href'		=> admin_url( 'tools.php?page=' . DLM_SLUG ),
-			'meta'		=> array(
-				'class'		=> 'dlm-admin-bar-icon',
-				'title'		=> esc_attr__( 'Error logging is enabled. Click to access the Debug Log Manager.', 'debug-log-manager' )
-			),
-		) );
+		$current_user = wp_get_current_user();
+		$current_user_roles = array_values( $current_user->roles ); // indexed array
+
+		if ( in_array( 'administrator', $current_user_roles ) ) {
+
+			// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_menu/
+			// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_node/ for more examples
+			$wp_admin_bar->add_menu( array(
+				'id'		=> DLM_SLUG,
+				'parent'	=> 'top-secondary',
+				'group'		=> null,
+				'title'		=> '<span class="dashicons dashicons-warning"></span>',
+				'href'		=> admin_url( 'tools.php?page=' . DLM_SLUG ),
+				'meta'		=> array(
+					'class'		=> 'dlm-admin-bar-icon',
+					'title'		=> esc_attr__( 'Error logging is enabled. Click to access the Debug Log Manager.', 'debug-log-manager' )
+				),
+			) );
+
+		}
 
 	}
 
