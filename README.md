@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
-Tested up to: 6.1.1  
-Stable tag: 2.1.4  
+Tested up to: 6.2.2  
+Stable tag: 2.2.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -35,11 +35,11 @@ A simpler and more compact version of Debug Log Manager is included as part of t
 
 ### Give Back
 
-* [A nice review](https://wordpress.org/plugins/debug-log-manager/#reviews) would be great!
-* [Give feedback](https://wordpress.org/support/plugin/debug-log-manager/) and help improve future versions.
+* [A nice review](https://bowo.io/review-dlm) would be great!
+* [Give feedback](https://bowo.io/feedback-dlm) and help improve future versions.
 * [Help translate](https://translate.wordpress.org/projects/wp-plugins/debug-log-manager/) into your language.
-* [Github repo](https://github.com/qriouslad/debug-log-manager) to contribute code.
-* [Donate](https://paypal.me/qriouslad) and support my work.
+* [Github repo](https://bowo.io/github-dlm) to contribute code.
+* [Sponsor](https://bowo.io/dotorg-sponsor-dlm) my work.
 
 ### Check These Out Too
 
@@ -49,6 +49,7 @@ A simpler and more compact version of Debug Log Manager is included as part of t
 * [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
 * [Admin and Site Enhancements](https://wordpress.org/plugins/admin-site-enhancements/) helps you to easily enhance various admin workflows and site aspects while replacing multiple plugins doing it.
 * [Flexible Scroll Top](https://wordpress.org/plugins/flexible-scroll-top/) and [Floating Share Buttons](https://wordpress.org/plugins/floating-share-button/) is a lightweight combo with minimalist UI.
+* [WordPress Newsboard](https://www.wpnewsboard.com/): The latest news, articles, podcasts and videos from 100+ WordPress-focused sources.
 
 ## Screenshots
 
@@ -73,10 +74,15 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 2.2.0 (2023.06.26)
+
+* Hide dashboard widget and admin bar icon for non-administrator users
+* Stop public.js from loading on the frontend if logging is disabled
+
 ### 2.1.4 (2023.04.15)
 
 * Add link to [WordPress Newsboard](https://bowo.io/wpn-dlm) in footer
-* Add link to [Github sponsorship page](https://bowo.io/dotorg-sponsor-dlm). Please consider supporting the ongoing development and maintenance of this plugin. Thanks!
+* **[SPONSORSHIP]** If you like or have benefited from this plugin in your **personal project(s), paid work and/or client site(s)**, please kindly consider [sponsoring the ongoing development and maintenance](https://bowo.io/dotorg-sponsor-dlm) of this plugin (and [my other plugins](https://profiles.wordpress.org/qriouslad/#content-plugins)) from as little as USD 1 / month. Thank you!
 
 ### 2.1.3 (2023.02.25)
 

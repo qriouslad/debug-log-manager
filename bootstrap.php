@@ -198,19 +198,26 @@ class Debug_Log_Manager {
 	 */
 	public function admin_bar_icon( WP_Admin_Bar $wp_admin_bar ) {
 
-		// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_menu/
-		// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_node/ for more examples
-		$wp_admin_bar->add_menu( array(
-			'id'		=> DLM_SLUG,
-			'parent'	=> 'top-secondary',
-			'group'		=> null,
-			'title'		=> '<span class="dashicons dashicons-warning"></span>',
-			'href'		=> admin_url( 'tools.php?page=' . DLM_SLUG ),
-			'meta'		=> array(
-				'class'		=> 'dlm-admin-bar-icon',
-				'title'		=> esc_attr__( 'Error logging is enabled. Click to access the Debug Log Manager.', 'debug-log-manager' )
-			),
-		) );
+		$current_user = wp_get_current_user();
+		$current_user_roles = array_values( $current_user->roles ); // indexed array
+
+		if ( in_array( 'administrator', $current_user_roles ) ) {
+
+			// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_menu/
+			// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_node/ for more examples
+			$wp_admin_bar->add_menu( array(
+				'id'		=> DLM_SLUG,
+				'parent'	=> 'top-secondary',
+				'group'		=> null,
+				'title'		=> '<span class="dashicons dashicons-warning"></span>',
+				'href'		=> admin_url( 'tools.php?page=' . DLM_SLUG ),
+				'meta'		=> array(
+					'class'		=> 'dlm-admin-bar-icon',
+					'title'		=> esc_attr__( 'Error logging is enabled. Click to access the Debug Log Manager.', 'debug-log-manager' )
+				),
+			) );
+
+		}
 
 	}
 
@@ -319,12 +326,17 @@ class Debug_Log_Manager {
 	 */
 	public function add_dashboard_widget() {
 
-		wp_add_dashboard_widget(
-			'debug_log_manager_widget', // widget ID
-			__( 'Debug Log | Latest Errors', 'debug-log-manager' ), // widget title
-			array( $this, 'get_dashboard_widget_entries' ) // callback #1 to display entries
-			// array( $this, 'dashboard_widget_settings' ) // callback #2 for configuration
-		);
+		$user = wp_get_current_user(); 
+		$roles = array_values( $user->roles );
+
+		if ( in_array( 'administrator', $roles ) ) {
+			wp_add_dashboard_widget(
+				'debug_log_manager_widget', // widget ID
+				__( 'Debug Log | Latest Errors', 'debug-log-manager' ), // widget title
+				array( $this, 'get_dashboard_widget_entries' ) // callback #1 to display entries
+				// array( $this, 'dashboard_widget_settings' ) // callback #2 for configuration
+			);			
+		}
 
 	}
 
@@ -476,8 +488,11 @@ class Debug_Log_Manager {
 	 * @since 1.4.0
 	 */
 	public function public_scripts() {
-
-		wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );
+		
+		$options = get_option( 'debug_log_manager', array() );
+		if ( $options['status'] == 'enabled' ) {
+			wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );		
+		}
 
         $default_value = array(
             'status'    => 'disabled',
