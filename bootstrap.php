@@ -483,8 +483,11 @@ class Debug_Log_Manager {
 	 * @since 1.4.0
 	 */
 	public function public_scripts() {
-
-		wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );
+		
+		$options = get_option( 'debug_log_manager', array() );
+		if ( $options['status'] == 'enabled' ) {
+			wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );		
+		}
 
         $default_value = array(
             'status'    => 'disabled',
