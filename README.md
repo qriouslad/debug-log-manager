@@ -14,6 +14,14 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Log PHP, database and JavaScript errors via WP_DEBUG with one click. Conveniently create, view, filter and clear the debug.log file.
 
+### What Users Say
+
+_"Proactively finding and fixing errors is essential to running a successful site... I have used a couple of other logger plugins and **this is by far the best one**."_ ~[Brian Henry](https://wordpress.org/support/topic/must-have-plugin-485/)
+
+_"**Another massive time-saving tool.**"_ ~[Jeff Starr](https://digwp.com/2023/06/plugins-troubleshoot-debug-wordpress/)
+
+_"This is a great plugin for dev especially for people who tinker in the code. Not only does it help debug things, it's a great way to learn what kinds of mistakes you commonly make, and avoid them in the future. Great job Bowo!"_ ~[PK Son](https://wordpress.org/support/topic/great-for-dev/)
+
 ## Description
 
 Debug Log Manager allows you to: 
