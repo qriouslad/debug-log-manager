@@ -5,7 +5,7 @@ Donate link: https://bowo.io/dotorg-sponsor-dlm
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 6.4.1  
-Stable tag: 2.2.1  
+Stable tag: 2.2.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -84,7 +84,11 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ### 2.2.1 (2023.11.29)
 
-* **[IMPORTANT][SECURITY]** Fixed a security issue where the debug log manager directory can be opened in the browser allowing visitors to see and download the debug log file which may contain sensitive information. **Once you update to v2.2.1, please visit the debug log page at least once**. This will create an empty index.php file in the DLM directory and prevent the issue. This was responsibly disclosed by Dmitrii Ignatyev from CleanTalk inc. on November 2, 2023. Apologies if this took me a while to get around to as I was fully occupied with the launch of [ASE Pro(https://www.wpase.com)].
+* **[SECURITY]** Improved security of ajax call to clear log file. Authorized only for site admins and secured to prevent CSRF with nonce. Props to Dmitrii Ignatyev again for reminding to check on this one as well.
+
+### 2.2.1 (2023.11.29)
+
+* **[IMPORTANT][SECURITY]** Fixed a security issue where the debug log manager directory can be opened in the browser allowing visitors to see and download the debug log file which may contain sensitive information. **Once you update to v2.2.1, please visit the debug log page at least once**. This will create an empty index.php file in the DLM directory and prevent the issue. This vulnerability was responsibly disclosed by Dmitrii Ignatyev from CleanTalk inc. on November 2, 2023. Apologies if this took me a while to get around to as I was fully occupied with the launch of [ASE Pro](https://www.wpase.com).
 
 ### 2.2.0 (2023.06.26)
 

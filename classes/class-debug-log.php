@@ -826,12 +826,20 @@ class Debug_Log {
 	 * @since 1.0.0
 	 */
 	public function clear_log() {
+		
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
+			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
 
-        $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
+		        $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 
-		file_put_contents( $debug_log_file_path, '' );
+				file_put_contents( $debug_log_file_path, '' );
 
-		echo true;
+				echo true;
+				
+			}
+
+		}
 
 	}
 

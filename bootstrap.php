@@ -118,7 +118,7 @@ class Debug_Log_Manager {
 		add_action( 'wp_ajax_disable_wp_file_editor', [ $this->debug_log, 'disable_wp_file_editor' ] );
 		add_action( 'wp_ajax_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		add_action( 'wp_ajax_nopriv_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
-
+		
 	}
 
 	/**
@@ -382,6 +382,8 @@ class Debug_Log_Manager {
 			$autorefresh_status = 'disabled';
 	        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
 		}
+		
+		$nonce = wp_create_nonce( 'dlm-app' . get_current_user_id() );
 
 		wp_localize_script( 
 			'dlm-app', 
@@ -389,6 +391,7 @@ class Debug_Log_Manager {
 			array(
 				'logStatus'			=> $log_status,
 				'autorefreshStatus'	=> $autorefresh_status,
+				'nonce'				=> $nonce,
 				'jsErrorLogging'	=> array(
 					'status'	=> '',
 					'url'		=> admin_url( 'admin-ajax.php' ),

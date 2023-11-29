@@ -162,7 +162,8 @@
 			$.ajax({
 				url: ajaxurl,
 				data: {
-					'action': 'clear_log'
+					'action': 'clear_log',
+					'nonce': dlmVars.nonce
 				},
 				success:function() {
 					var table = $("#debug-log").DataTable();
