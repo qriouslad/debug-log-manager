@@ -329,6 +329,13 @@ class Debug_Log {
 
         // Read the errors log file 
         $log 	= file_get_contents( $debug_log_file_path );
+        
+        // Ignore words between square brackets, 
+        // e.g. [DEBUG], [INFO], [WARNING], [ERROR] may come after timestamp [29-Nov-2023 01:30:03 UTC]
+        // This regex will extract DEBUG, INFO, WARNING, ERROR
+        // Prevents log entry with two bracket sets e.g. [timestamp] [someinfo] Details....
+        // from being returned as "No error message specified"
+		$log = preg_replace("/\[([a-zA-Z\s\-]+)\]/", "$1", $log);
 
         $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
 
