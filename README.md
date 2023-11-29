@@ -5,7 +5,7 @@ Donate link: https://bowo.io/dotorg-sponsor-dlm
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 6.4.1  
-Stable tag: 2.2.2  
+Stable tag: 2.3.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -82,7 +82,11 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
-### 2.2.1 (2023.11.29)
+### 2.3.0 (2023.11.29)
+
+* Improved parsing of log entries with more than one set of bracketed info, e.g. [timestamp] [WARNING] detail info about error. It was parsed as "No error message specified...". Props to [@azzuwayed](https://wordpress.org/support/users/azzuwayed/) for providing the [one important line of code](https://wordpress.org/support/topic/ignore-messages-with-square-brackets/) with the right preg_replace regex pattern to fix that. I find people who can churn out regex patterns as needed to have a special superpower!
+
+### 2.2.2 (2023.11.29)
 
 * **[SECURITY]** Improved security of ajax call to clear log file. Authorized only for site admins and secured to prevent CSRF with nonce. Props to Dmitrii Ignatyev again for reminding to check on this one as well.
 
