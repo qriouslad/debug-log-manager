@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
-Tested up to: 6.2.2  
-Stable tag: 2.2.0  
+Tested up to: 6.4.1  
+Stable tag: 2.2.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -32,6 +32,14 @@ Debug Log Manager allows you to:
 * **Use `error_log()`** to output error info into your debug log. e.g. `error_log( $error_message )` for simple, string-based error message, or `error_log( json_encode( $error ) )` when inspecting a more complex error info, e.g. array or object.
 
 A simpler and more compact version of Debug Log Manager is included as part of the [System Dashboard plugin](https://wordpress.org/plugins/system-dashboard/), should you prefer a single plugin that does more.
+
+### What Users Say
+
+_"This is **a great plugin for dev** especially for people who tinker in the code."_ ~[PK Son](https://wordpress.org/support/topic/great-for-dev/)
+
+_"I have used a couple of other logger plugins and **this is by far the best one**."_ ~[Brian Henry](https://wordpress.org/support/topic/must-have-plugin-485/)
+
+_"**Another massive time-saving tool.**"_ ~[Jeff Starr](https://digwp.com/2023/06/plugins-troubleshoot-debug-wordpress/)
 
 ### Give Back
 
@@ -73,6 +81,10 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 2.2.1 (2023.11.29)
+
+* **[IMPORTANT][SECURITY]** Fixed a security issue where the debug log manager directory can be opened in the browser allowing visitors to see and download the debug log file which may contain sensitive information. **Once you update to v2.2.1, please visit the debug log page at least once**. This will create an empty index.php file in the DLM directory and prevent the issue. This was responsibly disclosed by Dmitrii Ignatyev from CleanTalk inc. on November 2, 2023. Apologies if this took me a while to get around to as I was fully occupied with the launch of [ASE Pro(https://www.wpase.com)].
 
 ### 2.2.0 (2023.06.26)
 

@@ -28,6 +28,12 @@ class Debug_Log {
 	 */
 	public function get_status() {
 
+    	// If non-existent, create an empty index to prevent directory browsing and download of the debug log file
+    	$uploads_path = wp_upload_dir()['basedir'] . '/debug-log-manager';
+        if ( ! is_file( $uploads_path . '/index.php' ) ) {
+	        file_put_contents( $uploads_path . '/index.php', '<?php // Nothing to show here' );    	
+        }
+
 		$value 		= get_option( 'debug_log_manager' );
 		$status 	= $value['status'];
 
