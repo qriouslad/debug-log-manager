@@ -53,8 +53,10 @@ class Activation {
 
         if ( ! is_dir( $uploads_path ) ) {
             mkdir( $uploads_path ); // create directory in /uploads folder
+            // create empty index to prevent directory browsing and download of the debug log file
+            file_put_contents( $uploads_path . '/index.php', '<?php // Nothing to show here' );           
         }
-
+        
         if ( ! is_file( $debug_log_file_path_in_option ) ) {
             file_put_contents( $debug_log_file_path_in_option, '' ); // create empty log file
         } else {}        
