@@ -84,7 +84,7 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ### 2.2.1 (2023.11.29)
 
-* **[IMPORTANT][SECURITY]** Fixed a security issue where the debug log manager directory can be opened in the browser allowing visitors to see and download the debug log file which may contain sensitive information. **Once you update to v2.2.1, please visit the debug log page at least once**. This will create an empty index.php file in the DLM directory and prevent the issue. This vulnerability was responsibly disclosed by Dmitrii Ignatyev from CleanTalk inc. on November 2, 2023. Apologies if this took me a while to get around to as I was fully occupied with the launch of [ASE Pro](https://www.wpase.com)].
+* **[IMPORTANT][SECURITY]** Fixed a security issue where the debug log manager directory can be opened in the browser allowing visitors to see and download the debug log file which may contain sensitive information. **Once you update to v2.2.1, please visit the debug log page at least once**. This will create an empty index.php file in the DLM directory and prevent the issue. This vulnerability was responsibly disclosed by Dmitrii Ignatyev from CleanTalk inc. on November 2, 2023. Apologies if this took me a while to get around to as I was fully occupied with the launch of [ASE Pro](https://www.wpase.com).
 
 ### 2.2.0 (2023.06.26)
 
