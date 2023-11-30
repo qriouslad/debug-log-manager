@@ -37,7 +37,7 @@ class Activation {
 
         $plain_domain = str_replace( array( ".", "-" ), "", sanitize_text_field( $_SERVER['SERVER_NAME'] ) ); // e.g. wwwgooglecom
 
-        $unique_key = date( 'YmdHi' );
+        $unique_key = date( 'YmdHi' ) . rand(12345678, 87654321);
 
         $debug_log_file_path = $uploads_path . '/' . $plain_domain . '_' . $unique_key .'_debug.log';
 
