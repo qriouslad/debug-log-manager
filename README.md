@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
-Tested up to: 6.4.1  
-Stable tag: 2.3.1  
+Tested up to: 6.4.3  
+Stable tag: 2.3.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -53,10 +53,7 @@ _"**Another massive time-saving tool.**"_ ~[Jeff Starr](https://digwp.com/2023/0
 
 * [System Dashboard](https://wordpress.org/plugins/system-dashboard/): Central dashboard to monitor various WordPress components, processes and data, including the server.
 * [Variable Inspector](https://wordpress.org/plugins/variable-inspector/): Inspect PHP variables on a central dashboard in wp-admin for convenient debugging.
-* [Code Explorer](https://wordpress.org/plugins/code-explorer/): Fast directory explorer and file/code viewer with syntax highlighting.
-* [Database Admin](https://github.com/qriouslad/database-admin): Securely manage your WordPress website's database with a clean and user-friendly interface based on a custom-themed Adminer app. Only available on Github.
 * [Admin and Site Enhancements](https://wordpress.org/plugins/admin-site-enhancements/) helps you to easily enhance various admin workflows and site aspects while replacing multiple plugins doing it.
-* [Flexible Scroll Top](https://wordpress.org/plugins/flexible-scroll-top/) and [Floating Share Buttons](https://wordpress.org/plugins/floating-share-button/) is a lightweight combo with minimalist UI.
 * [WordPress Newsboard](https://www.wpnewsboard.com/): The latest news, articles, podcasts and videos from 100+ WordPress-focused sources.
 
 ## Screenshots
@@ -81,6 +78,13 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 2.3.2 (2024.03.20)
+
+* Fixed XSS vulnerability [responsibly disclosed](https://patchstack.com/database/report-preview/97899ddd-9e73-4697-968b-59bf3edff549?pin=ZBKD2WgFoIxskMQL) by [Majed Refaea](https://patchstack.com/database/researcher/c2b35ecd-36ee-47b9-a1b2-b892578ab685).
+* Fixed Broken Access Control vulnerability [responsibly disclosed](https://patchstack.com/database/report-preview/475f140e-7ffc-423f-a1f7-98a695b6f8c2?pin=nQrwoY42FqhpabIA) by [Majed Refaea](https://patchstack.com/database/researcher/c2b35ecd-36ee-47b9-a1b2-b892578ab685).
+* Fixed CSRF attack vulnerability [responsibly disclosed](https://patchstack.com/database/report-preview/cc9e1d84-bad2-4926-8a10-58c5247dfa94?pin=1fiZBjVMu7Zuc4V9) by [Dhabaleshwar Das](https://patchstack.com/database/researcher/135acf3e-049d-4657-a7b8-f5406b06bf4d).
+* Enable detection of change in WordPress installation path, e.g. when pushing from dev to production, or migrating to new host, and update the debug log file location settings. This should fix issue where the debug log entry viewer stopped working on such scenarios. To make sure Debug Log Manager works on the new site / destination, please deactivate and reactivate it. Props to [@jeswd](https://wordpress.org/support/users/jeswd/) for reporting it [here](https://wordpress.org/support/topic/stops-working-when-path-to-wordpress-app-changes/) and [@jrmyfranck](https://wordpress.org/support/users/jrmyfranck/) and [@drhnews](https://wordpress.org/support/users/drhnews/) for reporting it [here](https://wordpress.org/support/topic/breaks-when-install-path-changes/).
 
 ### 2.3.1 (2023.11.30)
 
