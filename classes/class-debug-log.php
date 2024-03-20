@@ -919,8 +919,16 @@ class Debug_Log {
 		// Verify error content and nonce and then log the JS error
 		// Source: https://plugins.svn.wordpress.org/lh-javascript-error-log/trunk/lh-javascript-error-log.php
 		if ( isset( $request['message'] ) && isset( $request['script'] ) && isset( $request['lineNo'] ) && isset( $request['columnNo'] ) && ! empty( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], DLM_SLUG ) ) {
+			
+				// Sanitize all input data
+				$message = sanitize_text_field( $request['message'] );
+				$script = sanitize_text_field( $request['script'] );
+				$line_number = sanitize_text_field( $request['lineNo'] );
+				$column_number = sanitize_text_field( $request['columnNo'] );
+				$page_url = sanitize_text_field( $request['pageUrl'] );
 
-				error_log( 'JavaScript Error: ' . $request['message'] . ' in ' . $request['script'] . ' on line ' . $request['lineNo'] . ' column ' . $request['columnNo'] . ' at ' . get_site_url() . $request['pageUrl'] );
+				// The following entry will then be output with wp_kses()
+				error_log( 'JavaScript Error: ' . $message . ' in ' . $script . ' on line ' . $line_number . ' column ' . $column_number . ' at ' . get_site_url() . $page_url );
 
 		} else {
 
