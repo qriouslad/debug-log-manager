@@ -18,6 +18,7 @@ class Deactivation {
 
 		delete_option( 'debug_log_manager' );
 		delete_option( 'debug_log_manager_autorefresh' );
+		delete_option( 'debug_log_manager_file_path' );
 
 	}
 
