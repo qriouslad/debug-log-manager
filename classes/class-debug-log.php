@@ -589,37 +589,45 @@ class Debug_Log {
 	 */
 	public function get_latest_entries() {
 
-		$errors_master_list = json_decode( $this->get_processed_entries(), true );
+		if ( current_user_can( 'manage_options' ) ) {
 
-		$n = 1;
-		$entries = array();
+			$errors_master_list = json_decode( $this->get_processed_entries(), true );
 
-		foreach ( $errors_master_list as $error ) {
+			$n = 1;
+			$entries = array();
 
-			if ( function_exists( 'wp_date' ) ) {
-				$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
-			} else {
-				$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+			foreach ( $errors_master_list as $error ) {
+
+				if ( function_exists( 'wp_date' ) ) {
+					$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+				} else {
+					$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+				}
+
+				$occurrence_count 		= count( $error['occurrences'] );
+
+				$entry = array( 
+						$n, 
+						$error['type'], 
+						$error['details'], 
+						$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
+				);
+
+				$entries[] = $entry;
+
+				$n++;
+
 			}
 
-			$occurrence_count 		= count( $error['occurrences'] );
-
-			$entry = array( 
-					$n, 
-					$error['type'], 
-					$error['details'], 
-					$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
+			$data = array(
+				'entries'	=> $entries,
 			);
-
-			$entries[] = $entry;
-
-			$n++;
-
+			
+		} else {
+			
+			$data = array();
+			
 		}
-
-		$data = array(
-			'entries'	=> $entries,
-		);
 
 		echo json_encode( $data );
 
