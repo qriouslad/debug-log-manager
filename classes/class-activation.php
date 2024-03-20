@@ -43,7 +43,9 @@ class Activation {
 
         $debug_log_file_path_in_option = get_option( 'debug_log_manager_file_path' );
 
-        if ( $debug_log_file_path_in_option === false ) {
+        if ( false === $debug_log_file_path_in_option 
+            || false === strpos( $debug_log_file_path_in_option, ABSPATH )
+        ) {
 
 	        update_option( 'debug_log_manager_file_path', $debug_log_file_path, false );
 

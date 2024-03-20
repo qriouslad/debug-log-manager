@@ -92,188 +92,190 @@ class Debug_Log {
 	 */
 	public function toggle_debugging() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$log_info 				= get_option( 'debug_log_manager' );
+		        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
 
-			$log_info 				= get_option( 'debug_log_manager' );
-	        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
-
-			if ( function_exists( 'wp_date' ) ) {
-				$date_time 	= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
-			} else {
-				$date_time 	= date_i18n( 'M j, Y - H:i:s' );
-
-			}
-			$date_time_for_option 	= date( 'M j, Y H:i:s' ); // in UTC
-
-			if ( 'disabled' == $log_info['status']  ) {
-
-				$option_value = array(
-					'status'	=> 'enabled',
-					'on'		=> $date_time_for_option,
-				);
-
-				update_option( 'debug_log_manager', $option_value, false );
-
-				// If WP_DEBUG_LOG is defined, copy content of existing debug.log file into the log file created by this plugin
-
-				if ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) ) {
-
-					$wp_debug_log_const = $this->wp_config->get_value( 'constant', 'WP_DEBUG_LOG' );
-
-					if ( in_array( $wp_debug_log_const, array( 'true', 'false' ), true ) ) {
-						$wp_debug_log_const = (bool) $wp_debug_log_const;
-					}
-
-					if ( is_bool( $wp_debug_log_const ) ) {
-						// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log. 
-
-						if ( is_file( WP_CONTENT_DIR . '/debug.log' ) ) {
-							// Copy existing debug log content to this plugin's debug log.
-							$default_debug_log_content = file_get_contents( WP_CONTENT_DIR . '/debug.log' );
-							file_put_contents( $dlm_debug_log_file_path, $default_debug_log_content );
-							unlink( realpath( WP_CONTENT_DIR . '/debug.log' ) ); // delete existing debug log
-						}
-
-					} elseif ( is_string( $wp_debug_log_const ) ) {
-						// WP_DEBUG_LOG is custom path to log file. Copy existing debug log content to this plugin's debug log.
-
-						if ( is_file( $wp_debug_log_const ) && ( $wp_debug_log_const != $dlm_debug_log_file_path ) ) {
-							$custom_debug_log_content = file_get_contents( $wp_debug_log_const );
-							file_put_contents( $dlm_debug_log_file_path, $custom_debug_log_content );
-							unlink( $wp_debug_log_const ); // delete existing debug log
-						}
-
-					}
-
-					$copy = true; // existing debug.log file's entries are copied to this plugin's debug.log file
-
+				if ( function_exists( 'wp_date' ) ) {
+					$date_time 	= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
 				} else {
-
-					$copy = false; // existing debug.log file's entries are NOT copied to this plugin's debug.log file
+					$date_time 	= date_i18n( 'M j, Y - H:i:s' );
 
 				}
+				$date_time_for_option 	= date( 'M j, Y H:i:s' ); // in UTC
 
-				// Define Debug constants in wp-config.php
+				if ( 'disabled' == $log_info['status']  ) {
 
-				$options = array(
-					'add'       => true, // Add the config if missing.
-					'raw'       => true, // Display value in raw format without quotes.
-					'normalize' => false, // Normalize config output using WP Coding Standards.
-				);
-
-				$this->wp_config->update( 'constant', 'WP_DEBUG', 'true', $options );
-
-				$options = array(
-					'add'       => true, // Add the config if missing.
-					'raw'       => true, // Display value in raw format without quotes.
-					'normalize' => false, // Normalize config output using WP Coding Standards.
-				);
-
-				$this->wp_config->update( 'constant', 'SCRIPT_DEBUG', 'true', $options );
-
-				$options = array(
-					'add'       => true, // Add the config if missing.
-					'raw'       => false, // Display value in raw format without quotes.
-					'normalize' => false, // Normalize config output using WP Coding Standards.
-				);
-
-				$this->wp_config->update( 'constant', 'WP_DEBUG_LOG', get_option( 'debug_log_manager_file_path' ), $options );
-
-				$options = array(
-					'add'       => true, // Add the config if missing.
-					'raw'       => true, // Display value in raw format without quotes.
-					'normalize' => false, // Normalize config output using WP Coding Standards.
-				);
-
-				$this->wp_config->update( 'constant', 'WP_DEBUG_DISPLAY', 'false', $options );
-
-				$options = array(
-					'add'       => true, // Add the config if missing.
-					'raw'       => true, // Display value in raw format without quotes.
-					'normalize' => false, // Normalize config output using WP Coding Standards.
-				);
-
-				$this->wp_config->update( 'constant', 'DISALLOW_FILE_EDIT', 'false', $options );
-
-				// Get the debug.log file size
-
-				$log_file_path 		= get_option( 'debug_log_manager_file_path' );
-				$log_file_shortpath = str_replace( sanitize_text_field( $_SERVER['DOCUMENT_ROOT'] ), "", $log_file_path );
-				$file_size 			= size_format( (int) filesize( $log_file_path ) );
-
-				// Prepare entries from the debug log for the data table
-
-				$errors_master_list = json_decode( $this->get_processed_entries(), true );
-
-				$n = 1;
-				$entries = array();
-
-				foreach ( $errors_master_list as $error ) {
-
-					if ( function_exists( 'wp_date' ) ) {
-						$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
-					} else {
-						$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
-					}
-
-					$occurrence_count 		= count( $error['occurrences'] );
-
-					$entry = array( 
-							$n, 
-							$error['type'], 
-							$error['details'], 
-							$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
+					$option_value = array(
+						'status'	=> 'enabled',
+						'on'		=> $date_time_for_option,
 					);
 
-					$entries[] = $entry;
+					update_option( 'debug_log_manager', $option_value, false );
 
-					$n++;
+					// If WP_DEBUG_LOG is defined, copy content of existing debug.log file into the log file created by this plugin
 
-				}
+					if ( $this->wp_config->exists( 'constant', 'WP_DEBUG_LOG' ) ) {
 
-				// Assemble data to return
+						$wp_debug_log_const = $this->wp_config->get_value( 'constant', 'WP_DEBUG_LOG' );
 
-				$data = array(
-					'status'	=> 'enabled',
-					'copy'		=> $copy,
-					'message' 	=> '<strong>' . esc_html__( 'Error Logging', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Enabled on', 'debug-log-manager' ) . ' ' . esc_html( $date_time ),
-					'entries'	=> $entries,
-					'size'		=> $file_size,
-				);
+						if ( in_array( $wp_debug_log_const, array( 'true', 'false' ), true ) ) {
+							$wp_debug_log_const = (bool) $wp_debug_log_const;
+						}
 
-				echo json_encode( $data );
+						if ( is_bool( $wp_debug_log_const ) ) {
+							// WP_DEBUG_LOG is true or false. Log file is in default location of /wp-content/debug.log. 
 
-			} elseif ( 'enabled' == $log_info['status'] ) {
+							if ( is_file( WP_CONTENT_DIR . '/debug.log' ) ) {
+								// Copy existing debug log content to this plugin's debug log.
+								$default_debug_log_content = file_get_contents( WP_CONTENT_DIR . '/debug.log' );
+								file_put_contents( $dlm_debug_log_file_path, $default_debug_log_content );
+								unlink( realpath( WP_CONTENT_DIR . '/debug.log' ) ); // delete existing debug log
+							}
 
-				$option_value = array(
-					'status'	=> 'disabled',
-					'on'		=> $date_time_for_option,
-				);
+						} elseif ( is_string( $wp_debug_log_const ) ) {
+							// WP_DEBUG_LOG is custom path to log file. Copy existing debug log content to this plugin's debug log.
 
-				update_option( 'debug_log_manager', $option_value, false );
+							if ( is_file( $wp_debug_log_const ) && ( $wp_debug_log_const != $dlm_debug_log_file_path ) ) {
+								$custom_debug_log_content = file_get_contents( $wp_debug_log_const );
+								file_put_contents( $dlm_debug_log_file_path, $custom_debug_log_content );
+								unlink( $wp_debug_log_const ); // delete existing debug log
+							}
 
-				// Remove Debug constants in wp-config.php
+						}
 
-				$this->wp_config->remove( 'constant', 'WP_DEBUG' );
-				$this->wp_config->remove( 'constant', 'SCRIPT_DEBUG' );
-				$this->wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
-				$this->wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
-				$this->wp_config->remove( 'constant', 'DISALLOW_FILE_EDIT' );
+						$copy = true; // existing debug.log file's entries are copied to this plugin's debug.log file
 
-				// Assemble data to return
+					} else {
 
-				$data = array(
-					'status'	=> 'disabled',
-					'copy'		=> false,
-					'message' 	=> '<strong>' . esc_html__( 'Error Logging', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Disabled on', 'debug-log-manager' ) . ' ' . esc_html( $date_time ),
-					'entries'	=> '',
-					'size'		=> '',
-				);
+						$copy = false; // existing debug.log file's entries are NOT copied to this plugin's debug.log file
 
-				echo json_encode( $data );
+					}
 
-			} else {}
+					// Define Debug constants in wp-config.php
 
+					$options = array(
+						'add'       => true, // Add the config if missing.
+						'raw'       => true, // Display value in raw format without quotes.
+						'normalize' => false, // Normalize config output using WP Coding Standards.
+					);
+
+					$this->wp_config->update( 'constant', 'WP_DEBUG', 'true', $options );
+
+					$options = array(
+						'add'       => true, // Add the config if missing.
+						'raw'       => true, // Display value in raw format without quotes.
+						'normalize' => false, // Normalize config output using WP Coding Standards.
+					);
+
+					$this->wp_config->update( 'constant', 'SCRIPT_DEBUG', 'true', $options );
+
+					$options = array(
+						'add'       => true, // Add the config if missing.
+						'raw'       => false, // Display value in raw format without quotes.
+						'normalize' => false, // Normalize config output using WP Coding Standards.
+					);
+
+					$this->wp_config->update( 'constant', 'WP_DEBUG_LOG', get_option( 'debug_log_manager_file_path' ), $options );
+
+					$options = array(
+						'add'       => true, // Add the config if missing.
+						'raw'       => true, // Display value in raw format without quotes.
+						'normalize' => false, // Normalize config output using WP Coding Standards.
+					);
+
+					$this->wp_config->update( 'constant', 'WP_DEBUG_DISPLAY', 'false', $options );
+
+					$options = array(
+						'add'       => true, // Add the config if missing.
+						'raw'       => true, // Display value in raw format without quotes.
+						'normalize' => false, // Normalize config output using WP Coding Standards.
+					);
+
+					$this->wp_config->update( 'constant', 'DISALLOW_FILE_EDIT', 'false', $options );
+
+					// Get the debug.log file size
+
+					$log_file_path 		= get_option( 'debug_log_manager_file_path' );
+					$log_file_shortpath = str_replace( sanitize_text_field( $_SERVER['DOCUMENT_ROOT'] ), "", $log_file_path );
+					$file_size 			= size_format( (int) filesize( $log_file_path ) );
+
+					// Prepare entries from the debug log for the data table
+
+					$errors_master_list = json_decode( $this->get_processed_entries(), true );
+
+					$n = 1;
+					$entries = array();
+
+					foreach ( $errors_master_list as $error ) {
+
+						if ( function_exists( 'wp_date' ) ) {
+							$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+						} else {
+							$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+						}
+
+						$occurrence_count 		= count( $error['occurrences'] );
+
+						$entry = array( 
+								$n, 
+								$error['type'], 
+								$error['details'], 
+								$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
+						);
+
+						$entries[] = $entry;
+
+						$n++;
+
+					}
+
+					// Assemble data to return
+
+					$data = array(
+						'status'	=> 'enabled',
+						'copy'		=> $copy,
+						'message' 	=> '<strong>' . esc_html__( 'Error Logging', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Enabled on', 'debug-log-manager' ) . ' ' . esc_html( $date_time ),
+						'entries'	=> $entries,
+						'size'		=> $file_size,
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( 'enabled' == $log_info['status'] ) {
+
+					$option_value = array(
+						'status'	=> 'disabled',
+						'on'		=> $date_time_for_option,
+					);
+
+					update_option( 'debug_log_manager', $option_value, false );
+
+					// Remove Debug constants in wp-config.php
+
+					$this->wp_config->remove( 'constant', 'WP_DEBUG' );
+					$this->wp_config->remove( 'constant', 'SCRIPT_DEBUG' );
+					$this->wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
+					$this->wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
+					$this->wp_config->remove( 'constant', 'DISALLOW_FILE_EDIT' );
+
+					// Assemble data to return
+
+					$data = array(
+						'status'	=> 'disabled',
+						'copy'		=> false,
+						'message' 	=> '<strong>' . esc_html__( 'Error Logging', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Disabled on', 'debug-log-manager' ) . ' ' . esc_html( $date_time ),
+						'entries'	=> '',
+						'size'		=> '',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+			
+			}
 		}
 
 	}
@@ -285,34 +287,36 @@ class Debug_Log {
 	 */
 	public function toggle_autorefresh() {
 
-		if ( isset( $_REQUEST ) ) {
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$autorefresh_status = get_option( 'debug_log_manager_autorefresh' );
 
-			$autorefresh_status = get_option( 'debug_log_manager_autorefresh' );
+				if ( $autorefresh_status == 'disabled' ) {
 
-			if ( $autorefresh_status == 'disabled' ) {
+			        update_option( 'debug_log_manager_autorefresh', 'enabled', false );
 
-		        update_option( 'debug_log_manager_autorefresh', 'enabled', false );
+					$data = array(
+						'status'	=> 'enabled',
+						'message' 	=> '<strong>' . esc_html__( 'Auto-Refresh', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Enabled', 'debug-log-manager' ),
+					);
 
-				$data = array(
-					'status'	=> 'enabled',
-					'message' 	=> '<strong>' . esc_html__( 'Auto-Refresh', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Enabled', 'debug-log-manager' ),
-				);
+					echo json_encode( $data );
 
-				echo json_encode( $data );
+				} elseif ( $autorefresh_status == 'enabled' ) {
 
-			} elseif ( $autorefresh_status == 'enabled' ) {
+			        update_option( 'debug_log_manager_autorefresh', 'disabled', false );
 
-		        update_option( 'debug_log_manager_autorefresh', 'disabled', false );
+					$data = array(
+						'status'	=> 'disabled',
+						'message' 	=> '<strong>' . esc_html__( 'Auto-Refresh', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Disabled', 'debug-log-manager' ),
+					);
 
-				$data = array(
-					'status'	=> 'disabled',
-					'message' 	=> '<strong>' . esc_html__( 'Auto-Refresh', 'debug-log-manager' ) . '</strong>: ' . esc_html__( 'Disabled', 'debug-log-manager' ),
-				);
+					echo json_encode( $data );
 
-				echo json_encode( $data );
+				} else {}
 
-			} else {}
-
+			}
 		}
 
 	}
@@ -589,37 +593,49 @@ class Debug_Log {
 	 */
 	public function get_latest_entries() {
 
-		$errors_master_list = json_decode( $this->get_processed_entries(), true );
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {
 
-		$n = 1;
-		$entries = array();
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$errors_master_list = json_decode( $this->get_processed_entries(), true );
 
-		foreach ( $errors_master_list as $error ) {
+				$n = 1;
+				$entries = array();
 
-			if ( function_exists( 'wp_date' ) ) {
-				$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
-			} else {
-				$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+				foreach ( $errors_master_list as $error ) {
+
+					if ( function_exists( 'wp_date' ) ) {
+						$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+					} else {
+						$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+					}
+
+					$occurrence_count 		= count( $error['occurrences'] );
+
+					$entry = array( 
+							$n, 
+							$error['type'], 
+							$error['details'], 
+							$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
+					);
+
+					$entries[] = $entry;
+
+					$n++;
+
+				}
+
+				$data = array(
+					'entries'	=> $entries,
+				);
+
 			}
 
-			$occurrence_count 		= count( $error['occurrences'] );
-
-			$entry = array( 
-					$n, 
-					$error['type'], 
-					$error['details'], 
-					$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
-			);
-
-			$entries[] = $entry;
-
-			$n++;
-
+		} else {
+			
+			$data = array();
+			
 		}
-
-		$data = array(
-			'entries'	=> $entries,
-		);
 
 		echo json_encode( $data );
 
@@ -857,52 +873,58 @@ class Debug_Log {
 	 */
 	public function disable_wp_file_editor() {
 
-		$options = array(
-			'add'       => true, // Add the config if missing.
-			'raw'       => true, // Display value in raw format without quotes.
-			'normalize' => false, // Normalize config output using WP Coding Standards.
-		);
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
 
-		$this->wp_config->update( 'constant', 'DISALLOW_FILE_EDIT', 'true', $options );
+				$options = array(
+					'add'       => true, // Add the config if missing.
+					'raw'       => true, // Display value in raw format without quotes.
+					'normalize' => false, // Normalize config output using WP Coding Standards.
+				);
 
-		// Prepare entries from the debug log for the data table
+				$this->wp_config->update( 'constant', 'DISALLOW_FILE_EDIT', 'true', $options );
 
-		$errors_master_list = json_decode( $this->get_processed_entries(), true );
+				// Prepare entries from the debug log for the data table
 
-		$n = 1;
-		$entries = array();
+				$errors_master_list = json_decode( $this->get_processed_entries(), true );
 
-		foreach ( $errors_master_list as $error ) {
+				$n = 1;
+				$entries = array();
 
-			if ( function_exists( 'wp_date' ) ) {
-				$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
-			} else {
-				$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+				foreach ( $errors_master_list as $error ) {
+
+					if ( function_exists( 'wp_date' ) ) {
+						$localized_timestamp 	= wp_date( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) ); // last occurrence
+					} else {
+						$localized_timestamp 	= date_i18n( 'M j, Y - H:i:s', strtotime( $error['occurrences'][0] ) );
+					}
+
+					$occurrence_count 		= count( $error['occurrences'] );
+
+					$entry = array( 
+							$n, 
+							$error['type'], 
+							$error['details'], 
+							$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
+					);
+
+					$entries[] = $entry;
+
+					$n++;
+
+				}
+
+				// Assemble data to return
+
+				$data = array(
+					'status'	=> 'disabled', // Plugin/theme editor
+					'entries'	=> $entries, // To parse data table with unlinked plugin/theme file paths
+				);
+
+				echo json_encode( $data );
+								
 			}
-
-			$occurrence_count 		= count( $error['occurrences'] );
-
-			$entry = array( 
-					$n, 
-					$error['type'], 
-					$error['details'], 
-					$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
-			);
-
-			$entries[] = $entry;
-
-			$n++;
-
 		}
-
-		// Assemble data to return
-
-		$data = array(
-			'status'	=> 'disabled', // Plugin/theme editor
-			'entries'	=> $entries, // To parse data table with unlinked plugin/theme file paths
-		);
-
-		echo json_encode( $data );
 
 	}
 
@@ -919,8 +941,16 @@ class Debug_Log {
 		// Verify error content and nonce and then log the JS error
 		// Source: https://plugins.svn.wordpress.org/lh-javascript-error-log/trunk/lh-javascript-error-log.php
 		if ( isset( $request['message'] ) && isset( $request['script'] ) && isset( $request['lineNo'] ) && isset( $request['columnNo'] ) && ! empty( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], DLM_SLUG ) ) {
+			
+				// Sanitize all input data
+				$message = sanitize_text_field( $request['message'] );
+				$script = sanitize_text_field( $request['script'] );
+				$line_number = sanitize_text_field( $request['lineNo'] );
+				$column_number = sanitize_text_field( $request['columnNo'] );
+				$page_url = sanitize_text_field( $request['pageUrl'] );
 
-				error_log( 'JavaScript Error: ' . $request['message'] . ' in ' . $request['script'] . ' on line ' . $request['lineNo'] . ' column ' . $request['columnNo'] . ' at ' . get_site_url() . $request['pageUrl'] );
+				// The following entry will then be output with wp_kses()
+				error_log( 'JavaScript Error: ' . $message . ' in ' . $script . ' on line ' . $line_number . ' column ' . $column_number . ' at ' . get_site_url() . $page_url );
 
 		} else {
 

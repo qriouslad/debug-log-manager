@@ -54,7 +54,8 @@
 			$.ajax({
 				url: ajaxurl,
 				data: {
-					'action': 'toggle_debugging'
+					'action': 'toggle_debugging',
+					'nonce': dlmVars.nonce
 				},
 				success:function(data) {
 					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -128,7 +129,8 @@
 			$.ajax({
 				url: ajaxurl,
 				data: {
-					'action': 'toggle_autorefresh'
+					'action': 'toggle_autorefresh',
+					'nonce': dlmVars.nonce
 				},
 				success:function(data) {
 					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -195,7 +197,8 @@
 			$.ajax({
 				url: ajaxurl,
 				data: {
-					'action': 'disable_wp_file_editor'
+					'action': 'disable_wp_file_editor',
+					'nonce': dlmVars.nonce
 				},
 				success:function(data) {
 					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
@@ -309,7 +312,8 @@
 			$.ajax({
 				url: ajaxurl,
 				data: {
-					'action': 'get_latest_entries'
+					'action': 'get_latest_entries',
+					'nonce': dlmVars.nonce
 				},
 				success:function(data) {
 					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
