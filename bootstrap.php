@@ -251,16 +251,18 @@ class Debug_Log_Manager {
 						<div class="dlm-log-status-toggle">
 							<input type="checkbox" id="debug-log-checkbox" class="inset-3 debug-log-checkbox"><label for="debug-log-checkbox" class="green debug-log-switcher"></label>
 						</div>
-						<?php echo $this->debug_log->get_status(); ?>
+						<?php echo wp_kses_post( $this->debug_log->get_status() ); ?>
 					</div>
 					<div class="dlm-autorefresh-status">
 						<div class="dlm-log-autorefresh-toggle">
 							<input type="checkbox" id="debug-autorefresh-checkbox" class="inset-3 debug-autorefresh-checkbox"><label for="debug-autorefresh-checkbox" class="green debug-autorefresh-switcher"></label>
 						</div>
-						<?php echo $this->debug_log->get_autorefresh_status(); ?>
+						<?php echo wp_kses_post( $this->debug_log->get_autorefresh_status() ); ?>
 					</div>
 				</div>
 				<?php
+					// Ref: https://docs.wpvip.com/vip-code-analysis-bot/customize-phpcs/
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already late-escaped before output here
 					$this->debug_log->get_entries_datatable();
 				?>
 			</div>
@@ -274,7 +276,7 @@ class Debug_Log_Manager {
 					<button id="dlm-disable-wp-file-editor" class="button button-small button-secondary dlm-footer-button dlm-disable-wp-file-editor"><?php esc_html_e( 'Disable Editor', 'debug-log-manager' ); ?></button>
 				</div>
 				<?php
-					echo $this->wp_config->wpconfig_file( 'status' );
+					echo wp_kses_post( $this->wp_config->wpconfig_file( 'status' ) );
 				?>
 			</div>
 		</div>

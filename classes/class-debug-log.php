@@ -694,7 +694,7 @@ class Debug_Log {
 				<td class="dlm-entry-no"><?php echo esc_html( $n ); ?></td>
 				<td class="dlm-entry-type"><?php echo esc_html( $error['type'] ); ?></td>
 				<td class="dlm-entry-details"><?php echo wp_kses( $error['details'], 'post' ); ?></td>
-				<td class="dlm-entry-datetime"><?php echo esc_html( $localized_timestamp ); ?><br /><span class="dlm-faint">(<?php printf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ); ?>)<span></td>
+				<td class="dlm-entry-datetime"><?php echo esc_html( $localized_timestamp ); ?><br /><span class="dlm-faint">(<?php printf( esc_html( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ) ), esc_html( number_format_i18n( $occurrence_count ) ) ); ?>)<span></td>
 			</tr>
 
 			<?php
@@ -835,9 +835,9 @@ class Debug_Log {
 		</div>
 		<div class="dlm-dashboard-widget-footer">
 			<div class="dlm-dashboard-widget-logging-status">
-				<?php echo $this->get_status(); ?>
+				<?php echo wp_kses_post( $this->get_status() ); ?>
 			</div>
-			<a href="<?php echo get_dashboard_url(); ?>tools.php?page=debug-log-manager" class="button"><?php esc_html_e( 'Go to Debug Log Manager', 'debug-log-manager' ); ?></a>
+			<a href="<?php echo esc_html( get_dashboard_url() ); ?>tools.php?page=debug-log-manager" class="button"><?php esc_html_e( 'Go to Debug Log Manager', 'debug-log-manager' ); ?></a>
 		</div>
 		<?php
 
