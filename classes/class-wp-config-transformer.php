@@ -164,7 +164,7 @@ class WP_Config_Transformer {
 		$this->wp_configs = $this->configs( 'raw' );
 
 		if ( ! isset( $this->wp_configs[ $type ] ) ) {
-			throw new Exception( "Config type '{$type}' does not exist." );
+			throw new Exception( esc_html( "Config type '{$type}' does not exist." ) );
 		}
 
 		return isset( $this->wp_configs[ $type ][ $name ] );
@@ -193,7 +193,7 @@ class WP_Config_Transformer {
 		$this->wp_configs    = $this->configs( 'raw' );
 
 		if ( ! isset( $this->wp_configs[ $type ] ) ) {
-			throw new Exception( "Config type '{$type}' does not exist." );
+			throw new Exception( esc_html( "Config type '{$type}' does not exist." ) );
 		}
 
 		return $this->wp_configs[ $type ][ $name ]['value'];
@@ -388,7 +388,7 @@ class WP_Config_Transformer {
 		} elseif ( 'variable' === $type ) {
 			$placeholder = '$%s = %s;';
 		} else {
-			throw new Exception( "Unable to normalize config type '{$type}'." );
+			throw new Exception( esc_html( "Unable to normalize config type '{$type}'." ) );
 		}
 
 		return sprintf( $placeholder, $name, $value );
