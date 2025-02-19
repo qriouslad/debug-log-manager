@@ -94,7 +94,7 @@ class Debug_Log_Manager {
 		if ( ( $logging_status == 'enabled' ) && ! $this->is_dlm() ) {
 
 			// https://developer.wordpress.org/reference/hooks/admin_bar_menu/
-			add_action( 'admin_bar_menu', [ $this, 'admin_bar_icon' ] );
+			add_action( 'admin_bar_menu', [ $this, 'admin_bar_icon' ], 100 );
 
 		}
 
