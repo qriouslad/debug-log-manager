@@ -380,6 +380,7 @@ class Debug_Log {
         $errors_master_list = array();
 
 		foreach( $latest_lines as $line ) {
+			$line = wp_kses_post( $line );
 
 			$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
 
