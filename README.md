@@ -81,7 +81,7 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ### 2.3.5 (2025.04.05)
 
-* Fixed XSS vulnerability responsibly disclosed by Yassine Neggaoui regarding the parsing of debug.log entries without proper sanitization.
+* Fixed XSS vulnerability responsibly disclosed by [Yassine Neggaoui](https://haysec.com/contact/) regarding the parsing of debug.log entries without proper sanitization.
 
 ### 2.3.4 (2025.02.19)
 
