@@ -79,6 +79,10 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 2.3.6 (2025.04.28)
+
+* Added compatibility with debug log entries that are in timezones other than UTC. Props to [@mroesele]() for [reporting an issue](https://wordpress.org/support/topic/not-working-with-log-file-entries-in-other-time-zone-than-utc/) with entries marked with Europe/Berlin timezone.
+
 ### 2.3.5 (2025.04.05)
 
 * Fixed XSS vulnerability responsibly disclosed by [Yassine Neggaoui](https://haysec.com/contact/) regarding the parsing of debug.log entries without proper sanitization.
