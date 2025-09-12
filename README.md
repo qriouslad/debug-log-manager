@@ -79,9 +79,10 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
-### 2.3.7 (2025.09.12)
+### 2.4.0 (2025.09.12)
 
 * When DLM is unable to parse a log entry properly, it will now output the raw entry instead of "No error message specified...". Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/server-timeout-when-debug-log-gets-too-large/#post-18633180) this improvement.
+* DLM will now work with WP installations where the plugins and themes folder paths is non-standard, e.g. something other than /wp-content/plugins/ and /wp-content/themes/. Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/plugin-displays-insufficient-info/#post-18634674) this improvement.
 
 ### 2.3.6 (2025.04.28)
 

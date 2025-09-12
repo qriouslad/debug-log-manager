@@ -329,6 +329,12 @@ class Debug_Log {
 	 */
 	public function get_processed_entries() {
 
+		// Paths with no trailing slash (/)
+		$wp_admin_path = ABSPATH . 'wp-admin';
+		$wp_includes_path = ABSPATH . 'wp-includes';
+		$theme_dir_path = get_theme_root();
+		$wp_plugin_dir_path = WP_PLUGIN_DIR;
+		
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 
         // Read the errors log file 
@@ -1226,7 +1232,13 @@ class Debug_Log {
 
 			$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
 
-			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+			if ( array_key_exists('0', $line) ) {
+				$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+			} else {
+				$timestamp = '';
+			}
+
+			$wp_version = get_bloginfo( 'version' );
 
 			// Initialize error-related variables
 			$error = '';
@@ -1280,27 +1292,33 @@ class Debug_Log {
 						}
 					}
 
-					// Shorten the file path where the error occurred
-					$error_file_path = str_replace( ABSPATH, '/', $error_file_path );
-
 					// Define whether source of error is WP Core, Theme, Plugin or Other
 
-					if ( ( false !== strpos( $error_file, '/wp-admin/' ) ) || 
-						   ( false !== strpos( $error_file, '/wp-includes/' ) ) ) {
+					if ( ( false !== strpos( $error_file_path, $wp_admin_path ) ) || 
+						   ( false !== strpos( $error_file_path, $wp_includes_path ) ) ) {
 						$error_source = __( 'WordPress core', 'debug-log-manager' );
-					} elseif ( ( false !== strpos( $error_file, '/wp-content/themes/' ) ) ) {
+						$error_file_path_for_url = str_replace( ABSPATH, '', $error_file_path );
+						$error_file_path = str_replace( array( $wp_admin_path, $wp_includes_path ), '', $error_file_path ); // e.g. /post.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $wp_admin_path ) . str_replace( array( $wp_admin_path, $wp_includes_path ), '/', $error_file_path ); // e.g. /post.php
+					} elseif ( ( false !== strpos( $error_file_path, $theme_dir_path ) ) ) {
 						$error_source = __( 'Theme', 'debug-log-manager' );
-					} elseif ( ( false !== strpos( $error_file, '/wp-content/plugins/' ) ) ) {
+						$error_file_path = str_replace( $theme_dir_path, '', $error_file_path ); // e.g. /twentytwentyfive/functions.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $theme_dir_path ) . str_replace( $theme_dir_path, '', $error_file_path ); // e.g. /wp-content/themes/twentytwentyfive/functions.php
+					} elseif ( ( false !== strpos( $error_file_path, $wp_plugin_dir_path ) ) ) {
 						$error_source = __( 'Plugin', 'debug-log-manager' );
+						$error_file_path = str_replace( $wp_plugin_dir_path, '', $error_file_path ); // e.g. /debug-log-manager/bootstrap.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $wp_plugin_dir_path ) . str_replace( $wp_plugin_dir_path, '', $error_file_path ); // e.g. /wp-content/plugins/debug-log-manager/bootstrap.php
 					} else {
-						$error_source = '';	
+						$error_source = '';
+						$error_file_path = '';
+						$error_file_path_final = '';
 					}
 
 					// Get plugin/theme directory name of error file when error source is plugin or theme
 
 					if ( ( 'Plugin' == $error_source ) || ( 'Theme' == $error_source ) ) {
 						$error_file_path_parts = explode( '/', $error_file_path );
-						$error_file_directory = $error_file_path_parts[3];
+						$error_file_directory = $error_file_path_parts[1]; // e.g. post.php, debug-log-manager or twentytwentyfive
 					}
 
 					// Get plugin name
@@ -1385,24 +1403,23 @@ class Debug_Log {
 
 			if ( ! empty( $error_source ) ) {
 				if ( 'WordPress core' == $error_source ) {
-					$wp_version = get_bloginfo( 'version' );
-					$file_viewer_url = 'https://github.com/WordPress/wordpress-develop/blob/' . $wp_version . '/src' . $error_file_path;
-					$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . '<br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+					$file_viewer_url = 'https://github.com/WordPress/wordpress-develop/blob/' . $wp_version . '/src/' . $error_file_path_for_url . '#L' . $error_file_line;
+					$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . '<br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 				} elseif ( 'Theme' == $error_source ) {
 					if ( ! defined( 'DISALLOW_FILE_EDIT' ) || ( false === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$file_viewer_url = get_admin_url() . 'theme-editor.php?file=' . urlencode( str_replace( '/wp-content/themes/', '', $error_file_path ) ) . '&theme=' . $error_source_theme_dir;
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$file_viewer_url = get_admin_url() . 'theme-editor.php?file=' . urlencode( str_replace( '/' . $error_source_theme_dir . '/', '', $error_file_path ) ) . '&theme=' . $error_source_theme_dir;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					} 
 					if ( defined( 'DISALLOW_FILE_EDIT' ) && ( true === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path_final . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					}
 				} elseif ( 'Plugin' == $error_source ) {
 					if ( ! defined( 'DISALLOW_FILE_EDIT' ) || ( false === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$file_viewer_url = get_admin_url() . 'plugin-editor.php?file=' . urlencode( str_replace( '/wp-content/plugins/', '', $error_file_path ) ) . '&plugin=' . urlencode( $error_source_plugin_path_file );
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$file_viewer_url = get_admin_url() . 'plugin-editor.php?file=' . urlencode( substr( $error_file_path, 1 ) ) . '&plugin=' . urlencode( $error_source_plugin_path_file );
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					} 
 					if ( defined( 'DISALLOW_FILE_EDIT' ) && ( true === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path_final . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					}
 				}
 			}
