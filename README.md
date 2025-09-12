@@ -1,4 +1,4 @@
-# Debug Log Manager
+# Debug Log Manager - Conveniently Monitor and Inspect Errors
 
 Contributors: qriouslad  
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
