@@ -1336,7 +1336,8 @@ class Debug_Log {
 
 			} else {
 
-				$error = __( 'No error message specified...', 'debug-log-manager' );
+				// $error = __( 'No error message specified...', 'debug-log-manager' );
+				$error = $line; // Raw log entry
 	
 			}
 			

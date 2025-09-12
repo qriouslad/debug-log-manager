@@ -79,6 +79,10 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 2.3.7 (2025.09.12)
+
+* When DLM is unable to parse a log entry properly, it will now output the raw entry instead of "No error message specified...". Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/server-timeout-when-debug-log-gets-too-large/#post-18633180) this improvement.
+
 ### 2.3.6 (2025.04.28)
 
 * Added compatibility with debug log entries that are in timezones other than UTC. Props to [@mroesele]() for [reporting an issue](https://wordpress.org/support/topic/not-working-with-log-file-entries-in-other-time-zone-than-utc/) with entries marked with Europe/Berlin timezone.
