@@ -20,7 +20,7 @@ class Deactivation {
 		delete_option( 'debug_log_manager_autorefresh' );
 		delete_option( 'debug_log_manager_file_path' );
 		delete_option( 'debug_log_manager_js_error_logging' );
-		// delete_option( 'debug_log_manager_modify_script_debug' );
+		delete_option( 'debug_log_manager_modify_script_debug' );
 		// delete_option( 'debug_log_manager_process_non_utc_timezones' );
 
 	}

@@ -97,6 +97,7 @@ class Debug_Log {
 				
 				$log_info 				= get_option( 'debug_log_manager' );
 		        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
+		        $modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
 
 				if ( function_exists( 'wp_date' ) ) {
 					$date_time 	= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
@@ -164,13 +165,15 @@ class Debug_Log {
 
 					$this->wp_config->update( 'constant', 'WP_DEBUG', 'true', $options );
 
-					$options = array(
-						'add'       => true, // Add the config if missing.
-						'raw'       => true, // Display value in raw format without quotes.
-						'normalize' => false, // Normalize config output using WP Coding Standards.
-					);
+					if ( 'enabled' == $modify_script_debug_status ) {
+						$options = array(
+							'add'       => true, // Add the config if missing.
+							'raw'       => true, // Display value in raw format without quotes.
+							'normalize' => false, // Normalize config output using WP Coding Standards.
+						);
 
-					$this->wp_config->update( 'constant', 'SCRIPT_DEBUG', 'true', $options );
+						$this->wp_config->update( 'constant', 'SCRIPT_DEBUG', 'true', $options );
+					}
 
 					$options = array(
 						'add'       => true, // Add the config if missing.
@@ -256,7 +259,9 @@ class Debug_Log {
 					// Remove Debug constants in wp-config.php
 
 					$this->wp_config->remove( 'constant', 'WP_DEBUG' );
-					$this->wp_config->remove( 'constant', 'SCRIPT_DEBUG' );
+					if ( 'enabled' == $modify_script_debug_status ) {
+						$this->wp_config->remove( 'constant', 'SCRIPT_DEBUG' );
+					}
 					$this->wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
 					$this->wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
 					$this->wp_config->remove( 'constant', 'DISALLOW_FILE_EDIT' );
@@ -360,6 +365,44 @@ class Debug_Log {
 
 	}
 
+	/**
+	 * Toggle SCRIPT_DEBUG modification status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_script_debug_modification_status() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
+
+				if ( $modify_script_debug_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_modify_script_debug', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $modify_script_debug_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_modify_script_debug', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+	}
 	/**
 	 * Get the processed debug log data
 	 *

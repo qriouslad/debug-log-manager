@@ -68,8 +68,8 @@ class Activation {
         update_option( 'debug_log_manager_js_error_logging', $js_error_logging_status, false );
 
         // Create option to store status of SCRIPT_DEBUG modification
-        // $modify_script_debug_status = 'enabled'; // enabled | disabled
-        // update_option( 'debug_log_manager_modify_script_debug', $modify_script_debug_status, false );
+        $modify_script_debug_status = 'disabled'; // enabled | disabled
+        update_option( 'debug_log_manager_modify_script_debug', $modify_script_debug_status, false );
 
         // Create option to store status of whether to parse entries with non-UTC timezones
         // $process_non_utc_timezones_status = 'enabled'; // enabled | disabled

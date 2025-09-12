@@ -262,6 +262,43 @@
 
 		});
 
+		// Get SCRIPT_DEBUG modification status toggle/switcher position on page load
+
+		var modifyScriptDebugStatus = dlmVars.modifyScriptDebugStatus;
+		$('.script-debug-mod-switcher').attr('data-status',modifyScriptDebugStatus);
+
+		if ( modifyScriptDebugStatus == 'enabled' ) {
+			$('.script-debug-mod-checkbox').prop('checked', false);
+		} else {
+			$('.script-debug-mod-checkbox').prop('checked', true);					
+		}
+		
+		// Toggle SCRIPT_DEBUG modification status on click
+
+		$('.script-debug-mod-switcher').click( function() {
+
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'toggle_script_debug_modification_status',
+					'nonce': dlmVars.nonce
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					if ( dataObject.status == 'enabled' ) {
+						$('.script-debug-mod-switcher').attr('data-status','enabled');
+					} else if ( dataObject.status == 'disabled' ) {
+						$('.script-debug-mod-switcher').attr('data-status','disabled');
+					}
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+
+		});
+
 		// Initialize log entries dataTable with localization enabled
 		// https://datatables.net/manual/i18n
 		// https://datatables.net/plug-ins/i18n/

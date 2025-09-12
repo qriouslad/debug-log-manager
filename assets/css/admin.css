@@ -58,8 +58,11 @@
     margin-left: 12px !important;
 }
 
-.dlm-extra-settings {
+#dlm-extra-settings {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
 }
 
 .dlm-extra-setting {
