@@ -371,7 +371,7 @@
 		var errorTypeIndex = 0;
 
 		$("#debug-log th").each(function (i) {
-			if ( $($(this)).html() == "Error Type" ) {
+			if ( $($(this)).html() == dlmVars.titleOfColumnToFilter ) {
 				errorTypeIndex = i;
 				return false;
 			}
