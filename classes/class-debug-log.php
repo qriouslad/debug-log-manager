@@ -322,6 +322,45 @@ class Debug_Log {
 	}
 
 	/**
+	 * Toggle JS error logging status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_js_error_logging() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' );
+
+				if ( $js_error_logging_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_js_error_logging', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $js_error_logging_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_js_error_logging', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+	}
+
+	/**
 	 * Get the processed debug log data
 	 *
 	 * @return string $errors_master_list The processed error log entries
@@ -1512,7 +1551,7 @@ class Debug_Log {
 		?>
 		<div>
 			<select id="errorTypeFilter" class="dlm-error-type-filter">
-				<option value=""><?php esc_html_e( 'All Error Types', 'debug-log-manager' ); ?></option>
+				<option value=""><?php esc_html_e( 'All Types', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Fatal', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Fatal', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Warning', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Warning', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Notice', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Notice', 'debug-log-manager' ); ?></option>
@@ -1528,7 +1567,7 @@ class Debug_Log {
 			<thead>
 				<tr>
 					<th class="dlm-entry-no">#</th>
-					<th class="dlm-entry-type"><?php esc_html_e( 'Error Type', 'debug-log-manager' ); ?></th>
+					<th class="dlm-entry-type"><?php esc_html_e( 'Type', 'debug-log-manager' ); ?></th>
 					<th class="dlm-entry-details"><?php esc_html_e( 'Details', 'debug-log-manager' ); ?></th>
 					<th class="dlm-entry-datetime"><?php esc_html_e( 'Last Occurrence', 'debug-log-manager' ); ?></th>
 				</tr>

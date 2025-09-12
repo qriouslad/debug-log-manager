@@ -58,6 +58,14 @@
     margin-left: 12px !important;
 }
 
+.dlm-extra-settings {
+    display: flex;
+}
+
+.dlm-extra-setting {
+    display: flex;
+}
+
 .wrap h1.dlm-heading {
     font-size: 1.5em;
     line-height: 26px;
