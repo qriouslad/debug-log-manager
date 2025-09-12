@@ -85,6 +85,8 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 * DLM will now work with WP installations where the plugins and themes folder paths is non-standard, e.g. something other than /wp-content/plugins/ and /wp-content/themes/. Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/plugin-displays-insufficient-info/#post-18634674) this improvement.
 * Added an option to disable javascript error logging.
 * Added an option to not modify SCRIPT_DEBUG value when toggling error logging. Props to [Christine](https://wordpress.org/support/users/weddingstyle/) for [prompting](https://wordpress.org/support/topic/script_debug-breaks-wp-admin-with-caching-cdn/) this improvement.
+* Added an option to not process log entries with non-UTC timezone(s), which can be resource-intensive when log file size is significantly large. Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/server-timeout-when-debug-log-gets-too-large/) this improvement.
+
 
 ### 2.3.6 (2025.04.28)
 

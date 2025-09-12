@@ -118,6 +118,7 @@ class Debug_Log_Manager {
 		add_action( 'wp_ajax_disable_wp_file_editor', [ $this->debug_log, 'disable_wp_file_editor' ] );
 		add_action( 'wp_ajax_toggle_js_error_logging', [ $this->debug_log, 'toggle_js_error_logging' ] );
 		add_action( 'wp_ajax_toggle_script_debug_modification_status', [ $this->debug_log, 'toggle_script_debug_modification_status' ] );
+		add_action( 'wp_ajax_toggle_process_non_utc_timezones_status', [ $this->debug_log, 'toggle_process_non_utc_timezones_status' ] );
 		add_action( 'wp_ajax_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		add_action( 'wp_ajax_nopriv_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		
@@ -280,9 +281,6 @@ class Debug_Log_Manager {
 				<div id="dlm-extra-settings" class="dlm-footer-section dlm-top-border">
 					<div class="dlm-extra-setting">
 						<div class="dlm-js-error-logging-status-toggle">
-							<?php 
-								$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' ); 
-							?>
 							<input type="checkbox" id="js-error-logging-checkbox" class="inset-3 js-error-logging-checkbox"><label for="js-error-logging-checkbox" class="green js-error-logging-switcher"></label>
 						</div>
 						<div class="dlm-extra-setting-label">
@@ -291,13 +289,18 @@ class Debug_Log_Manager {
 					</div>
 					<div class="dlm-extra-setting">
 						<div class="dlm-script-debug-mod-status-toggle">
-							<?php 
-								$js_error_logging_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' ); 
-							?>
 							<input type="checkbox" id="script-debug-mod-checkbox" class="inset-3 script-debug-mod-checkbox"><label for="script-debug-mod-checkbox" class="green script-debug-mod-switcher"></label>
 						</div>
 						<div class="dlm-extra-setting-label">
 							<?php echo esc_html__( 'Do not modify SCRIPT_DEBUG value in wp-config.php', 'debug-log-manager' ); ?>
+						</div>						
+					</div>
+					<div class="dlm-extra-setting">
+						<div class="dlm-process-non-utc-timezones-status-toggle">
+							<input type="checkbox" id="process-non-utc-timezones-checkbox" class="inset-3 process-non-utc-timezones-checkbox"><label for="process-non-utc-timezones-checkbox" class="green process-non-utc-timezones-switcher"></label>
+						</div>
+						<div class="dlm-extra-setting-label">
+							<?php echo esc_html__( 'Do not process entries with non-UTC timezones, which can be resource-intensive when log file size is significantly large.', 'debug-log-manager' ); ?>
 						</div>						
 					</div>
 				</div>
@@ -413,6 +416,7 @@ class Debug_Log_Manager {
 
 		$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' );
 		$modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
+		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
 		
 		$nonce = wp_create_nonce( 'dlm-app' . get_current_user_id() );
 
@@ -420,10 +424,11 @@ class Debug_Log_Manager {
 			'dlm-app', 
 			'dlmVars', 
 			array(
-				'logStatus'				=> $log_status,
-				'autorefreshStatus'		=> $autorefresh_status,
-				'jsErrorLoggingStatus'	=> $js_error_logging_status,
-				'modifyScriptDebugStatus'	=> $modify_script_debug_status,
+				'logStatus'						=> $log_status,
+				'autorefreshStatus'				=> $autorefresh_status,
+				'jsErrorLoggingStatus'			=> $js_error_logging_status,
+				'modifyScriptDebugStatus'		=> $modify_script_debug_status,
+				'processNonUtcTimezonesStatus'	=> $process_non_utc_timezones_status,
 				'nonce'				=> $nonce,
 				'jsErrorLogging'	=> array(
 					'status'	=> '',

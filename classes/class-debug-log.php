@@ -403,6 +403,46 @@ class Debug_Log {
 		}
 
 	}
+	
+	/**
+	 * Toggle processing non-UTC timezones status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_process_non_utc_timezones_status() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
+
+				if ( $process_non_utc_timezones_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_process_non_utc_timezones', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $process_non_utc_timezones_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_process_non_utc_timezones', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+
+	}
 	/**
 	 * Get the processed debug log data
 	 *
@@ -418,6 +458,7 @@ class Debug_Log {
 		$wp_plugin_dir_path = WP_PLUGIN_DIR;
 		
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
+		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
 
         // Read the errors log file 
         $log 	= file_get_contents( $debug_log_file_path );
@@ -1287,7 +1328,12 @@ class Debug_Log {
 					'Wake]@@@',
 					'Wallis]@@@',
         		);
-        		$line 			= str_replace( $timezone_strings_to_replace, $timezone_replacement_strings, $line ); // add '@@@' as marker/separator after time stamp
+				if ( 'enabled' == $process_non_utc_timezones_status ) {
+	        		$line 		= str_replace( $timezone_strings_to_replace, $timezone_replacement_strings, $line ); // add '@@@' as marker/separator after time stamp
+				} else {
+	        		$line 		= str_replace( 'UTC]', 'UTC]@@@', $line ); // add '@@@' as marker/separator after time stamp
+				}
+				
         		$line 			= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
 				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
 	        		$line 		= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines

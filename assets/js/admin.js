@@ -299,6 +299,43 @@
 
 		});
 
+		// Get processing non-UTC timezones status toggle/switcher position on page load
+
+		var processNonUtcTimezonesStatus = dlmVars.processNonUtcTimezonesStatus;
+		$('.process-non-utc-timezones-switcher').attr('data-status',processNonUtcTimezonesStatus);
+
+		if ( processNonUtcTimezonesStatus == 'enabled' ) {
+			$('.process-non-utc-timezones-checkbox').prop('checked', false);
+		} else {
+			$('.process-non-utc-timezones-checkbox').prop('checked', true);					
+		}
+		
+		// Toggle processing non-UTC timezones status on click
+
+		$('.process-non-utc-timezones-switcher').click( function() {
+			console.log('initiated');
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'toggle_process_non_utc_timezones_status',
+					'nonce': dlmVars.nonce
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					if ( dataObject.status == 'enabled' ) {
+						$('.process-non-utc-timezones-switcher').attr('data-status','enabled');
+					} else if ( dataObject.status == 'disabled' ) {
+						$('.process-non-utc-timezones-switcher').attr('data-status','disabled');
+					}
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+
+		});
+		
 		// Initialize log entries dataTable with localization enabled
 		// https://datatables.net/manual/i18n
 		// https://datatables.net/plug-ins/i18n/
