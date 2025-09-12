@@ -97,6 +97,7 @@ class Debug_Log {
 				
 				$log_info 				= get_option( 'debug_log_manager' );
 		        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
+		        $modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
 
 				if ( function_exists( 'wp_date' ) ) {
 					$date_time 	= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
@@ -164,13 +165,15 @@ class Debug_Log {
 
 					$this->wp_config->update( 'constant', 'WP_DEBUG', 'true', $options );
 
-					$options = array(
-						'add'       => true, // Add the config if missing.
-						'raw'       => true, // Display value in raw format without quotes.
-						'normalize' => false, // Normalize config output using WP Coding Standards.
-					);
+					if ( 'enabled' == $modify_script_debug_status ) {
+						$options = array(
+							'add'       => true, // Add the config if missing.
+							'raw'       => true, // Display value in raw format without quotes.
+							'normalize' => false, // Normalize config output using WP Coding Standards.
+						);
 
-					$this->wp_config->update( 'constant', 'SCRIPT_DEBUG', 'true', $options );
+						$this->wp_config->update( 'constant', 'SCRIPT_DEBUG', 'true', $options );
+					}
 
 					$options = array(
 						'add'       => true, // Add the config if missing.
@@ -256,7 +259,9 @@ class Debug_Log {
 					// Remove Debug constants in wp-config.php
 
 					$this->wp_config->remove( 'constant', 'WP_DEBUG' );
-					$this->wp_config->remove( 'constant', 'SCRIPT_DEBUG' );
+					if ( 'enabled' == $modify_script_debug_status ) {
+						$this->wp_config->remove( 'constant', 'SCRIPT_DEBUG' );
+					}
 					$this->wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
 					$this->wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
 					$this->wp_config->remove( 'constant', 'DISALLOW_FILE_EDIT' );
@@ -322,6 +327,123 @@ class Debug_Log {
 	}
 
 	/**
+	 * Toggle JS error logging status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_js_error_logging() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' );
+
+				if ( $js_error_logging_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_js_error_logging', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $js_error_logging_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_js_error_logging', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+	}
+
+	/**
+	 * Toggle SCRIPT_DEBUG modification status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_script_debug_modification_status() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
+
+				if ( $modify_script_debug_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_modify_script_debug', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $modify_script_debug_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_modify_script_debug', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+	}
+	
+	/**
+	 * Toggle processing non-UTC timezones status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_process_non_utc_timezones_status() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
+
+				if ( $process_non_utc_timezones_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_process_non_utc_timezones', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $process_non_utc_timezones_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_process_non_utc_timezones', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+
+	}
+	/**
 	 * Get the processed debug log data
 	 *
 	 * @return string $errors_master_list The processed error log entries
@@ -329,7 +451,14 @@ class Debug_Log {
 	 */
 	public function get_processed_entries() {
 
+		// Paths with no trailing slash (/)
+		$wp_admin_path = ABSPATH . 'wp-admin';
+		$wp_includes_path = ABSPATH . 'wp-includes';
+		$theme_dir_path = get_theme_root();
+		$wp_plugin_dir_path = WP_PLUGIN_DIR;
+		
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
+		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
 
         // Read the errors log file 
         $log 	= file_get_contents( $debug_log_file_path );
@@ -1199,7 +1328,12 @@ class Debug_Log {
 					'Wake]@@@',
 					'Wallis]@@@',
         		);
-        		$line 			= str_replace( $timezone_strings_to_replace, $timezone_replacement_strings, $line ); // add '@@@' as marker/separator after time stamp
+				if ( 'enabled' == $process_non_utc_timezones_status ) {
+	        		$line 		= str_replace( $timezone_strings_to_replace, $timezone_replacement_strings, $line ); // add '@@@' as marker/separator after time stamp
+				} else {
+	        		$line 		= str_replace( 'UTC]', 'UTC]@@@', $line ); // add '@@@' as marker/separator after time stamp
+				}
+				
         		$line 			= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
 				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
 	        		$line 		= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
@@ -1226,7 +1360,13 @@ class Debug_Log {
 
 			$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
 
-			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+			if ( array_key_exists('0', $line) ) {
+				$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+			} else {
+				$timestamp = '';
+			}
+
+			$wp_version = get_bloginfo( 'version' );
 
 			// Initialize error-related variables
 			$error = '';
@@ -1280,27 +1420,33 @@ class Debug_Log {
 						}
 					}
 
-					// Shorten the file path where the error occurred
-					$error_file_path = str_replace( ABSPATH, '/', $error_file_path );
-
 					// Define whether source of error is WP Core, Theme, Plugin or Other
 
-					if ( ( false !== strpos( $error_file, '/wp-admin/' ) ) || 
-						   ( false !== strpos( $error_file, '/wp-includes/' ) ) ) {
+					if ( ( false !== strpos( $error_file_path, $wp_admin_path ) ) || 
+						   ( false !== strpos( $error_file_path, $wp_includes_path ) ) ) {
 						$error_source = __( 'WordPress core', 'debug-log-manager' );
-					} elseif ( ( false !== strpos( $error_file, '/wp-content/themes/' ) ) ) {
+						$error_file_path_for_url = str_replace( ABSPATH, '', $error_file_path );
+						$error_file_path = str_replace( array( $wp_admin_path, $wp_includes_path ), '', $error_file_path ); // e.g. /post.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $wp_admin_path ) . str_replace( array( $wp_admin_path, $wp_includes_path ), '/', $error_file_path ); // e.g. /post.php
+					} elseif ( ( false !== strpos( $error_file_path, $theme_dir_path ) ) ) {
 						$error_source = __( 'Theme', 'debug-log-manager' );
-					} elseif ( ( false !== strpos( $error_file, '/wp-content/plugins/' ) ) ) {
+						$error_file_path = str_replace( $theme_dir_path, '', $error_file_path ); // e.g. /twentytwentyfive/functions.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $theme_dir_path ) . str_replace( $theme_dir_path, '', $error_file_path ); // e.g. /wp-content/themes/twentytwentyfive/functions.php
+					} elseif ( ( false !== strpos( $error_file_path, $wp_plugin_dir_path ) ) ) {
 						$error_source = __( 'Plugin', 'debug-log-manager' );
+						$error_file_path = str_replace( $wp_plugin_dir_path, '', $error_file_path ); // e.g. /debug-log-manager/bootstrap.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $wp_plugin_dir_path ) . str_replace( $wp_plugin_dir_path, '', $error_file_path ); // e.g. /wp-content/plugins/debug-log-manager/bootstrap.php
 					} else {
-						$error_source = '';	
+						$error_source = '';
+						$error_file_path = '';
+						$error_file_path_final = '';
 					}
 
 					// Get plugin/theme directory name of error file when error source is plugin or theme
 
 					if ( ( 'Plugin' == $error_source ) || ( 'Theme' == $error_source ) ) {
 						$error_file_path_parts = explode( '/', $error_file_path );
-						$error_file_directory = $error_file_path_parts[3];
+						$error_file_directory = $error_file_path_parts[1]; // e.g. post.php, debug-log-manager or twentytwentyfive
 					}
 
 					// Get plugin name
@@ -1336,7 +1482,8 @@ class Debug_Log {
 
 			} else {
 
-				$error = __( 'No error message specified...', 'debug-log-manager' );
+				// $error = __( 'No error message specified...', 'debug-log-manager' );
+				$error = $line; // Raw log entry
 	
 			}
 			
@@ -1384,24 +1531,23 @@ class Debug_Log {
 
 			if ( ! empty( $error_source ) ) {
 				if ( 'WordPress core' == $error_source ) {
-					$wp_version = get_bloginfo( 'version' );
-					$file_viewer_url = 'https://github.com/WordPress/wordpress-develop/blob/' . $wp_version . '/src' . $error_file_path;
-					$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . '<br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+					$file_viewer_url = 'https://github.com/WordPress/wordpress-develop/blob/' . $wp_version . '/src/' . $error_file_path_for_url . '#L' . $error_file_line;
+					$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . '<br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 				} elseif ( 'Theme' == $error_source ) {
 					if ( ! defined( 'DISALLOW_FILE_EDIT' ) || ( false === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$file_viewer_url = get_admin_url() . 'theme-editor.php?file=' . urlencode( str_replace( '/wp-content/themes/', '', $error_file_path ) ) . '&theme=' . $error_source_theme_dir;
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$file_viewer_url = get_admin_url() . 'theme-editor.php?file=' . urlencode( str_replace( '/' . $error_source_theme_dir . '/', '', $error_file_path ) ) . '&theme=' . $error_source_theme_dir;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					} 
 					if ( defined( 'DISALLOW_FILE_EDIT' ) && ( true === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path_final . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					}
 				} elseif ( 'Plugin' == $error_source ) {
 					if ( ! defined( 'DISALLOW_FILE_EDIT' ) || ( false === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$file_viewer_url = get_admin_url() . 'plugin-editor.php?file=' . urlencode( str_replace( '/wp-content/plugins/', '', $error_file_path ) ) . '&plugin=' . urlencode( $error_source_plugin_path_file );
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$file_viewer_url = get_admin_url() . 'plugin-editor.php?file=' . urlencode( substr( $error_file_path, 1 ) ) . '&plugin=' . urlencode( $error_source_plugin_path_file );
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					} 
 					if ( defined( 'DISALLOW_FILE_EDIT' ) && ( true === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path_final . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					}
 				}
 			}
@@ -1494,7 +1640,7 @@ class Debug_Log {
 		?>
 		<div>
 			<select id="errorTypeFilter" class="dlm-error-type-filter">
-				<option value=""><?php esc_html_e( 'All Error Types', 'debug-log-manager' ); ?></option>
+				<option value=""><?php esc_html_e( 'All Types', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Fatal', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Fatal', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Warning', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Warning', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Notice', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Notice', 'debug-log-manager' ); ?></option>
@@ -1510,7 +1656,7 @@ class Debug_Log {
 			<thead>
 				<tr>
 					<th class="dlm-entry-no">#</th>
-					<th class="dlm-entry-type"><?php esc_html_e( 'Error Type', 'debug-log-manager' ); ?></th>
+					<th class="dlm-entry-type"><?php esc_html_e( 'Type', 'debug-log-manager' ); ?></th>
 					<th class="dlm-entry-details"><?php esc_html_e( 'Details', 'debug-log-manager' ); ?></th>
 					<th class="dlm-entry-datetime"><?php esc_html_e( 'Last Occurrence', 'debug-log-manager' ); ?></th>
 				</tr>

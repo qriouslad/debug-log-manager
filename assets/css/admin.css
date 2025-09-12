@@ -58,6 +58,17 @@
     margin-left: 12px !important;
 }
 
+#dlm-extra-settings {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.dlm-extra-setting {
+    display: flex;
+}
+
 .wrap h1.dlm-heading {
     font-size: 1.5em;
     line-height: 26px;

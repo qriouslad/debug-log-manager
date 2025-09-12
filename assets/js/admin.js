@@ -27,24 +27,6 @@
 			$('#dlm-disable-wp-file-editor-section').fadeIn();
 		}
 
-		// Get auto-refresh feature status on page load
-
-		var autorefreshStatus = dlmVars.autorefreshStatus;
-
-		$('.debug-autorefresh-switcher').attr('data-status',autorefreshStatus);
-
-		if ( autorefreshStatus == 'enabled' ) {
-			$('.debug-autorefresh-checkbox').prop('checked', true);
-			if ( logStatus == 'enabled' ) {
-				autoRefreshIntervalId = setInterval(getLatestEntries, 5000);
-			} else {
-				clearInterval(autoRefreshIntervalId);
-			}
-		} else {
-			$('.debug-autorefresh-checkbox').prop('checked', false);
-			clearInterval(autoRefreshIntervalId);				
-		}
-
 		// Toggle WP_DEBUG logging status on click
 
 		$('.debug-log-switcher').click( function() {
@@ -120,6 +102,24 @@
 
 		});
 
+		// Get auto-refresh feature status on page load
+
+		var autorefreshStatus = dlmVars.autorefreshStatus;
+
+		$('.debug-autorefresh-switcher').attr('data-status',autorefreshStatus);
+
+		if ( autorefreshStatus == 'enabled' ) {
+			$('.debug-autorefresh-checkbox').prop('checked', true);
+			if ( logStatus == 'enabled' ) {
+				autoRefreshIntervalId = setInterval(getLatestEntries, 5000);
+			} else {
+				clearInterval(autoRefreshIntervalId);
+			}
+		} else {
+			$('.debug-autorefresh-checkbox').prop('checked', false);
+			clearInterval(autoRefreshIntervalId);				
+		}
+		
 		// Toggle auto-refresh feature on click
 
 		$('.debug-autorefresh-switcher').click( function() {
@@ -225,6 +225,117 @@
 			});
 		});
 
+		// Get JS error loggingg status toggle/switcher position on page load
+
+		var jsErrorLoggingStatus = dlmVars.jsErrorLoggingStatus;
+		$('.js-error-logging-switcher').attr('data-status',jsErrorLoggingStatus);
+
+		if ( jsErrorLoggingStatus == 'enabled' ) {
+			$('.js-error-logging-checkbox').prop('checked', false);
+		} else {
+			$('.js-error-logging-checkbox').prop('checked', true);					
+		}
+		
+		// Toggle JS error loggingg on click
+
+		$('.js-error-logging-switcher').click( function() {
+
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'toggle_js_error_logging',
+					'nonce': dlmVars.nonce
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					if ( dataObject.status == 'enabled' ) {
+						$('.js-error-logging-switcher').attr('data-status','enabled');
+					} else if ( dataObject.status == 'disabled' ) {
+						$('.js-error-logging-switcher').attr('data-status','disabled');
+					}
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+
+		});
+
+		// Get SCRIPT_DEBUG modification status toggle/switcher position on page load
+
+		var modifyScriptDebugStatus = dlmVars.modifyScriptDebugStatus;
+		$('.script-debug-mod-switcher').attr('data-status',modifyScriptDebugStatus);
+
+		if ( modifyScriptDebugStatus == 'enabled' ) {
+			$('.script-debug-mod-checkbox').prop('checked', false);
+		} else {
+			$('.script-debug-mod-checkbox').prop('checked', true);					
+		}
+		
+		// Toggle SCRIPT_DEBUG modification status on click
+
+		$('.script-debug-mod-switcher').click( function() {
+
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'toggle_script_debug_modification_status',
+					'nonce': dlmVars.nonce
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					if ( dataObject.status == 'enabled' ) {
+						$('.script-debug-mod-switcher').attr('data-status','enabled');
+					} else if ( dataObject.status == 'disabled' ) {
+						$('.script-debug-mod-switcher').attr('data-status','disabled');
+					}
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+
+		});
+
+		// Get processing non-UTC timezones status toggle/switcher position on page load
+
+		var processNonUtcTimezonesStatus = dlmVars.processNonUtcTimezonesStatus;
+		$('.process-non-utc-timezones-switcher').attr('data-status',processNonUtcTimezonesStatus);
+
+		if ( processNonUtcTimezonesStatus == 'enabled' ) {
+			$('.process-non-utc-timezones-checkbox').prop('checked', false);
+		} else {
+			$('.process-non-utc-timezones-checkbox').prop('checked', true);					
+		}
+		
+		// Toggle processing non-UTC timezones status on click
+
+		$('.process-non-utc-timezones-switcher').click( function() {
+			console.log('initiated');
+			$.ajax({
+				url: ajaxurl,
+				data: {
+					'action': 'toggle_process_non_utc_timezones_status',
+					'nonce': dlmVars.nonce
+				},
+				success:function(data) {
+					var data = data.slice(0,-1); // remove strange trailing zero in string returned by AJAX call
+					const dataObject = JSON.parse(data); // create an object
+					if ( dataObject.status == 'enabled' ) {
+						$('.process-non-utc-timezones-switcher').attr('data-status','enabled');
+					} else if ( dataObject.status == 'disabled' ) {
+						$('.process-non-utc-timezones-switcher').attr('data-status','disabled');
+					}
+				},
+				error:function(errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+
+		});
+		
 		// Initialize log entries dataTable with localization enabled
 		// https://datatables.net/manual/i18n
 		// https://datatables.net/plug-ins/i18n/
@@ -336,9 +447,9 @@
 
 	}); // end of (document).ready();
 
-	// if WP_DEBUG is enabled
-
-	if ( dlmVars.logStatus == 'enabled' ) {
+	// if error logging and JS error loggin is enabled
+	
+	if ( 'enabled' == dlmVars.logStatus && 'enabled' == dlmVars.jsErrorLoggingStatus ) {
 
 		// Log javascript errors in wp-admin via XHR https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
 		// Code source: https://plugins.svn.wordpress.org/javascript-error-reporting-client/tags/1.0.3/public/js/jerc.js

@@ -116,6 +116,9 @@ class Debug_Log_Manager {
 		add_action( 'wp_ajax_get_latest_entries', [ $this->debug_log, 'get_latest_entries' ] );
 		add_action( 'wp_ajax_clear_log', [ $this->debug_log, 'clear_log' ] );
 		add_action( 'wp_ajax_disable_wp_file_editor', [ $this->debug_log, 'disable_wp_file_editor' ] );
+		add_action( 'wp_ajax_toggle_js_error_logging', [ $this->debug_log, 'toggle_js_error_logging' ] );
+		add_action( 'wp_ajax_toggle_script_debug_modification_status', [ $this->debug_log, 'toggle_script_debug_modification_status' ] );
+		add_action( 'wp_ajax_toggle_process_non_utc_timezones_status', [ $this->debug_log, 'toggle_process_non_utc_timezones_status' ] );
 		add_action( 'wp_ajax_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		add_action( 'wp_ajax_nopriv_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		
@@ -275,6 +278,32 @@ class Debug_Log_Manager {
 					<div><?php esc_html_e( 'Once error logging is enabled, the core\'s plugin/theme editor stays enabled even if error logging has been disabled later on. This allows for viewing the files where errors occurred even when logging has been disabled. You can optionally disable the editor here once you\'re done debugging.', 'debug-log-manager' ); ?></div>
 					<button id="dlm-disable-wp-file-editor" class="button button-small button-secondary dlm-footer-button dlm-disable-wp-file-editor"><?php esc_html_e( 'Disable Editor', 'debug-log-manager' ); ?></button>
 				</div>
+				<div id="dlm-extra-settings" class="dlm-footer-section dlm-top-border">
+					<div class="dlm-extra-setting">
+						<div class="dlm-js-error-logging-status-toggle">
+							<input type="checkbox" id="js-error-logging-checkbox" class="inset-3 js-error-logging-checkbox"><label for="js-error-logging-checkbox" class="green js-error-logging-switcher"></label>
+						</div>
+						<div class="dlm-extra-setting-label">
+							<?php echo esc_html__( 'Do not log javascript errors', 'debug-log-manager' ); ?>
+						</div>						
+					</div>
+					<div class="dlm-extra-setting">
+						<div class="dlm-script-debug-mod-status-toggle">
+							<input type="checkbox" id="script-debug-mod-checkbox" class="inset-3 script-debug-mod-checkbox"><label for="script-debug-mod-checkbox" class="green script-debug-mod-switcher"></label>
+						</div>
+						<div class="dlm-extra-setting-label">
+							<?php echo esc_html__( 'Do not modify SCRIPT_DEBUG value in wp-config.php', 'debug-log-manager' ); ?>
+						</div>						
+					</div>
+					<div class="dlm-extra-setting">
+						<div class="dlm-process-non-utc-timezones-status-toggle">
+							<input type="checkbox" id="process-non-utc-timezones-checkbox" class="inset-3 process-non-utc-timezones-checkbox"><label for="process-non-utc-timezones-checkbox" class="green process-non-utc-timezones-switcher"></label>
+						</div>
+						<div class="dlm-extra-setting-label">
+							<?php echo esc_html__( 'Do not process entries with non-UTC timezones, which can be resource-intensive when log file size is significantly large.', 'debug-log-manager' ); ?>
+						</div>						
+					</div>
+				</div>
 				<?php
 					echo wp_kses_post( $this->wp_config->wpconfig_file( 'status' ) );
 				?>
@@ -384,6 +413,10 @@ class Debug_Log_Manager {
 			$autorefresh_status = 'disabled';
 	        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
 		}
+
+		$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' );
+		$modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
+		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
 		
 		$nonce = wp_create_nonce( 'dlm-app' . get_current_user_id() );
 
@@ -391,8 +424,11 @@ class Debug_Log_Manager {
 			'dlm-app', 
 			'dlmVars', 
 			array(
-				'logStatus'			=> $log_status,
-				'autorefreshStatus'	=> $autorefresh_status,
+				'logStatus'						=> $log_status,
+				'autorefreshStatus'				=> $autorefresh_status,
+				'jsErrorLoggingStatus'			=> $js_error_logging_status,
+				'modifyScriptDebugStatus'		=> $modify_script_debug_status,
+				'processNonUtcTimezonesStatus'	=> $process_non_utc_timezones_status,
 				'nonce'				=> $nonce,
 				'jsErrorLogging'	=> array(
 					'status'	=> '',
@@ -493,33 +529,33 @@ class Debug_Log_Manager {
 	 * @since 1.4.0
 	 */
 	public function public_scripts() {
-		
-		$options = get_option( 'debug_log_manager', array() );
-		if ( $options['status'] == 'enabled' ) {
-			wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );		
-		}
-
-        $default_value = array(
+        $log_info_default_value = array(
             'status'    => 'disabled',
             'on'        => date( 'Y-m-d H:i:s' ),
         );
 
-		$log_info = get_option( 'debug_log_manager', $default_value );
+		$log_info = get_option( 'debug_log_manager', $log_info_default_value );
 		$log_status = $log_info['status']; // WP_DEBUG log status: enabled / disabled
 
-		wp_localize_script( 
-			'dlm-public', 
-			'dlmVars', 
-			array(
-				'logStatus'			=> $log_status,
-				'jsErrorLogging'	=> array(
-					'status'	=> '',
-					'url'		=> admin_url( 'admin-ajax.php' ),
-					'nonce'		=> wp_create_nonce( DLM_SLUG ),
-					'action'	=> 'log_js_errors',
-				),
-			) 
-		);
+		$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' ); // enabled | disabled
+
+		if ( 'enabled' == $log_status && 'enabled' == $js_error_logging_status ) {
+			wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );		
+
+			wp_localize_script( 
+				'dlm-public', 
+				'dlmVars', 
+				array(
+					'logStatus'			=> $log_status,
+					'jsErrorLogging'	=> array(
+						'status'	=> '',
+						'url'		=> admin_url( 'admin-ajax.php' ),
+						'nonce'		=> wp_create_nonce( DLM_SLUG ),
+						'action'	=> 'log_js_errors',
+					),
+				) 
+			);			
+		}
 	}
 
 }

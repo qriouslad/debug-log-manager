@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
-Tested up to: 6.8  
-Stable tag: 2.3.6  
+Tested up to: 6.8.2  
+Stable tag: 2.4.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -78,6 +78,14 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 2.4.0 (2025.09.12)
+
+* When DLM is unable to parse a log entry properly, it will now output the raw entry instead of "No error message specified...". Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/server-timeout-when-debug-log-gets-too-large/#post-18633180) this improvement.
+* DLM will now work with WP installations where the plugins and themes folder paths is non-standard, e.g. something other than /wp-content/plugins/ and /wp-content/themes/. Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/plugin-displays-insufficient-info/#post-18634674) this improvement.
+* Added an option to disable javascript error logging.
+* Added an option to not modify SCRIPT_DEBUG value when toggling error logging. Props to [Christine](https://wordpress.org/support/users/weddingstyle/) for [prompting](https://wordpress.org/support/topic/script_debug-breaks-wp-admin-with-caching-cdn/) this improvement.
+* Added an option to not process log entries with non-UTC timezone(s), which can be resource-intensive when log file size is significantly large. Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/server-timeout-when-debug-log-gets-too-large/) this improvement.
 
 ### 2.3.6 (2025.04.28)
 
