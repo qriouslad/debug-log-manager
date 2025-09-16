@@ -1,11 +1,11 @@
-# Debug Log Manager
+# Debug Log Manager - Conveniently Monitor and Inspect Errors
 
 Contributors: qriouslad  
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 6.8.2  
-Stable tag: 2.4.0  
+Stable tag: 2.4.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -78,6 +78,10 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 2.4.1 (2025.09.17)
+
+* Fixed PHP fatal error that occurs in a certain scenario. Props to [Pedro](https://wordpress.org/support/users/pedromag/) and [@guytimes](https://wordpress.org/support/users/guytimes/) for reporting the issue in detail [here](https://wordpress.org/support/topic/critical-error-with-the-debug-log-manager/) and [here](https://wordpress.org/support/topic/there-has-been-a-critical-error-on-this-website-421/).
 
 ### 2.4.0 (2025.09.12)
 

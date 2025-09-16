@@ -1358,9 +1358,11 @@ class Debug_Log {
 		foreach( $latest_lines as $line ) {
 			$line = wp_kses_post( $line );
 
-			$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
+			if ( false !== strpos( $line, '@@@' ) ) {
+				$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
+			}
 
-			if ( array_key_exists('0', $line) ) {
+			if ( is_array( $line ) && isset( $line[0] ) ) {
 				$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
 			} else {
 				$timestamp = '';
@@ -1375,7 +1377,7 @@ class Debug_Log {
 			$error_file_path = '';
 			$error_file_line = '';
 
-			if ( array_key_exists('1', $line) ) {
+			if ( is_array( $line ) && isset( $line[1] ) ) {
 				$error = $line[1];
 
 				// Check if there is a file path to pluck out of the error line

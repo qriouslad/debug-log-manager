@@ -418,6 +418,8 @@ class Debug_Log_Manager {
 		$modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
 		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
 		
+		$title_of_column_to_filter = __( 'Type', 'debug-log-manager' );
+		
 		$nonce = wp_create_nonce( 'dlm-app' . get_current_user_id() );
 
 		wp_localize_script( 
@@ -429,6 +431,7 @@ class Debug_Log_Manager {
 				'jsErrorLoggingStatus'			=> $js_error_logging_status,
 				'modifyScriptDebugStatus'		=> $modify_script_debug_status,
 				'processNonUtcTimezonesStatus'	=> $process_non_utc_timezones_status,
+				'titleOfColumnToFilter'			=> $title_of_column_to_filter,
 				'nonce'				=> $nonce,
 				'jsErrorLogging'	=> array(
 					'status'	=> '',
