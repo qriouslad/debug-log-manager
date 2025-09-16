@@ -79,6 +79,10 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 2.4.1 (2025.09.17)
+
+* Fixed PHP fatal error that occurs in a certain scenario. Props to [Pedro](https://wordpress.org/support/users/pedromag/) and [@guytimes](https://wordpress.org/support/users/guytimes/) for reporting the issue in detail [here](https://wordpress.org/support/topic/critical-error-with-the-debug-log-manager/) and [here](https://wordpress.org/support/topic/there-has-been-a-critical-error-on-this-website-421/).
+
 ### 2.4.0 (2025.09.12)
 
 * When DLM is unable to parse a log entry properly, it will now output the raw entry instead of "No error message specified...". Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/server-timeout-when-debug-log-gets-too-large/#post-18633180) this improvement.
