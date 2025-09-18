@@ -75,11 +75,11 @@ class Debug_Log {
 
 		if ( 'enabled' == $autorefresh_status ) {
 
-			return '<div id="debug-autorefresh-status" class="dlm-autorefresh-status"><strong>Auto-Refresh</strong>: ' . ucfirst( esc_html__( 'enabled', 'debug-log-manager' ) ) . '</div>';
+			return '<div id="debug-autorefresh-status" class="dlm-autorefresh-status"><strong>' . esc_html__( 'Auto-Refresh', 'debug-log-manager' ) . '</strong>: ' . ucfirst( esc_html__( 'enabled', 'debug-log-manager' ) ) . '</div>';
 
 		} elseif ( 'disabled' == $autorefresh_status ) {
 
-			return '<div id="debug-autorefresh-status" class="dlm-autorefresh-status"><strong>Auto-Refresh</strong>: ' . ucfirst( esc_html__( 'disabled', 'debug-log-manager' ) ) . '</div>';
+			return '<div id="debug-autorefresh-status" class="dlm-autorefresh-status"><strong>' . esc_html__( 'Auto-Refresh', 'debug-log-manager' ) . '</strong>: ' . ucfirst( esc_html__( 'disabled', 'debug-log-manager' ) ) . '</div>';
 
 		}
 
