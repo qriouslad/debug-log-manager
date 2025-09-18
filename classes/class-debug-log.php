@@ -474,6 +474,8 @@ class Debug_Log {
 
         $log 	= str_replace( "[\"", "^\"", $log ); // certain error message contains the '["' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^"'
 
+        $log 	= str_replace( ":[", ":^", $log ); // certain error message contains the ':[' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^"'
+
         $log = str_replace( "[internal function]", "^internal function^", $log );
 
         // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
@@ -485,7 +487,7 @@ class Debug_Log {
         $lines 	= array_slice( $lines, -100000 );
 
         foreach ( $lines as $line ) {
-        	if ( !empty($line) ) {
+        	if ( ! empty( $line ) ) {
         		$timezone_strings_to_replace = array(
         			'UTC]',
 					'Abidjan]',
@@ -1343,6 +1345,7 @@ class Debug_Log {
         		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
         		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
         		$line 			= str_replace( "^\"", "[\"", $line ); // reverse the temporary replacement of '["' with '^"'
+        		$line 			= str_replace( ":^", ":[", $line ); // reverse the temporary replacement of '[]' with '$#'
         		$line 			= str_replace( "^internal function^", "[internal function]", $line );
 	        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
 	        	$prepended_lines[] 	= $prepended_line;
@@ -1489,24 +1492,38 @@ class Debug_Log {
 	
 			}
 			
-			if ( ( false !== strpos( $error, 'PHP Fatal' )) || ( false !== strpos( $error, 'FATAL' ) ) || ( false !== strpos( $error, 'E_ERROR' ) ) ) {
+			// Stopgap measure to prevent fatal error in strpos() beneath, which expects $error to be a string
+			if ( is_array( $error ) ) {
+				$error = maybe_serialize( $error );
+			}
+			
+			if ( ( false !== strpos( $error, 'PHP Fatal' ) ) 
+				|| ( false !== strpos( $error, 'FATAL' ) ) 
+				|| ( false !== strpos( $error, 'E_ERROR' ) ) ) 
+			{
 				$error_type 	= __( 'PHP Fatal', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Fatal error: ", "", $error );
 				$error_details 	= str_replace( "PHP Fatal: ", "", $error_details );
 				$error_details 	= str_replace( "FATAL ", "", $error_details );
 				$error_details 	= str_replace( "E_ERROR: ", "", $error_details );
-			} elseif ( ( false !== strpos( $error, 'PHP Warning' ) ) || (  false !== strpos( $error, 'E_WARNING' ) ) ) {
+			} elseif ( ( false !== strpos( $error, 'PHP Warning' ) ) 
+				|| ( false !== strpos( $error, 'E_WARNING' ) ) )
+			{
 				$error_type 	= __( 'PHP Warning', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Warning: ", "", $error );
 				$error_details 	= str_replace( "E_WARNING: ", "", $error_details );
-			} elseif ( ( false !== strpos( $error, 'PHP Notice' ) ) || ( false !== strpos( $error, 'E_NOTICE' ) ) ) {
+			} elseif ( ( false !== strpos( $error, 'PHP Notice' ) ) 
+				|| ( false !== strpos( $error, 'E_NOTICE' ) ) )
+			{
 				$error_type 	= __( 'PHP Notice', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Notice: ", "", $error );
 				$error_details 	= str_replace( "E_NOTICE: ", "", $error_details );
 			} elseif ( false !== strpos( $error, 'PHP Deprecated' ) ) {
 				$error_type 	= __( 'PHP Deprecated', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Deprecated: ", "", $error );
-			} elseif ( ( false !== strpos( $error, 'PHP Parse' ) ) || ( false !== strpos( $error, 'E_PARSE' ) ) ) {
+			} elseif ( ( false !== strpos( $error, 'PHP Parse' ) ) 
+				|| ( false !== strpos( $error, 'E_PARSE' ) ) )
+			{
 				$error_type 	= __( 'PHP Parse', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
 				$error_details 	= str_replace( "E_PARSE: ", "", $error_details );
