@@ -79,6 +79,10 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 2.4.2 (2025.09.17)
+
+* Additional measure to fix PHP fatal error that occurs in a certain scenario. Props to [Michael K.](https://wordpress.org/support/users/mkupietz/) for [reporting](https://wordpress.org/support/topic/fatal-error-in-todays-new-version/) the issue in detail.
+
 ### 2.4.1 (2025.09.17)
 
 * Fixed PHP fatal error that occurs in a certain scenario. Props to [Pedro](https://wordpress.org/support/users/pedromag/) and [@guytimes](https://wordpress.org/support/users/guytimes/) for reporting the issue in detail [here](https://wordpress.org/support/topic/critical-error-with-the-debug-log-manager/) and [here](https://wordpress.org/support/topic/there-has-been-a-critical-error-on-this-website-421/).
