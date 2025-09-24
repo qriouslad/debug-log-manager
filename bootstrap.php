@@ -51,7 +51,7 @@ class Debug_Log_Manager {
 		add_action( 'all_admin_notices', [ $this, 'suppress_generic_notices' ], 0 );
 
 		// Add action links
-		add_filter( 'plugin_action_links_'.DLM_SLUG.'/'.DLM_SLUG.'.php', [ $this, 'action_links' ] );
+		add_filter( 'plugin_action_links_'.DLM__SLUG.'/'.DLM__SLUG.'.php', [ $this, 'action_links' ] );
 
 		if ( is_admin() ) {
 
@@ -133,7 +133,7 @@ class Debug_Log_Manager {
 
 		$request_uri = sanitize_text_field( $_SERVER['REQUEST_URI'] ); // e.g. /wp-admin/index.php?page=page-slug
 
-		if ( strpos( $request_uri, 'tools.php?page=' . DLM_SLUG ) !== false ) {
+		if ( strpos( $request_uri, 'tools.php?page=' . DLM__SLUG ) !== false ) {
 			return true; // Yes, this is the plugin's main page
 		} else {
 			return false; // Nope, this is NOT the plugin's page
@@ -166,7 +166,7 @@ class Debug_Log_Manager {
 	 */
 	public function action_links( $links ) {
 
-		$settings_link = '<a href="tools.php?page='.DLM_SLUG.'">' . esc_html__( 'View Debug Log', 'debug-log-manager' ) . '</a>';
+		$settings_link = '<a href="tools.php?page='.DLM__SLUG.'">' . esc_html__( 'View Debug Log', 'debug-log-manager' ) . '</a>';
 
 		array_unshift($links, $settings_link); 
 
@@ -209,11 +209,11 @@ class Debug_Log_Manager {
 			// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_menu/
 			// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_node/ for more examples
 			$wp_admin_bar->add_menu( array(
-				'id'		=> DLM_SLUG,
+				'id'		=> DLM__SLUG,
 				'parent'	=> 'top-secondary',
 				'group'		=> null,
 				'title'		=> '<span class="dashicons dashicons-warning"></span>',
-				'href'		=> admin_url( 'tools.php?page=' . DLM_SLUG ),
+				'href'		=> admin_url( 'tools.php?page=' . DLM__SLUG ),
 				'meta'		=> array(
 					'class'		=> 'dlm-admin-bar-icon',
 					'title'		=> esc_attr__( 'Error logging is enabled. Click to access the Debug Log Manager.', 'debug-log-manager' )
@@ -325,7 +325,7 @@ class Debug_Log_Manager {
 
 		global $plugin_page;
 
-		if ( DLM_SLUG === $plugin_page ) {
+		if ( DLM__SLUG === $plugin_page ) {
 			remove_all_actions( 'admin_notices' );
 		}
 
@@ -342,7 +342,7 @@ class Debug_Log_Manager {
 
 		// Suppress all notices
 
-		if ( DLM_SLUG === $plugin_page ) {
+		if ( DLM__SLUG === $plugin_page ) {
 
 			remove_all_actions( 'all_admin_notices' );
 
@@ -389,13 +389,13 @@ class Debug_Log_Manager {
 	 */
 	public function admin_scripts() {
 
-		wp_enqueue_style( 'dlm-admin', DLM_URL . 'assets/css/admin.css', array(), DLM_VERSION );
-		wp_enqueue_style( 'dlm-datatables', DLM_URL . 'assets/css/datatables.min.css', array(), DLM_VERSION );
-		wp_enqueue_style( 'dlm-toast', DLM_URL . 'assets/css/jquery.toast.min.css', array(), DLM_VERSION );
-		wp_enqueue_script( 'dlm-app', DLM_URL . 'assets/js/admin.js', array(), DLM_VERSION, false );
-		wp_enqueue_script( 'dlm-jsticky', DLM_URL . 'assets/js/jquery.jsticky.mod.min.js', array( 'jquery' ), DLM_VERSION, false );
-		wp_enqueue_script( 'dlm-datatables', DLM_URL . 'assets/js/datatables.min.js', array( 'jquery' ), DLM_VERSION, false );
-		wp_enqueue_script( 'dlm-toast', DLM_URL . 'assets/js/jquery.toast.min.js', array( 'jquery' ), DLM_VERSION, false );
+		wp_enqueue_style( 'dlm-admin', DLM__URL . 'assets/css/admin.css', array(), DLM__VERSION );
+		wp_enqueue_style( 'dlm-datatables', DLM__URL . 'assets/css/datatables.min.css', array(), DLM__VERSION );
+		wp_enqueue_style( 'dlm-toast', DLM__URL . 'assets/css/jquery.toast.min.css', array(), DLM__VERSION );
+		wp_enqueue_script( 'dlm-app', DLM__URL . 'assets/js/admin.js', array(), DLM__VERSION, false );
+		wp_enqueue_script( 'dlm-jsticky', DLM__URL . 'assets/js/jquery.jsticky.mod.min.js', array( 'jquery' ), DLM__VERSION, false );
+		wp_enqueue_script( 'dlm-datatables', DLM__URL . 'assets/js/datatables.min.js', array( 'jquery' ), DLM__VERSION, false );
+		wp_enqueue_script( 'dlm-toast', DLM__URL . 'assets/js/jquery.toast.min.js', array( 'jquery' ), DLM__VERSION, false );
 
 		// Pass on data from PHP to JS
 
@@ -436,7 +436,7 @@ class Debug_Log_Manager {
 				'jsErrorLogging'	=> array(
 					'status'	=> '',
 					'url'		=> admin_url( 'admin-ajax.php' ),
-					'nonce'		=> wp_create_nonce( DLM_SLUG ),
+					'nonce'		=> wp_create_nonce( DLM__SLUG ),
 					'action'	=> 'log_js_errors',
 				),
 				'toastMessage'		=> array(
@@ -473,8 +473,8 @@ class Debug_Log_Manager {
 	 */
 	public function plugin_editor_scripts() {
 
-		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM_URL . 'assets/css/plugin-theme-editor.css', array(), DLM_VERSION );
-		wp_enqueue_script( 'dlm-plugin-editor', DLM_URL . 'assets/js/plugin-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM_VERSION, false );
+		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM__URL . 'assets/css/plugin-theme-editor.css', array(), DLM__VERSION );
+		wp_enqueue_script( 'dlm-plugin-editor', DLM__URL . 'assets/js/plugin-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM__VERSION, false );
 
 	}
 
@@ -485,8 +485,8 @@ class Debug_Log_Manager {
 	 */
 	public function theme_editor_scripts() {
 
-		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM_URL . 'assets/css/plugin-theme-editor.css', array(), DLM_VERSION );
-		wp_enqueue_script( 'dlm-theme-editor', DLM_URL . 'assets/js/theme-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM_VERSION, false );
+		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM__URL . 'assets/css/plugin-theme-editor.css', array(), DLM__VERSION );
+		wp_enqueue_script( 'dlm-theme-editor', DLM__URL . 'assets/js/theme-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM__VERSION, false );
 
 	}
 
@@ -543,7 +543,7 @@ class Debug_Log_Manager {
 		$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' ); // enabled | disabled
 
 		if ( 'enabled' == $log_status && 'enabled' == $js_error_logging_status ) {
-			wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );		
+			wp_enqueue_script( 'dlm-public', DLM__URL . 'assets/js/public.js', array( 'jquery' ), DLM__VERSION, false );		
 
 			wp_localize_script( 
 				'dlm-public', 
@@ -553,7 +553,7 @@ class Debug_Log_Manager {
 					'jsErrorLogging'	=> array(
 						'status'	=> '',
 						'url'		=> admin_url( 'admin-ajax.php' ),
-						'nonce'		=> wp_create_nonce( DLM_SLUG ),
+						'nonce'		=> wp_create_nonce( DLM__SLUG ),
 						'action'	=> 'log_js_errors',
 					),
 				) 
