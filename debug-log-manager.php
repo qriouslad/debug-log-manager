@@ -18,10 +18,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DLM_VERSION', '2.4.2' );
-define( 'DLM_SLUG', 'debug-log-manager' );
-define( 'DLM_URL', plugins_url( '/', __FILE__ ) ); // e.g. https://www.example.com/wp-content/plugins/this-plugin/
-define( 'DLM_PATH', plugin_dir_path( __FILE__ ) ); // e.g. /home/user/apps/wp-root/wp-content/plugins/this-plugin/
+define( 'DLM__VERSION', '2.4.2' );
+define( 'DLM__SLUG', 'debug-log-manager' );
+define( 'DLM__URL', plugins_url( '/', __FILE__ ) ); // e.g. https://www.example.com/wp-content/plugins/this-plugin/
+define( 'DLM__PATH', plugin_dir_path( __FILE__ ) ); // e.g. /home/user/apps/wp-root/wp-content/plugins/this-plugin/
 // define( 'DLM_BASE', plugin_basename( __FILE__ ) ); // e.g. plugin-slug/this-file.php
 // define( 'DLM_FILE', __FILE__ ); // /home/user/apps/wp-root/wp-content/plugins/this-plugin/this-file.php
 
@@ -60,7 +60,7 @@ function dlm_autoloader( $class_name ) {
         $path = substr( $path, 1 );
 
         // Get /plugin-path/classes/class-the-name.php
-        $path = DLM_PATH . $path;
+        $path = DLM__PATH . $path;
 
         if ( file_exists( $path ) ) {
             require_once( $path );
@@ -97,4 +97,4 @@ register_activation_hook( __FILE__, 'dlm_on_activation');
 register_deactivation_hook( __FILE__, 'dlm_on_deactivation' );
 
 // Bootstrap the core functionalities of this plugin
-require DLM_PATH . 'bootstrap.php';
+require DLM__PATH . 'bootstrap.php';

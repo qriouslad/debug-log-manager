@@ -79,6 +79,10 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 2.4.3 (2025.09.24)
+
+* Rename constants used in DLM to prevent conflict with similar constant names in the Download Monitor plugin. Props to [Nicolas C.](https://wordpress.org/support/users/nicolas-cuny/) for [reporting](https://wordpress.org/support/topic/constant-naming-conflict-with-download-monitor/) the issue.
+
 ### 2.4.2 (2025.09.17)
 
 * Additional measure to fix PHP fatal error that occurs in a certain scenario. Props to [Michael K.](https://wordpress.org/support/users/mkupietz/) for [reporting](https://wordpress.org/support/topic/fatal-error-in-todays-new-version/) the issue in detail.
