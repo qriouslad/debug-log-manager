@@ -97,6 +97,7 @@ class Debug_Log {
 				
 				$log_info 				= get_option( 'debug_log_manager' );
 		        $dlm_debug_log_file_path 	= get_option( 'debug_log_manager_file_path' );
+		        $modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
 
 				if ( function_exists( 'wp_date' ) ) {
 					$date_time 	= wp_date( 'M j, Y - H:i:s' ); // Localized according to WP timezone settings
@@ -164,13 +165,15 @@ class Debug_Log {
 
 					$this->wp_config->update( 'constant', 'WP_DEBUG', 'true', $options );
 
-					$options = array(
-						'add'       => true, // Add the config if missing.
-						'raw'       => true, // Display value in raw format without quotes.
-						'normalize' => false, // Normalize config output using WP Coding Standards.
-					);
+					if ( 'enabled' == $modify_script_debug_status ) {
+						$options = array(
+							'add'       => true, // Add the config if missing.
+							'raw'       => true, // Display value in raw format without quotes.
+							'normalize' => false, // Normalize config output using WP Coding Standards.
+						);
 
-					$this->wp_config->update( 'constant', 'SCRIPT_DEBUG', 'true', $options );
+						$this->wp_config->update( 'constant', 'SCRIPT_DEBUG', 'true', $options );
+					}
 
 					$options = array(
 						'add'       => true, // Add the config if missing.
@@ -256,7 +259,9 @@ class Debug_Log {
 					// Remove Debug constants in wp-config.php
 
 					$this->wp_config->remove( 'constant', 'WP_DEBUG' );
-					$this->wp_config->remove( 'constant', 'SCRIPT_DEBUG' );
+					if ( 'enabled' == $modify_script_debug_status ) {
+						$this->wp_config->remove( 'constant', 'SCRIPT_DEBUG' );
+					}
 					$this->wp_config->remove( 'constant', 'WP_DEBUG_LOG' );
 					$this->wp_config->remove( 'constant', 'WP_DEBUG_DISPLAY' );
 					$this->wp_config->remove( 'constant', 'DISALLOW_FILE_EDIT' );
@@ -322,6 +327,123 @@ class Debug_Log {
 	}
 
 	/**
+	 * Toggle JS error logging status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_js_error_logging() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' );
+
+				if ( $js_error_logging_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_js_error_logging', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $js_error_logging_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_js_error_logging', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+	}
+
+	/**
+	 * Toggle SCRIPT_DEBUG modification status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_script_debug_modification_status() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
+
+				if ( $modify_script_debug_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_modify_script_debug', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $modify_script_debug_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_modify_script_debug', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+	}
+	
+	/**
+	 * Toggle processing non-UTC timezones status
+	 *
+	 * @since 1.3.0
+	 */
+	public function toggle_process_non_utc_timezones_status() {
+
+		if ( isset( $_REQUEST ) && current_user_can( 'manage_options' ) ) {			
+			if ( wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'dlm-app' . get_current_user_id() ) ) {
+				
+				$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
+
+				if ( $process_non_utc_timezones_status == 'disabled' ) {
+
+			        update_option( 'debug_log_manager_process_non_utc_timezones', 'enabled', false );
+
+					$data = array(
+						'status'	=> 'enabled',
+					);
+
+					echo json_encode( $data );
+
+				} elseif ( $process_non_utc_timezones_status == 'enabled' ) {
+
+			        update_option( 'debug_log_manager_process_non_utc_timezones', 'disabled', false );
+
+					$data = array(
+						'status'	=> 'disabled',
+					);
+
+					echo json_encode( $data );
+
+				} else {}
+
+			}
+		}
+
+
+	}
+	/**
 	 * Get the processed debug log data
 	 *
 	 * @return string $errors_master_list The processed error log entries
@@ -329,7 +451,14 @@ class Debug_Log {
 	 */
 	public function get_processed_entries() {
 
+		// Paths with no trailing slash (/)
+		$wp_admin_path = ABSPATH . 'wp-admin';
+		$wp_includes_path = ABSPATH . 'wp-includes';
+		$theme_dir_path = get_theme_root();
+		$wp_plugin_dir_path = WP_PLUGIN_DIR;
+		
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
+		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
 
         // Read the errors log file 
         $log 	= file_get_contents( $debug_log_file_path );
@@ -345,6 +474,8 @@ class Debug_Log {
 
         $log 	= str_replace( "[\"", "^\"", $log ); // certain error message contains the '["' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^"'
 
+        $log 	= str_replace( ":[", ":^", $log ); // certain error message contains the ':[' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^"'
+
         $log = str_replace( "[internal function]", "^internal function^", $log );
 
         // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
@@ -356,8 +487,855 @@ class Debug_Log {
         $lines 	= array_slice( $lines, -100000 );
 
         foreach ( $lines as $line ) {
-        	if ( !empty($line) ) {
-        		$line 			= str_replace( "UTC]", "UTC]@@@", $line ); // add '@@@' as marker/separator after time stamp
+        	if ( ! empty( $line ) ) {
+        		$timezone_strings_to_replace = array(
+        			'UTC]',
+					'Abidjan]',
+					'Accra]',
+					'Addis_Ababa]',
+					'Algiers]',
+					'Asmara]',
+					'Bamako]',
+					'Bangui]',
+					'Banjul]',
+					'Bissau]',
+					'Blantyre]',
+					'Brazzaville]',
+					'Bujumbura]',
+					'Cairo]',
+					'Casablanca]',
+					'Ceuta]',
+					'Conakry]',
+					'Dakar]',
+					'Dar_es_Salaam]',
+					'Djibouti]',
+					'Douala]',
+					'El_Aaiun]',
+					'Freetown]',
+					'Gaborone]',
+					'Harare]',
+					'Johannesburg]',
+					'Juba]',
+					'Kampala]',
+					'Khartoum]',
+					'Kigali]',
+					'Kinshasa]',
+					'Lagos]',
+					'Libreville]',
+					'Lome]',
+					'Luanda]',
+					'Lubumbashi]',
+					'Lusaka]',
+					'Malabo]',
+					'Maputo]',
+					'Maseru]',
+					'Mbabane]',
+					'Mogadishu]',
+					'Monrovia]',
+					'Nairobi]',
+					'Ndjamena]',
+					'Niamey]',
+					'Nouakchott]',
+					'Ouagadougou]',
+					'Porto-Novo]',
+					'Sao_Tome]',
+					'Tripoli]',
+					'Tunis]',
+					'Windhoek]',
+					'Adak]',
+					'Anchorage]',
+					'Anguilla]',
+					'Antigua]',
+					'Araguaina]',
+					'Argentina/Buenos_Aires]',
+					'Argentina/Catamarca]',
+					'Argentina/Cordoba]',
+					'Argentina/Jujuy]',
+					'Argentina/La_Rioja]',
+					'Argentina/Mendoza]',
+					'Argentina/Rio_Gallegos]',
+					'Argentina/Salta]',
+					'Argentina/San_Juan]',
+					'Argentina/San_Luis]',
+					'Argentina/Tucuman]',
+					'Argentina/Ushuaia]',
+					'Aruba]',
+					'Asuncion]',
+					'Atikokan]',
+					'Bahia]',
+					'Bahia_Banderas]',
+					'Barbados]',
+					'Belem]',
+					'Belize]',
+					'Blanc-Sablon]',
+					'Boa_Vista]',
+					'Bogota]',
+					'Boise]',
+					'Cambridge_Bay]',
+					'Campo_Grande]',
+					'Cancun]',
+					'Caracas]',
+					'Cayenne]',
+					'Cayman]',
+					'Chicago]',
+					'Chihuahua]',
+					'Ciudad_Juarez]',
+					'Costa_Rica]',
+					'Coyhaique]',
+					'Creston]',
+					'Cuiaba]',
+					'Curacao]',
+					'Danmarkshavn]',
+					'Dawson]',
+					'Dawson_Creek]',
+					'Denver]',
+					'Detroit]',
+					'Dominica]',
+					'Edmonton]',
+					'Eirunepe]',
+					'El_Salvador]',
+					'Fort_Nelson]',
+					'Fortaleza]',
+					'Glace_Bay]',
+					'Goose_Bay]',
+					'Grand_Turk]',
+					'Grenada]',
+					'Guadeloupe]',
+					'Guatemala]',
+					'Guayaquil]',
+					'Guyana]',
+					'Halifax]',
+					'Havana]',
+					'Hermosillo]',
+					'Indiana/Indianapolis]',
+					'Indiana/Knox]',
+					'Indiana/Marengo]',
+					'Indiana/Petersburg]',
+					'Indiana/Tell_City]',
+					'Indiana/Vevay]',
+					'Indiana/Vincennes]',
+					'Indiana/Winamac]',
+					'Inuvik]',
+					'Iqaluit]',
+					'Jamaica]',
+					'Juneau]',
+					'Kentucky/Louisville]',
+					'Kentucky/Monticello]',
+					'Kralendijk]',
+					'La_Paz]',
+					'Lima]',
+					'Los_Angeles]',
+					'Lower_Princes]',
+					'Maceio]',
+					'Managua]',
+					'Manaus]',
+					'Marigot]',
+					'Martinique]',
+					'Matamoros]',
+					'Mazatlan]',
+					'Menominee]',
+					'Merida]',
+					'Metlakatla]',
+					'Mexico_City]',
+					'Miquelon]',
+					'Moncton]',
+					'Monterrey]',
+					'Montevideo]',
+					'Montserrat]',
+					'Nassau]',
+					'New_York]',
+					'Nome]',
+					'Noronha]',
+					'North_Dakota/Beulah]',
+					'North_Dakota/Center]',
+					'North_Dakota/New_Salem]',
+					'Nuuk]',
+					'Ojinaga]',
+					'Panama]',
+					'Paramaribo]',
+					'Phoenix]',
+					'Port-au-Prince]',
+					'Port_of_Spain]',
+					'Porto_Velho]',
+					'Puerto_Rico]',
+					'Punta_Arenas]',
+					'Rankin_Inlet]',
+					'Recife]',
+					'Regina]',
+					'Resolute]',
+					'Rio_Branco]',
+					'Santarem]',
+					'Santiago]',
+					'Santo_Domingo]',
+					'Sao_Paulo]',
+					'Scoresbysund]',
+					'Sitka]',
+					'St_Barthelemy]',
+					'St_Johns]',
+					'St_Kitts]',
+					'St_Lucia]',
+					'St_Thomas]',
+					'St_Vincent]',
+					'Swift_Current]',
+					'Tegucigalpa]',
+					'Thule]',
+					'Tijuana]',
+					'Toronto]',
+					'Tortola]',
+					'Vancouver]',
+					'Whitehorse]',
+					'Winnipeg]',
+					'Yakutat]',
+					'Casey]',
+					'Davis]',
+					'DumontDUrville]',
+					'Macquarie]',
+					'Mawson]',
+					'McMurdo]',
+					'Palmer]',
+					'Rothera]',
+					'Syowa]',
+					'Troll]',
+					'Vostok]',
+					'Longyearbyen]',
+					'Aden]',
+					'Almaty]',
+					'Amman]',
+					'Anadyr]',
+					'Aqtau]',
+					'Aqtobe]',
+					'Ashgabat]',
+					'Atyrau]',
+					'Baghdad]',
+					'Bahrain]',
+					'Baku]',
+					'Bangkok]',
+					'Barnaul]',
+					'Beirut]',
+					'Bishkek]',
+					'Brunei]',
+					'Chita]',
+					'Colombo]',
+					'Damascus]',
+					'Dhaka]',
+					'Dili]',
+					'Dubai]',
+					'Dushanbe]',
+					'Famagusta]',
+					'Gaza]',
+					'Hebron]',
+					'Ho_Chi_Minh]',
+					'Hong_Kong]',
+					'Hovd]',
+					'Irkutsk]',
+					'Jakarta]',
+					'Jayapura]',
+					'Jerusalem]',
+					'Kabul]',
+					'Kamchatka]',
+					'Karachi]',
+					'Kathmandu]',
+					'Khandyga]',
+					'Kolkata]',
+					'Krasnoyarsk]',
+					'Kuala_Lumpur]',
+					'Kuching]',
+					'Kuwait]',
+					'Macau]',
+					'Magadan]',
+					'Makassar]',
+					'Manila]',
+					'Muscat]',
+					'Nicosia]',
+					'Novokuznetsk]',
+					'Novosibirsk]',
+					'Omsk]',
+					'Oral]',
+					'Phnom_Penh]',
+					'Pontianak]',
+					'Pyongyang]',
+					'Qatar]',
+					'Qostanay]',
+					'Qyzylorda]',
+					'Riyadh]',
+					'Sakhalin]',
+					'Samarkand]',
+					'Seoul]',
+					'Shanghai]',
+					'Singapore]',
+					'Srednekolymsk]',
+					'Taipei]',
+					'Tashkent]',
+					'Tbilisi]',
+					'Tehran]',
+					'Thimphu]',
+					'Tokyo]',
+					'Tomsk]',
+					'Ulaanbaatar]',
+					'Urumqi]',
+					'Ust-Nera]',
+					'Vientiane]',
+					'Vladivostok]',
+					'Yakutsk]',
+					'Yangon]',
+					'Yekaterinburg]',
+					'Yerevan]',
+					'Atlantic/Azores]',
+					'Atlantic/Bermuda]',
+					'Atlantic/Canary]',
+					'Atlantic/Cape_Verde]',
+					'Atlantic/Faroe]',
+					'Atlantic/Madeira]',
+					'Atlantic/Reykjavik]',
+					'Atlantic/South_Georgia]',
+					'Atlantic/St_Helena]',
+					'Atlantic/Stanley]',
+					'Australia/Adelaide]',
+					'Australia/Brisbane]',
+					'Australia/Broken_Hill]',
+					'Australia/Darwin]',
+					'Australia/Eucla]',
+					'Australia/Hobart]',
+					'Australia/Lindeman]',
+					'Australia/Lord_Howe]',
+					'Australia/Melbourne]',
+					'Australia/Perth]',
+					'Australia/Sydney]',
+					'Amsterdam]',
+					'Andorra]',
+					'Astrakhan]',
+					'Athens]',
+					'Belgrade]',
+					'Berlin]',
+					'Bratislava]',
+					'Brussels]',
+					'Bucharest]',
+					'Budapest]',
+					'Busingen]',
+					'Chisinau]',
+					'Copenhagen]',
+					'Dublin]',
+					'Gibraltar]',
+					'Guernsey]',
+					'Helsinki]',
+					'Isle_of_Man]',
+					'Istanbul]',
+					'Jersey]',
+					'Kaliningrad]',
+					'Kirov]',
+					'Kyiv]',
+					'Lisbon]',
+					'Ljubljana]',
+					'London]',
+					'Luxembourg]',
+					'Madrid]',
+					'Malta]',
+					'Mariehamn]',
+					'Minsk]',
+					'Monaco]',
+					'Moscow]',
+					'Oslo]',
+					'Paris]',
+					'Podgorica]',
+					'Prague]',
+					'Riga]',
+					'Rome]',
+					'Samara]',
+					'San_Marino]',
+					'Sarajevo]',
+					'Saratov]',
+					'Simferopol]',
+					'Skopje]',
+					'Sofia]',
+					'Stockholm]',
+					'Tallinn]',
+					'Tirane]',
+					'Ulyanovsk]',
+					'Vaduz]',
+					'Vatican]',
+					'Vienna]',
+					'Vilnius]',
+					'Volgograd]',
+					'Warsaw]',
+					'Zagreb]',
+					'Zurich]',
+					'Antananarivo]',
+					'Chagos]',
+					'Christmas]',
+					'Cocos]',
+					'Comoro]',
+					'Kerguelen]',
+					'Mahe]',
+					'Maldives]',
+					'Mauritius]',
+					'Mayotte]',
+					'Reunion]',
+					'Apia]',
+					'Auckland]',
+					'Bougainville]',
+					'Chatham]',
+					'Chuuk]',
+					'Easter]',
+					'Efate]',
+					'Fakaofo]',
+					'Fiji]',
+					'Funafuti]',
+					'Galapagos]',
+					'Gambier]',
+					'Guadalcanal]',
+					'Guam]',
+					'Honolulu]',
+					'Kanton]',
+					'Kiritimati]',
+					'Kosrae]',
+					'Kwajalein]',
+					'Majuro]',
+					'Marquesas]',
+					'Midway]',
+					'Nauru]',
+					'Niue]',
+					'Norfolk]',
+					'Noumea]',
+					'Pago_Pago]',
+					'Palau]',
+					'Pitcairn]',
+					'Pohnpei]',
+					'Port_Moresby]',
+					'Rarotonga]',
+					'Saipan]',
+					'Tahiti]',
+					'Tarawa]',
+					'Tongatapu]',
+					'Wake]',
+					'Wallis]',
+        		);
+        		$timezone_replacement_strings = array(
+        			'UTC]@@@',
+					'Abidjan]@@@',
+					'Accra]@@@',
+					'Addis_Ababa]@@@',
+					'Algiers]@@@',
+					'Asmara]@@@',
+					'Bamako]@@@',
+					'Bangui]@@@',
+					'Banjul]@@@',
+					'Bissau]@@@',
+					'Blantyre]@@@',
+					'Brazzaville]@@@',
+					'Bujumbura]@@@',
+					'Cairo]@@@',
+					'Casablanca]@@@',
+					'Ceuta]@@@',
+					'Conakry]@@@',
+					'Dakar]@@@',
+					'Dar_es_Salaam]@@@',
+					'Djibouti]@@@',
+					'Douala]@@@',
+					'El_Aaiun]@@@',
+					'Freetown]@@@',
+					'Gaborone]@@@',
+					'Harare]@@@',
+					'Johannesburg]@@@',
+					'Juba]@@@',
+					'Kampala]@@@',
+					'Khartoum]@@@',
+					'Kigali]@@@',
+					'Kinshasa]@@@',
+					'Lagos]@@@',
+					'Libreville]@@@',
+					'Lome]@@@',
+					'Luanda]@@@',
+					'Lubumbashi]@@@',
+					'Lusaka]@@@',
+					'Malabo]@@@',
+					'Maputo]@@@',
+					'Maseru]@@@',
+					'Mbabane]@@@',
+					'Mogadishu]@@@',
+					'Monrovia]@@@',
+					'Nairobi]@@@',
+					'Ndjamena]@@@',
+					'Niamey]@@@',
+					'Nouakchott]@@@',
+					'Ouagadougou]@@@',
+					'Porto-Novo]@@@',
+					'Sao_Tome]@@@',
+					'Tripoli]@@@',
+					'Tunis]@@@',
+					'Windhoek]@@@',
+					'Adak]@@@',
+					'Anchorage]@@@',
+					'Anguilla]@@@',
+					'Antigua]@@@',
+					'Araguaina]@@@',
+					'Argentina/Buenos_Aires]@@@',
+					'Argentina/Catamarca]@@@',
+					'Argentina/Cordoba]@@@',
+					'Argentina/Jujuy]@@@',
+					'Argentina/La_Rioja]@@@',
+					'Argentina/Mendoza]@@@',
+					'Argentina/Rio_Gallegos]@@@',
+					'Argentina/Salta]@@@',
+					'Argentina/San_Juan]@@@',
+					'Argentina/San_Luis]@@@',
+					'Argentina/Tucuman]@@@',
+					'Argentina/Ushuaia]@@@',
+					'Aruba]@@@',
+					'Asuncion]@@@',
+					'Atikokan]@@@',
+					'Bahia]@@@',
+					'Bahia_Banderas]@@@',
+					'Barbados]@@@',
+					'Belem]@@@',
+					'Belize]@@@',
+					'Blanc-Sablon]@@@',
+					'Boa_Vista]@@@',
+					'Bogota]@@@',
+					'Boise]@@@',
+					'Cambridge_Bay]@@@',
+					'Campo_Grande]@@@',
+					'Cancun]@@@',
+					'Caracas]@@@',
+					'Cayenne]@@@',
+					'Cayman]@@@',
+					'Chicago]@@@',
+					'Chihuahua]@@@',
+					'Ciudad_Juarez]@@@',
+					'Costa_Rica]@@@',
+					'Coyhaique]@@@',
+					'Creston]@@@',
+					'Cuiaba]@@@',
+					'Curacao]@@@',
+					'Danmarkshavn]@@@',
+					'Dawson]@@@',
+					'Dawson_Creek]@@@',
+					'Denver]@@@',
+					'Detroit]@@@',
+					'Dominica]@@@',
+					'Edmonton]@@@',
+					'Eirunepe]@@@',
+					'El_Salvador]@@@',
+					'Fort_Nelson]@@@',
+					'Fortaleza]@@@',
+					'Glace_Bay]@@@',
+					'Goose_Bay]@@@',
+					'Grand_Turk]@@@',
+					'Grenada]@@@',
+					'Guadeloupe]@@@',
+					'Guatemala]@@@',
+					'Guayaquil]@@@',
+					'Guyana]@@@',
+					'Halifax]@@@',
+					'Havana]@@@',
+					'Hermosillo]@@@',
+					'Indiana/Indianapolis]@@@',
+					'Indiana/Knox]@@@',
+					'Indiana/Marengo]@@@',
+					'Indiana/Petersburg]@@@',
+					'Indiana/Tell_City]@@@',
+					'Indiana/Vevay]@@@',
+					'Indiana/Vincennes]@@@',
+					'Indiana/Winamac]@@@',
+					'Inuvik]@@@',
+					'Iqaluit]@@@',
+					'Jamaica]@@@',
+					'Juneau]@@@',
+					'Kentucky/Louisville]@@@',
+					'Kentucky/Monticello]@@@',
+					'Kralendijk]@@@',
+					'La_Paz]@@@',
+					'Lima]@@@',
+					'Los_Angeles]@@@',
+					'Lower_Princes]@@@',
+					'Maceio]@@@',
+					'Managua]@@@',
+					'Manaus]@@@',
+					'Marigot]@@@',
+					'Martinique]@@@',
+					'Matamoros]@@@',
+					'Mazatlan]@@@',
+					'Menominee]@@@',
+					'Merida]@@@',
+					'Metlakatla]@@@',
+					'Mexico_City]@@@',
+					'Miquelon]@@@',
+					'Moncton]@@@',
+					'Monterrey]@@@',
+					'Montevideo]@@@',
+					'Montserrat]@@@',
+					'Nassau]@@@',
+					'New_York]@@@',
+					'Nome]@@@',
+					'Noronha]@@@',
+					'North_Dakota/Beulah]@@@',
+					'North_Dakota/Center]@@@',
+					'North_Dakota/New_Salem]@@@',
+					'Nuuk]@@@',
+					'Ojinaga]@@@',
+					'Panama]@@@',
+					'Paramaribo]@@@',
+					'Phoenix]@@@',
+					'Port-au-Prince]@@@',
+					'Port_of_Spain]@@@',
+					'Porto_Velho]@@@',
+					'Puerto_Rico]@@@',
+					'Punta_Arenas]@@@',
+					'Rankin_Inlet]@@@',
+					'Recife]@@@',
+					'Regina]@@@',
+					'Resolute]@@@',
+					'Rio_Branco]@@@',
+					'Santarem]@@@',
+					'Santiago]@@@',
+					'Santo_Domingo]@@@',
+					'Sao_Paulo]@@@',
+					'Scoresbysund]@@@',
+					'Sitka]@@@',
+					'St_Barthelemy]@@@',
+					'St_Johns]@@@',
+					'St_Kitts]@@@',
+					'St_Lucia]@@@',
+					'St_Thomas]@@@',
+					'St_Vincent]@@@',
+					'Swift_Current]@@@',
+					'Tegucigalpa]@@@',
+					'Thule]@@@',
+					'Tijuana]@@@',
+					'Toronto]@@@',
+					'Tortola]@@@',
+					'Vancouver]@@@',
+					'Whitehorse]@@@',
+					'Winnipeg]@@@',
+					'Yakutat]@@@',
+					'Casey]@@@',
+					'Davis]@@@',
+					'DumontDUrville]@@@',
+					'Macquarie]@@@',
+					'Mawson]@@@',
+					'McMurdo]@@@',
+					'Palmer]@@@',
+					'Rothera]@@@',
+					'Syowa]@@@',
+					'Troll]@@@',
+					'Vostok]@@@',
+					'Longyearbyen]@@@',
+					'Aden]@@@',
+					'Almaty]@@@',
+					'Amman]@@@',
+					'Anadyr]@@@',
+					'Aqtau]@@@',
+					'Aqtobe]@@@',
+					'Ashgabat]@@@',
+					'Atyrau]@@@',
+					'Baghdad]@@@',
+					'Bahrain]@@@',
+					'Baku]@@@',
+					'Bangkok]@@@',
+					'Barnaul]@@@',
+					'Beirut]@@@',
+					'Bishkek]@@@',
+					'Brunei]@@@',
+					'Chita]@@@',
+					'Colombo]@@@',
+					'Damascus]@@@',
+					'Dhaka]@@@',
+					'Dili]@@@',
+					'Dubai]@@@',
+					'Dushanbe]@@@',
+					'Famagusta]@@@',
+					'Gaza]@@@',
+					'Hebron]@@@',
+					'Ho_Chi_Minh]@@@',
+					'Hong_Kong]@@@',
+					'Hovd]@@@',
+					'Irkutsk]@@@',
+					'Jakarta]@@@',
+					'Jayapura]@@@',
+					'Jerusalem]@@@',
+					'Kabul]@@@',
+					'Kamchatka]@@@',
+					'Karachi]@@@',
+					'Kathmandu]@@@',
+					'Khandyga]@@@',
+					'Kolkata]@@@',
+					'Krasnoyarsk]@@@',
+					'Kuala_Lumpur]@@@',
+					'Kuching]@@@',
+					'Kuwait]@@@',
+					'Macau]@@@',
+					'Magadan]@@@',
+					'Makassar]@@@',
+					'Manila]@@@',
+					'Muscat]@@@',
+					'Nicosia]@@@',
+					'Novokuznetsk]@@@',
+					'Novosibirsk]@@@',
+					'Omsk]@@@',
+					'Oral]@@@',
+					'Phnom_Penh]@@@',
+					'Pontianak]@@@',
+					'Pyongyang]@@@',
+					'Qatar]@@@',
+					'Qostanay]@@@',
+					'Qyzylorda]@@@',
+					'Riyadh]@@@',
+					'Sakhalin]@@@',
+					'Samarkand]@@@',
+					'Seoul]@@@',
+					'Shanghai]@@@',
+					'Singapore]@@@',
+					'Srednekolymsk]@@@',
+					'Taipei]@@@',
+					'Tashkent]@@@',
+					'Tbilisi]@@@',
+					'Tehran]@@@',
+					'Thimphu]@@@',
+					'Tokyo]@@@',
+					'Tomsk]@@@',
+					'Ulaanbaatar]@@@',
+					'Urumqi]@@@',
+					'Ust-Nera]@@@',
+					'Vientiane]@@@',
+					'Vladivostok]@@@',
+					'Yakutsk]@@@',
+					'Yangon]@@@',
+					'Yekaterinburg]@@@',
+					'Yerevan]@@@',
+					'Atlantic/Azores]@@@',
+					'Atlantic/Bermuda]@@@',
+					'Atlantic/Canary]@@@',
+					'Atlantic/Cape_Verde]@@@',
+					'Atlantic/Faroe]@@@',
+					'Atlantic/Madeira]@@@',
+					'Atlantic/Reykjavik]@@@',
+					'Atlantic/South_Georgia]@@@',
+					'Atlantic/St_Helena]@@@',
+					'Atlantic/Stanley]@@@',
+					'Australia/Adelaide]@@@',
+					'Australia/Brisbane]@@@',
+					'Australia/Broken_Hill]@@@',
+					'Australia/Darwin]@@@',
+					'Australia/Eucla]@@@',
+					'Australia/Hobart]@@@',
+					'Australia/Lindeman]@@@',
+					'Australia/Lord_Howe]@@@',
+					'Australia/Melbourne]@@@',
+					'Australia/Perth]@@@',
+					'Australia/Sydney]@@@',
+					'Amsterdam]@@@',
+					'Andorra]@@@',
+					'Astrakhan]@@@',
+					'Athens]@@@',
+					'Belgrade]@@@',
+					'Berlin]@@@',
+					'Bratislava]@@@',
+					'Brussels]@@@',
+					'Bucharest]@@@',
+					'Budapest]@@@',
+					'Busingen]@@@',
+					'Chisinau]@@@',
+					'Copenhagen]@@@',
+					'Dublin]@@@',
+					'Gibraltar]@@@',
+					'Guernsey]@@@',
+					'Helsinki]@@@',
+					'Isle_of_Man]@@@',
+					'Istanbul]@@@',
+					'Jersey]@@@',
+					'Kaliningrad]@@@',
+					'Kirov]@@@',
+					'Kyiv]@@@',
+					'Lisbon]@@@',
+					'Ljubljana]@@@',
+					'London]@@@',
+					'Luxembourg]@@@',
+					'Madrid]@@@',
+					'Malta]@@@',
+					'Mariehamn]@@@',
+					'Minsk]@@@',
+					'Monaco]@@@',
+					'Moscow]@@@',
+					'Oslo]@@@',
+					'Paris]@@@',
+					'Podgorica]@@@',
+					'Prague]@@@',
+					'Riga]@@@',
+					'Rome]@@@',
+					'Samara]@@@',
+					'San_Marino]@@@',
+					'Sarajevo]@@@',
+					'Saratov]@@@',
+					'Simferopol]@@@',
+					'Skopje]@@@',
+					'Sofia]@@@',
+					'Stockholm]@@@',
+					'Tallinn]@@@',
+					'Tirane]@@@',
+					'Ulyanovsk]@@@',
+					'Vaduz]@@@',
+					'Vatican]@@@',
+					'Vienna]@@@',
+					'Vilnius]@@@',
+					'Volgograd]@@@',
+					'Warsaw]@@@',
+					'Zagreb]@@@',
+					'Zurich]@@@',
+					'Antananarivo]@@@',
+					'Chagos]@@@',
+					'Christmas]@@@',
+					'Cocos]@@@',
+					'Comoro]@@@',
+					'Kerguelen]@@@',
+					'Mahe]@@@',
+					'Maldives]@@@',
+					'Mauritius]@@@',
+					'Mayotte]@@@',
+					'Reunion]@@@',
+					'Apia]@@@',
+					'Auckland]@@@',
+					'Bougainville]@@@',
+					'Chatham]@@@',
+					'Chuuk]@@@',
+					'Easter]@@@',
+					'Efate]@@@',
+					'Fakaofo]@@@',
+					'Fiji]@@@',
+					'Funafuti]@@@',
+					'Galapagos]@@@',
+					'Gambier]@@@',
+					'Guadalcanal]@@@',
+					'Guam]@@@',
+					'Honolulu]@@@',
+					'Kanton]@@@',
+					'Kiritimati]@@@',
+					'Kosrae]@@@',
+					'Kwajalein]@@@',
+					'Majuro]@@@',
+					'Marquesas]@@@',
+					'Midway]@@@',
+					'Nauru]@@@',
+					'Niue]@@@',
+					'Norfolk]@@@',
+					'Noumea]@@@',
+					'Pago_Pago]@@@',
+					'Palau]@@@',
+					'Pitcairn]@@@',
+					'Pohnpei]@@@',
+					'Port_Moresby]@@@',
+					'Rarotonga]@@@',
+					'Saipan]@@@',
+					'Tahiti]@@@',
+					'Tarawa]@@@',
+					'Tongatapu]@@@',
+					'Wake]@@@',
+					'Wallis]@@@',
+        		);
+				if ( 'enabled' == $process_non_utc_timezones_status ) {
+	        		$line 		= str_replace( $timezone_strings_to_replace, $timezone_replacement_strings, $line ); // add '@@@' as marker/separator after time stamp
+				} else {
+	        		$line 		= str_replace( 'UTC]', 'UTC]@@@', $line ); // add '@@@' as marker/separator after time stamp
+				}
+				
         		$line 			= str_replace( "Stack trace:", "<hr />Stack trace:", $line ); // add line break for stack trace section
 				if ( strpos( $line, 'PHP Fatal' ) !== false ) {
 	        		$line 		= str_replace( "#", "<hr />#", $line ); // add line break on PHP Fatal error's stack trace lines
@@ -367,6 +1345,7 @@ class Debug_Log {
         		$line 			= str_replace( "the <hr />#", "the #", $line ); // remove hr on certain error message
         		$line 			= str_replace( "^\\", "[\\", $line ); // reverse the temporary replacement of '[\' with '^\'
         		$line 			= str_replace( "^\"", "[\"", $line ); // reverse the temporary replacement of '["' with '^"'
+        		$line 			= str_replace( ":^", ":[", $line ); // reverse the temporary replacement of '[]' with '$#'
         		$line 			= str_replace( "^internal function^", "[internal function]", $line );
 	        	$prepended_line 	= '[' . $line; // Put back the missing '[' after explode operation
 	        	$prepended_lines[] 	= $prepended_line;
@@ -380,10 +1359,19 @@ class Debug_Log {
         $errors_master_list = array();
 
 		foreach( $latest_lines as $line ) {
+			$line = wp_kses_post( $line );
 
-			$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
+			if ( false !== strpos( $line, '@@@' ) ) {
+				$line = explode("@@@ ", trim( $line ) ); // split the line using the '@@@' marker/separator defined earlier. '@@@' will be deleted by explode().
+			}
 
-			$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+			if ( is_array( $line ) && isset( $line[0] ) ) {
+				$timestamp = str_replace( [ "[", "]" ], "", $line[0] );
+			} else {
+				$timestamp = '';
+			}
+
+			$wp_version = get_bloginfo( 'version' );
 
 			// Initialize error-related variables
 			$error = '';
@@ -392,7 +1380,7 @@ class Debug_Log {
 			$error_file_path = '';
 			$error_file_line = '';
 
-			if ( array_key_exists('1', $line) ) {
+			if ( is_array( $line ) && isset( $line[1] ) ) {
 				$error = $line[1];
 
 				// Check if there is a file path to pluck out of the error line
@@ -437,27 +1425,33 @@ class Debug_Log {
 						}
 					}
 
-					// Shorten the file path where the error occurred
-					$error_file_path = str_replace( ABSPATH, '/', $error_file_path );
-
 					// Define whether source of error is WP Core, Theme, Plugin or Other
 
-					if ( ( false !== strpos( $error_file, '/wp-admin/' ) ) || 
-						   ( false !== strpos( $error_file, '/wp-includes/' ) ) ) {
+					if ( ( false !== strpos( $error_file_path, $wp_admin_path ) ) || 
+						   ( false !== strpos( $error_file_path, $wp_includes_path ) ) ) {
 						$error_source = __( 'WordPress core', 'debug-log-manager' );
-					} elseif ( ( false !== strpos( $error_file, '/wp-content/themes/' ) ) ) {
+						$error_file_path_for_url = str_replace( ABSPATH, '', $error_file_path );
+						$error_file_path = str_replace( array( $wp_admin_path, $wp_includes_path ), '', $error_file_path ); // e.g. /post.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $wp_admin_path ) . str_replace( array( $wp_admin_path, $wp_includes_path ), '/', $error_file_path ); // e.g. /post.php
+					} elseif ( ( false !== strpos( $error_file_path, $theme_dir_path ) ) ) {
 						$error_source = __( 'Theme', 'debug-log-manager' );
-					} elseif ( ( false !== strpos( $error_file, '/wp-content/plugins/' ) ) ) {
+						$error_file_path = str_replace( $theme_dir_path, '', $error_file_path ); // e.g. /twentytwentyfive/functions.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $theme_dir_path ) . str_replace( $theme_dir_path, '', $error_file_path ); // e.g. /wp-content/themes/twentytwentyfive/functions.php
+					} elseif ( ( false !== strpos( $error_file_path, $wp_plugin_dir_path ) ) ) {
 						$error_source = __( 'Plugin', 'debug-log-manager' );
+						$error_file_path = str_replace( $wp_plugin_dir_path, '', $error_file_path ); // e.g. /debug-log-manager/bootstrap.php
+						$error_file_path_final = str_replace( ABSPATH, '/', $wp_plugin_dir_path ) . str_replace( $wp_plugin_dir_path, '', $error_file_path ); // e.g. /wp-content/plugins/debug-log-manager/bootstrap.php
 					} else {
-						$error_source = '';	
+						$error_source = '';
+						$error_file_path = '';
+						$error_file_path_final = '';
 					}
 
 					// Get plugin/theme directory name of error file when error source is plugin or theme
 
 					if ( ( 'Plugin' == $error_source ) || ( 'Theme' == $error_source ) ) {
 						$error_file_path_parts = explode( '/', $error_file_path );
-						$error_file_directory = $error_file_path_parts[3];
+						$error_file_directory = $error_file_path_parts[1]; // e.g. post.php, debug-log-manager or twentytwentyfive
 					}
 
 					// Get plugin name
@@ -493,28 +1487,43 @@ class Debug_Log {
 
 			} else {
 
-				$error = __( 'No error message specified...', 'debug-log-manager' );
+				// $error = __( 'No error message specified...', 'debug-log-manager' );
+				$error = $line; // Raw log entry
 	
 			}
 			
-			if ( ( false !== strpos( $error, 'PHP Fatal' )) || ( false !== strpos( $error, 'FATAL' ) ) || ( false !== strpos( $error, 'E_ERROR' ) ) ) {
+			// Stopgap measure to prevent fatal error in strpos() beneath, which expects $error to be a string
+			if ( is_array( $error ) ) {
+				$error = maybe_serialize( $error );
+			}
+			
+			if ( ( false !== strpos( $error, 'PHP Fatal' ) ) 
+				|| ( false !== strpos( $error, 'FATAL' ) ) 
+				|| ( false !== strpos( $error, 'E_ERROR' ) ) ) 
+			{
 				$error_type 	= __( 'PHP Fatal', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Fatal error: ", "", $error );
 				$error_details 	= str_replace( "PHP Fatal: ", "", $error_details );
 				$error_details 	= str_replace( "FATAL ", "", $error_details );
 				$error_details 	= str_replace( "E_ERROR: ", "", $error_details );
-			} elseif ( ( false !== strpos( $error, 'PHP Warning' ) ) || (  false !== strpos( $error, 'E_WARNING' ) ) ) {
+			} elseif ( ( false !== strpos( $error, 'PHP Warning' ) ) 
+				|| ( false !== strpos( $error, 'E_WARNING' ) ) )
+			{
 				$error_type 	= __( 'PHP Warning', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Warning: ", "", $error );
 				$error_details 	= str_replace( "E_WARNING: ", "", $error_details );
-			} elseif ( ( false !== strpos( $error, 'PHP Notice' ) ) || ( false !== strpos( $error, 'E_NOTICE' ) ) ) {
+			} elseif ( ( false !== strpos( $error, 'PHP Notice' ) ) 
+				|| ( false !== strpos( $error, 'E_NOTICE' ) ) )
+			{
 				$error_type 	= __( 'PHP Notice', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Notice: ", "", $error );
 				$error_details 	= str_replace( "E_NOTICE: ", "", $error_details );
 			} elseif ( false !== strpos( $error, 'PHP Deprecated' ) ) {
 				$error_type 	= __( 'PHP Deprecated', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Deprecated: ", "", $error );
-			} elseif ( ( false !== strpos( $error, 'PHP Parse' ) ) || ( false !== strpos( $error, 'E_PARSE' ) ) ) {
+			} elseif ( ( false !== strpos( $error, 'PHP Parse' ) ) 
+				|| ( false !== strpos( $error, 'E_PARSE' ) ) )
+			{
 				$error_type 	= __( 'PHP Parse', 'debug-log-manager' );
 				$error_details 	= str_replace( "PHP Parse error: ", "", $error );
 				$error_details 	= str_replace( "E_PARSE: ", "", $error_details );
@@ -541,24 +1550,23 @@ class Debug_Log {
 
 			if ( ! empty( $error_source ) ) {
 				if ( 'WordPress core' == $error_source ) {
-					$wp_version = get_bloginfo( 'version' );
-					$file_viewer_url = 'https://github.com/WordPress/wordpress-develop/blob/' . $wp_version . '/src' . $error_file_path;
-					$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . '<br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+					$file_viewer_url = 'https://github.com/WordPress/wordpress-develop/blob/' . $wp_version . '/src/' . $error_file_path_for_url . '#L' . $error_file_line;
+					$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . '<br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 				} elseif ( 'Theme' == $error_source ) {
 					if ( ! defined( 'DISALLOW_FILE_EDIT' ) || ( false === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$file_viewer_url = get_admin_url() . 'theme-editor.php?file=' . urlencode( str_replace( '/wp-content/themes/', '', $error_file_path ) ) . '&theme=' . $error_source_theme_dir;
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$file_viewer_url = get_admin_url() . 'theme-editor.php?file=' . urlencode( str_replace( '/' . $error_source_theme_dir . '/', '', $error_file_path ) ) . '&theme=' . $error_source_theme_dir;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					} 
 					if ( defined( 'DISALLOW_FILE_EDIT' ) && ( true === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_theme_uri . '" target="_blank" class="error-source-link">' . $error_source_theme_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path_final . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					}
 				} elseif ( 'Plugin' == $error_source ) {
 					if ( ! defined( 'DISALLOW_FILE_EDIT' ) || ( false === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$file_viewer_url = get_admin_url() . 'plugin-editor.php?file=' . urlencode( str_replace( '/wp-content/plugins/', '', $error_file_path ) ) . '&plugin=' . urlencode( $error_source_plugin_path_file );
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$file_viewer_url = get_admin_url() . 'plugin-editor.php?file=' . urlencode( substr( $error_file_path, 1 ) ) . '&plugin=' . urlencode( $error_source_plugin_path_file );
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': <a href="' . $file_viewer_url . '" target="_blank" class="error-source-link">' . $error_file_path_final . '<span class="dashicons dashicons-visibility offset-down"></span></a><br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					} 
 					if ( defined( 'DISALLOW_FILE_EDIT' ) && ( true === constant( 'DISALLOW_FILE_EDIT' ) ) ) {
-						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
+						$error_details = '<span class="error-details">' . $error_details . '</span><hr />' . $error_source . ': <a href="' . $error_source_plugin_uri . '" target="_blank" class="error-source-link">' . $error_source_plugin_name . '<span class="dashicons dashicons-external offset-up"></span></a><br />' . __( 'File', 'debug-log-manager' ) . ': ' . $error_file_path_final . '<br />' . __( 'Line', 'debug-log-manager' ) . ': ' . $error_file_line;
 					}
 				}
 			}
@@ -651,7 +1659,7 @@ class Debug_Log {
 		?>
 		<div>
 			<select id="errorTypeFilter" class="dlm-error-type-filter">
-				<option value=""><?php esc_html_e( 'All Error Types', 'debug-log-manager' ); ?></option>
+				<option value=""><?php esc_html_e( 'All Types', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Fatal', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Fatal', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Warning', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Warning', 'debug-log-manager' ); ?></option>
 				<option value="<?php esc_attr_e( 'PHP Notice', 'debug-log-manager' ); ?>"><?php esc_html_e( 'PHP Notice', 'debug-log-manager' ); ?></option>
@@ -667,7 +1675,7 @@ class Debug_Log {
 			<thead>
 				<tr>
 					<th class="dlm-entry-no">#</th>
-					<th class="dlm-entry-type"><?php esc_html_e( 'Error Type', 'debug-log-manager' ); ?></th>
+					<th class="dlm-entry-type"><?php esc_html_e( 'Type', 'debug-log-manager' ); ?></th>
 					<th class="dlm-entry-details"><?php esc_html_e( 'Details', 'debug-log-manager' ); ?></th>
 					<th class="dlm-entry-datetime"><?php esc_html_e( 'Last Occurrence', 'debug-log-manager' ); ?></th>
 				</tr>
@@ -940,7 +1948,7 @@ class Debug_Log {
 
 		// Verify error content and nonce and then log the JS error
 		// Source: https://plugins.svn.wordpress.org/lh-javascript-error-log/trunk/lh-javascript-error-log.php
-		if ( isset( $request['message'] ) && isset( $request['script'] ) && isset( $request['lineNo'] ) && isset( $request['columnNo'] ) && ! empty( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], DLM_SLUG ) ) {
+		if ( isset( $request['message'] ) && isset( $request['script'] ) && isset( $request['lineNo'] ) && isset( $request['columnNo'] ) && ! empty( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], DLM__SLUG ) ) {
 			
 				// Sanitize all input data
 				$message = sanitize_text_field( $request['message'] );

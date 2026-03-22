@@ -1,11 +1,11 @@
-# Debug Log Manager
+# Debug Log Manager - Conveniently Monitor and Inspect Errors
 
 Contributors: qriouslad  
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
-Tested up to: 6.4.3  
-Stable tag: 2.3.3  
+Tested up to: 6.8.2  
+Stable tag: 2.4.3  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -78,6 +78,39 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 2.4.3 (2025.09.24)
+
+* Rename constants used in DLM to prevent conflict with similar constant names in the Download Monitor plugin. Props to [Nicolas C.](https://wordpress.org/support/users/nicolas-cuny/) for [reporting](https://wordpress.org/support/topic/constant-naming-conflict-with-download-monitor/) the issue.
+
+### 2.4.2 (2025.09.17)
+
+* Additional measure to fix PHP fatal error that occurs in a certain scenario. Props to [Michael K.](https://wordpress.org/support/users/mkupietz/) for [reporting](https://wordpress.org/support/topic/fatal-error-in-todays-new-version/) the issue in detail.
+
+### 2.4.1 (2025.09.17)
+
+* Fixed PHP fatal error that occurs in a certain scenario. Props to [Pedro](https://wordpress.org/support/users/pedromag/) and [@guytimes](https://wordpress.org/support/users/guytimes/) for reporting the issue in detail [here](https://wordpress.org/support/topic/critical-error-with-the-debug-log-manager/) and [here](https://wordpress.org/support/topic/there-has-been-a-critical-error-on-this-website-421/).
+
+### 2.4.0 (2025.09.12)
+
+* When DLM is unable to parse a log entry properly, it will now output the raw entry instead of "No error message specified...". Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/server-timeout-when-debug-log-gets-too-large/#post-18633180) this improvement.
+* DLM will now work with WP installations where the plugins and themes folder paths is non-standard, e.g. something other than /wp-content/plugins/ and /wp-content/themes/. Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/plugin-displays-insufficient-info/#post-18634674) this improvement.
+* Added an option to disable javascript error logging.
+* Added an option to not modify SCRIPT_DEBUG value when toggling error logging. Props to [Christine](https://wordpress.org/support/users/weddingstyle/) for [prompting](https://wordpress.org/support/topic/script_debug-breaks-wp-admin-with-caching-cdn/) this improvement.
+* Added an option to not process log entries with non-UTC timezone(s), which can be resource-intensive when log file size is significantly large. Props to [Michael Kupietz](https://wordpress.org/support/users/mkupietz/) for [prompting](https://wordpress.org/support/topic/server-timeout-when-debug-log-gets-too-large/) this improvement.
+
+### 2.3.6 (2025.04.28)
+
+* Added compatibility with debug log entries that are in timezones other than UTC. Props to [@mroesele]() for [reporting an issue](https://wordpress.org/support/topic/not-working-with-log-file-entries-in-other-time-zone-than-utc/) with entries marked with Europe/Berlin timezone.
+* Confirmed compatibility with WP v6.8
+
+### 2.3.5 (2025.04.05)
+
+* Fixed XSS vulnerability responsibly disclosed by [Yassine Neggaoui](https://haysec.com/contact/) regarding the parsing of debug.log entries without proper sanitization.
+
+### 2.3.4 (2025.02.19)
+
+* Fix admin bar icon not being displayed. Props to [@tobias_conrad](https://wordpress.org/support/users/tobias_conrad/) for [prompting](https://wordpress.org/support/topic/comparison-with-thanks-to-improve-show-admin-bar-debug-menu-item/) this fix.
 
 ### 2.3.3 (2024.03.20)
 

@@ -51,7 +51,7 @@ class Debug_Log_Manager {
 		add_action( 'all_admin_notices', [ $this, 'suppress_generic_notices' ], 0 );
 
 		// Add action links
-		add_filter( 'plugin_action_links_'.DLM_SLUG.'/'.DLM_SLUG.'.php', [ $this, 'action_links' ] );
+		add_filter( 'plugin_action_links_'.DLM__SLUG.'/'.DLM__SLUG.'.php', [ $this, 'action_links' ] );
 
 		if ( is_admin() ) {
 
@@ -94,7 +94,7 @@ class Debug_Log_Manager {
 		if ( ( $logging_status == 'enabled' ) && ! $this->is_dlm() ) {
 
 			// https://developer.wordpress.org/reference/hooks/admin_bar_menu/
-			add_action( 'admin_bar_menu', [ $this, 'admin_bar_icon' ] );
+			add_action( 'admin_bar_menu', [ $this, 'admin_bar_icon' ], 100 );
 
 		}
 
@@ -116,6 +116,9 @@ class Debug_Log_Manager {
 		add_action( 'wp_ajax_get_latest_entries', [ $this->debug_log, 'get_latest_entries' ] );
 		add_action( 'wp_ajax_clear_log', [ $this->debug_log, 'clear_log' ] );
 		add_action( 'wp_ajax_disable_wp_file_editor', [ $this->debug_log, 'disable_wp_file_editor' ] );
+		add_action( 'wp_ajax_toggle_js_error_logging', [ $this->debug_log, 'toggle_js_error_logging' ] );
+		add_action( 'wp_ajax_toggle_script_debug_modification_status', [ $this->debug_log, 'toggle_script_debug_modification_status' ] );
+		add_action( 'wp_ajax_toggle_process_non_utc_timezones_status', [ $this->debug_log, 'toggle_process_non_utc_timezones_status' ] );
 		add_action( 'wp_ajax_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		add_action( 'wp_ajax_nopriv_log_js_errors', [ $this->debug_log, 'log_js_errors' ] );
 		
@@ -130,7 +133,7 @@ class Debug_Log_Manager {
 
 		$request_uri = sanitize_text_field( $_SERVER['REQUEST_URI'] ); // e.g. /wp-admin/index.php?page=page-slug
 
-		if ( strpos( $request_uri, 'tools.php?page=' . DLM_SLUG ) !== false ) {
+		if ( strpos( $request_uri, 'tools.php?page=' . DLM__SLUG ) !== false ) {
 			return true; // Yes, this is the plugin's main page
 		} else {
 			return false; // Nope, this is NOT the plugin's page
@@ -163,7 +166,7 @@ class Debug_Log_Manager {
 	 */
 	public function action_links( $links ) {
 
-		$settings_link = '<a href="tools.php?page='.DLM_SLUG.'">' . esc_html__( 'View Debug Log', 'debug-log-manager' ) . '</a>';
+		$settings_link = '<a href="tools.php?page='.DLM__SLUG.'">' . esc_html__( 'View Debug Log', 'debug-log-manager' ) . '</a>';
 
 		array_unshift($links, $settings_link); 
 
@@ -206,11 +209,11 @@ class Debug_Log_Manager {
 			// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_menu/
 			// https://developer.wordpress.org/reference/classes/wp_admin_bar/add_node/ for more examples
 			$wp_admin_bar->add_menu( array(
-				'id'		=> DLM_SLUG,
+				'id'		=> DLM__SLUG,
 				'parent'	=> 'top-secondary',
 				'group'		=> null,
 				'title'		=> '<span class="dashicons dashicons-warning"></span>',
-				'href'		=> admin_url( 'tools.php?page=' . DLM_SLUG ),
+				'href'		=> admin_url( 'tools.php?page=' . DLM__SLUG ),
 				'meta'		=> array(
 					'class'		=> 'dlm-admin-bar-icon',
 					'title'		=> esc_attr__( 'Error logging is enabled. Click to access the Debug Log Manager.', 'debug-log-manager' )
@@ -275,6 +278,32 @@ class Debug_Log_Manager {
 					<div><?php esc_html_e( 'Once error logging is enabled, the core\'s plugin/theme editor stays enabled even if error logging has been disabled later on. This allows for viewing the files where errors occurred even when logging has been disabled. You can optionally disable the editor here once you\'re done debugging.', 'debug-log-manager' ); ?></div>
 					<button id="dlm-disable-wp-file-editor" class="button button-small button-secondary dlm-footer-button dlm-disable-wp-file-editor"><?php esc_html_e( 'Disable Editor', 'debug-log-manager' ); ?></button>
 				</div>
+				<div id="dlm-extra-settings" class="dlm-footer-section dlm-top-border">
+					<div class="dlm-extra-setting">
+						<div class="dlm-js-error-logging-status-toggle">
+							<input type="checkbox" id="js-error-logging-checkbox" class="inset-3 js-error-logging-checkbox"><label for="js-error-logging-checkbox" class="green js-error-logging-switcher"></label>
+						</div>
+						<div class="dlm-extra-setting-label">
+							<?php echo esc_html__( 'Do not log javascript errors', 'debug-log-manager' ); ?>
+						</div>						
+					</div>
+					<div class="dlm-extra-setting">
+						<div class="dlm-script-debug-mod-status-toggle">
+							<input type="checkbox" id="script-debug-mod-checkbox" class="inset-3 script-debug-mod-checkbox"><label for="script-debug-mod-checkbox" class="green script-debug-mod-switcher"></label>
+						</div>
+						<div class="dlm-extra-setting-label">
+							<?php echo esc_html__( 'Do not modify SCRIPT_DEBUG value in wp-config.php', 'debug-log-manager' ); ?>
+						</div>						
+					</div>
+					<div class="dlm-extra-setting">
+						<div class="dlm-process-non-utc-timezones-status-toggle">
+							<input type="checkbox" id="process-non-utc-timezones-checkbox" class="inset-3 process-non-utc-timezones-checkbox"><label for="process-non-utc-timezones-checkbox" class="green process-non-utc-timezones-switcher"></label>
+						</div>
+						<div class="dlm-extra-setting-label">
+							<?php echo esc_html__( 'Do not process entries with non-UTC timezones, which can be resource-intensive when log file size is significantly large.', 'debug-log-manager' ); ?>
+						</div>						
+					</div>
+				</div>
 				<?php
 					echo wp_kses_post( $this->wp_config->wpconfig_file( 'status' ) );
 				?>
@@ -296,7 +325,7 @@ class Debug_Log_Manager {
 
 		global $plugin_page;
 
-		if ( DLM_SLUG === $plugin_page ) {
+		if ( DLM__SLUG === $plugin_page ) {
 			remove_all_actions( 'admin_notices' );
 		}
 
@@ -313,7 +342,7 @@ class Debug_Log_Manager {
 
 		// Suppress all notices
 
-		if ( DLM_SLUG === $plugin_page ) {
+		if ( DLM__SLUG === $plugin_page ) {
 
 			remove_all_actions( 'all_admin_notices' );
 
@@ -360,13 +389,13 @@ class Debug_Log_Manager {
 	 */
 	public function admin_scripts() {
 
-		wp_enqueue_style( 'dlm-admin', DLM_URL . 'assets/css/admin.css', array(), DLM_VERSION );
-		wp_enqueue_style( 'dlm-datatables', DLM_URL . 'assets/css/datatables.min.css', array(), DLM_VERSION );
-		wp_enqueue_style( 'dlm-toast', DLM_URL . 'assets/css/jquery.toast.min.css', array(), DLM_VERSION );
-		wp_enqueue_script( 'dlm-app', DLM_URL . 'assets/js/admin.js', array(), DLM_VERSION, false );
-		wp_enqueue_script( 'dlm-jsticky', DLM_URL . 'assets/js/jquery.jsticky.mod.min.js', array( 'jquery' ), DLM_VERSION, false );
-		wp_enqueue_script( 'dlm-datatables', DLM_URL . 'assets/js/datatables.min.js', array( 'jquery' ), DLM_VERSION, false );
-		wp_enqueue_script( 'dlm-toast', DLM_URL . 'assets/js/jquery.toast.min.js', array( 'jquery' ), DLM_VERSION, false );
+		wp_enqueue_style( 'dlm-admin', DLM__URL . 'assets/css/admin.css', array(), DLM__VERSION );
+		wp_enqueue_style( 'dlm-datatables', DLM__URL . 'assets/css/datatables.min.css', array(), DLM__VERSION );
+		wp_enqueue_style( 'dlm-toast', DLM__URL . 'assets/css/jquery.toast.min.css', array(), DLM__VERSION );
+		wp_enqueue_script( 'dlm-app', DLM__URL . 'assets/js/admin.js', array(), DLM__VERSION, false );
+		wp_enqueue_script( 'dlm-jsticky', DLM__URL . 'assets/js/jquery.jsticky.mod.min.js', array( 'jquery' ), DLM__VERSION, false );
+		wp_enqueue_script( 'dlm-datatables', DLM__URL . 'assets/js/datatables.min.js', array( 'jquery' ), DLM__VERSION, false );
+		wp_enqueue_script( 'dlm-toast', DLM__URL . 'assets/js/jquery.toast.min.js', array( 'jquery' ), DLM__VERSION, false );
 
 		// Pass on data from PHP to JS
 
@@ -384,6 +413,12 @@ class Debug_Log_Manager {
 			$autorefresh_status = 'disabled';
 	        update_option( 'debug_log_manager_autorefresh', $autorefresh_status, false );
 		}
+
+		$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' );
+		$modify_script_debug_status = get_option( 'debug_log_manager_modify_script_debug', 'enabled' );
+		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
+		
+		$title_of_column_to_filter = __( 'Type', 'debug-log-manager' );
 		
 		$nonce = wp_create_nonce( 'dlm-app' . get_current_user_id() );
 
@@ -391,13 +426,17 @@ class Debug_Log_Manager {
 			'dlm-app', 
 			'dlmVars', 
 			array(
-				'logStatus'			=> $log_status,
-				'autorefreshStatus'	=> $autorefresh_status,
+				'logStatus'						=> $log_status,
+				'autorefreshStatus'				=> $autorefresh_status,
+				'jsErrorLoggingStatus'			=> $js_error_logging_status,
+				'modifyScriptDebugStatus'		=> $modify_script_debug_status,
+				'processNonUtcTimezonesStatus'	=> $process_non_utc_timezones_status,
+				'titleOfColumnToFilter'			=> $title_of_column_to_filter,
 				'nonce'				=> $nonce,
 				'jsErrorLogging'	=> array(
 					'status'	=> '',
 					'url'		=> admin_url( 'admin-ajax.php' ),
-					'nonce'		=> wp_create_nonce( DLM_SLUG ),
+					'nonce'		=> wp_create_nonce( DLM__SLUG ),
 					'action'	=> 'log_js_errors',
 				),
 				'toastMessage'		=> array(
@@ -434,8 +473,8 @@ class Debug_Log_Manager {
 	 */
 	public function plugin_editor_scripts() {
 
-		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM_URL . 'assets/css/plugin-theme-editor.css', array(), DLM_VERSION );
-		wp_enqueue_script( 'dlm-plugin-editor', DLM_URL . 'assets/js/plugin-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM_VERSION, false );
+		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM__URL . 'assets/css/plugin-theme-editor.css', array(), DLM__VERSION );
+		wp_enqueue_script( 'dlm-plugin-editor', DLM__URL . 'assets/js/plugin-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM__VERSION, false );
 
 	}
 
@@ -446,8 +485,8 @@ class Debug_Log_Manager {
 	 */
 	public function theme_editor_scripts() {
 
-		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM_URL . 'assets/css/plugin-theme-editor.css', array(), DLM_VERSION );
-		wp_enqueue_script( 'dlm-theme-editor', DLM_URL . 'assets/js/theme-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM_VERSION, false );
+		wp_enqueue_style( 'dlm-plugin-theme-editor', DLM__URL . 'assets/css/plugin-theme-editor.css', array(), DLM__VERSION );
+		wp_enqueue_script( 'dlm-theme-editor', DLM__URL . 'assets/js/theme-editor.js', array( 'jquery', 'wp-theme-plugin-editor' ), DLM__VERSION, false );
 
 	}
 
@@ -493,33 +532,33 @@ class Debug_Log_Manager {
 	 * @since 1.4.0
 	 */
 	public function public_scripts() {
-		
-		$options = get_option( 'debug_log_manager', array() );
-		if ( $options['status'] == 'enabled' ) {
-			wp_enqueue_script( 'dlm-public', DLM_URL . 'assets/js/public.js', array( 'jquery' ), DLM_VERSION, false );		
-		}
-
-        $default_value = array(
+        $log_info_default_value = array(
             'status'    => 'disabled',
             'on'        => date( 'Y-m-d H:i:s' ),
         );
 
-		$log_info = get_option( 'debug_log_manager', $default_value );
+		$log_info = get_option( 'debug_log_manager', $log_info_default_value );
 		$log_status = $log_info['status']; // WP_DEBUG log status: enabled / disabled
 
-		wp_localize_script( 
-			'dlm-public', 
-			'dlmVars', 
-			array(
-				'logStatus'			=> $log_status,
-				'jsErrorLogging'	=> array(
-					'status'	=> '',
-					'url'		=> admin_url( 'admin-ajax.php' ),
-					'nonce'		=> wp_create_nonce( DLM_SLUG ),
-					'action'	=> 'log_js_errors',
-				),
-			) 
-		);
+		$js_error_logging_status = get_option( 'debug_log_manager_js_error_logging', 'enabled' ); // enabled | disabled
+
+		if ( 'enabled' == $log_status && 'enabled' == $js_error_logging_status ) {
+			wp_enqueue_script( 'dlm-public', DLM__URL . 'assets/js/public.js', array( 'jquery' ), DLM__VERSION, false );		
+
+			wp_localize_script( 
+				'dlm-public', 
+				'dlmVars', 
+				array(
+					'logStatus'			=> $log_status,
+					'jsErrorLogging'	=> array(
+						'status'	=> '',
+						'url'		=> admin_url( 'admin-ajax.php' ),
+						'nonce'		=> wp_create_nonce( DLM__SLUG ),
+						'action'	=> 'log_js_errors',
+					),
+				) 
+			);			
+		}
 	}
 
 }
