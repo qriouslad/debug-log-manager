@@ -23,6 +23,8 @@ class Deactivation {
 		delete_option( 'debug_log_manager_modify_script_debug' );
 		delete_option( 'debug_log_manager_process_non_utc_timezones' );
 
+		wp_clear_scheduled_hook( 'dlm_trim_debug_log' );
+
 	}
 
 }

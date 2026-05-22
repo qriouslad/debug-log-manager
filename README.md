@@ -4,8 +4,8 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
-Tested up to: 6.8.2  
-Stable tag: 2.4.3  
+Tested up to: 7.0  
+Stable tag: 2.5.0  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -78,6 +78,12 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 2.5.0 (2026.05.22)
+
+* Added a mechanism that automatically limit / trims the debug.log file size so it never grows larger than the available memory. Props to [@kham7236](https://wordpress.org/support/users/kham7236/) for [reporting](https://wordpress.org/support/topic/error-allowed-memory-size-exhausted-3/) the "allowed memory size exhausted" error that prompted this improvement.
+* Fix undefined plugin/theme source variables when parsing debug log entries. Props to [Mr_sordum](https://wordpress.org/support/users/paulcityhopper/) for [reporting](https://wordpress.org/support/topic/several-warnings-3/) the issue.
+* Confirmed compatibility with WordPress 7.0
 
 ### 2.4.3 (2025.09.24)
 
