@@ -21,6 +21,9 @@ class Debug_Log_Manager {
 	// For the wp-config object
 	private $wp_config;
 
+	// For the log trimmer object
+	private $log_trimmer;
+
 	/**
 	 * Creates or returns a single instance of this class
 	 *
@@ -107,6 +110,14 @@ class Debug_Log_Manager {
 
 		// Enqueue public scripts and styles
 		add_action( 'wp_enqueue_scripts', [ $this, 'public_scripts' ] );
+
+		// Schedule log trim cron for existing installs upgraded without re-activation.
+		if ( ! wp_next_scheduled( 'dlm_trim_debug_log' ) ) {
+			wp_schedule_event( time(), 'hourly', 'dlm_trim_debug_log' );
+		}
+
+		$this->log_trimmer = new DLM\Classes\Log_Trimmer;
+		add_action( 'dlm_trim_debug_log', [ $this->log_trimmer, 'maybe_trim_log' ] );
 
 		// Register ajax calls
 		$this->debug_log = new DLM\Classes\Debug_Log;

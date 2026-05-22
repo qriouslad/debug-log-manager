@@ -155,6 +155,9 @@ class Debug_Log {
 
 					}
 
+					$log_trimmer = new Log_Trimmer();
+					$log_trimmer->maybe_trim_log( $dlm_debug_log_file_path );
+
 					// Define Debug constants in wp-config.php
 
 					$options = array(
@@ -459,6 +462,9 @@ class Debug_Log {
 		
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
+
+		$log_trimmer = new Log_Trimmer();
+		$log_trimmer->maybe_trim_log( $debug_log_file_path );
 
         // Read the errors log file 
         $log 	= file_get_contents( $debug_log_file_path );

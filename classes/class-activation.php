@@ -75,6 +75,10 @@ class Activation {
         $process_non_utc_timezones_status = 'enabled'; // enabled | disabled
         update_option( 'debug_log_manager_process_non_utc_timezones', $process_non_utc_timezones_status, false );
 
+        if ( ! wp_next_scheduled( 'dlm_trim_debug_log' ) ) {
+            wp_schedule_event( time(), 'hourly', 'dlm_trim_debug_log' );
+        }
+
 	}
 
 }
