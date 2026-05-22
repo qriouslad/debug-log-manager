@@ -82,6 +82,7 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 ### 2.5.0 (2026.05.22)
 
 * Added a mechanism that automatically limit / trims the debug.log file size so it never grows larger than the available memory. Props to [@kham7236](https://wordpress.org/support/users/kham7236/) for [reporting](https://wordpress.org/support/topic/error-allowed-memory-size-exhausted-3/) the "allowed memory size exhausted" error that prompted this improvement.
+* Fix undefined plugin/theme source variables when parsing debug log entries. Props to [Mr_sordum](https://wordpress.org/support/users/paulcityhopper/) for [reporting](https://wordpress.org/support/topic/several-warnings-3/) the issue.
 
 ### 2.4.3 (2025.09.24)
 
