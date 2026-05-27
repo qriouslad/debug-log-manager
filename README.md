@@ -5,7 +5,7 @@ Donate link: https://bowo.io/dotorg-sponsor-dlm
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 7.0  
-Stable tag: 2.5.0  
+Stable tag: 2.5.1  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -79,7 +79,7 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
-### 2.5.1 (2026.05.23)
+### 2.5.1 (2026.05.28)
 
 * Security: Hardened unauthenticated `log_js_errors` AJAX endpoint against log injection (CVE-2026-9016). Added same-site Origin/Referer validation, rate limiting, stricter field sanitization, fixed `[DLM JS]` log prefix, capability check for wp-admin requests, and parser fix so browser-submitted entries cannot be misclassified as PHP errors. Props to Endang Alfarisi for responsibly disclosing this via Wordfence.
 
