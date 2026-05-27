@@ -30,6 +30,7 @@ Debug Log Manager allows you to:
 * **Show an indicator on the admin bar** when error logging is enabled.
 * **Add a dashboard widget** showing the latest errors logged.
 * **Use `error_log()`** to output error info into your debug log. e.g. `error_log( $error_message )` for simple, string-based error message, or `error_log( json_encode( $error ) )` when inspecting a more complex error info, e.g. array or object.
+* **Auto-trim debug.log file size** so it does not grow larger than the available memory. This prevents out-of-memory error when trying to parse and view the debug.log file.
 
 A simpler and more compact version of Debug Log Manager is included as part of the [System Dashboard plugin](https://wordpress.org/plugins/system-dashboard/), should you prefer a single plugin that does more.
 
