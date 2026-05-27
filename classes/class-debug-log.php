@@ -9,6 +9,27 @@ namespace DLM\Classes;
  */
 class Debug_Log {
 
+	/**
+	 * Log prefix for browser-submitted JavaScript errors.
+	 *
+	 * @since 2.5.1
+	 */
+	const JS_LOG_PREFIX = '[DLM JS] ';
+
+	/**
+	 * Max JS error log requests per rate-limit window.
+	 *
+	 * @since 2.5.1
+	 */
+	const JS_LOG_RATE_LIMIT = 30;
+
+	/**
+	 * JS error log rate-limit window in seconds.
+	 *
+	 * @since 2.5.1
+	 */
+	const JS_LOG_RATE_WINDOW = 60;
+
 	// The wp_config object
 	private $wp_config;
 
@@ -1517,7 +1538,13 @@ class Debug_Log {
 				$error = maybe_serialize( $error );
 			}
 			
-			if ( ( false !== strpos( $error, 'PHP Fatal' ) ) 
+			if ( false !== strpos( $error, '[DLM JS]' ) ) {
+				$error_type 	= __( 'JavaScript', 'debug-log-manager' );
+				$error_details 	= str_replace( '[DLM JS] ', '', $error );
+			} elseif ( false !== strpos( $error, 'JavaScript Error' ) ) {
+				$error_type 	= __( 'JavaScript', 'debug-log-manager' );
+				$error_details 	= str_replace( 'JavaScript Error: ', '', $error );
+			} elseif ( ( false !== strpos( $error, 'PHP Fatal' ) ) 
 				|| ( false !== strpos( $error, 'FATAL' ) ) 
 				|| ( false !== strpos( $error, 'E_ERROR' ) ) ) 
 			{
@@ -1553,9 +1580,6 @@ class Debug_Log {
 			} elseif ( false !== strpos( $error, 'WordPress database error' ) ) {
 				$error_type 	= __( 'Database', 'debug-log-manager' );
 				$error_details 	= str_replace( "WordPress database error ", "", $error );
-			} elseif ( false !== strpos( $error, 'JavaScript Error' ) ) {
-				$error_type 	= __( 'JavaScript', 'debug-log-manager' );
-				$error_details 	= str_replace( "JavaScript Error: ", "", $error );
 			} else {
 				$error_type 	= __( 'Other', 'debug-log-manager' );
 				$error_details 	= $error;
@@ -1977,34 +2001,181 @@ class Debug_Log {
 	}
 
 	/**
+	 * Whether JS error logging is enabled.
+	 *
+	 * @since 2.5.1
+	 * @return bool
+	 */
+	private function is_js_error_logging_enabled() {
+
+		$default_value = array(
+			'status' => 'disabled',
+			'on'     => date( 'Y-m-d H:i:s' ),
+		);
+
+		$log_info                  = get_option( 'debug_log_manager', $default_value );
+		$js_error_logging_status   = get_option( 'debug_log_manager_js_error_logging', 'enabled' );
+
+		return ( 'enabled' === $log_info['status'] && 'enabled' === $js_error_logging_status );
+
+	}
+
+	/**
+	 * Sanitize a field before writing to debug.log.
+	 *
+	 * @since 2.5.1
+	 * @param mixed $value       Raw value.
+	 * @param int   $max_length  Maximum allowed length.
+	 * @return string
+	 */
+	private function sanitize_log_field( $value, $max_length = 500 ) {
+
+		if ( ! is_string( $value ) ) {
+			$value = (string) $value;
+		}
+
+		$filtered = sanitize_text_field( $value );
+
+		// Strip ASCII control characters and DEL.
+		$filtered = preg_replace( '/[\x00-\x1F\x7F]/u', '', $filtered );
+
+		// Strip Unicode line and paragraph separators.
+		$filtered = preg_replace( '/[\x{2028}\x{2029}]/u', '', $filtered );
+
+		// Collapse whitespace.
+		$filtered = preg_replace( '/\s+/u', ' ', $filtered );
+		$filtered = trim( $filtered );
+
+		if ( function_exists( 'mb_substr' ) ) {
+			return mb_substr( $filtered, 0, $max_length );
+		}
+
+		return substr( $filtered, 0, $max_length );
+
+	}
+
+	/**
+	 * Validate Origin or Referer matches this site.
+	 *
+	 * @since 2.5.1
+	 * @return bool
+	 */
+	private function validate_request_origin() {
+
+		/**
+		 * Skip same-site Origin/Referer validation for JS error logging.
+		 *
+		 * @since 2.5.1
+		 * @param bool $skip Whether to skip validation.
+		 */
+		if ( apply_filters( 'dlm_js_error_log_skip_origin_check', false ) ) {
+			return true;
+		}
+
+		$site_host = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		if ( empty( $site_host ) ) {
+			return false;
+		}
+
+		$request_host = '';
+
+		if ( ! empty( $_SERVER['HTTP_ORIGIN'] ) ) {
+			$request_host = wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ), PHP_URL_HOST );
+		} elseif ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {
+			$request_host = wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ), PHP_URL_HOST );
+		} else {
+			return false;
+		}
+
+		if ( empty( $request_host ) ) {
+			return false;
+		}
+
+		return ( strtolower( $request_host ) === strtolower( $site_host ) );
+
+	}
+
+	/**
+	 * Check rate limit for JS error logging.
+	 *
+	 * @since 2.5.1
+	 * @return bool True if within limit, false if exceeded.
+	 */
+	private function check_js_error_rate_limit() {
+
+		$ip = '';
+		if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+		}
+
+		$ua = '';
+		if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$ua = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+		}
+
+		$key   = 'dlm_js_log_' . md5( $ip . $ua );
+		$count = (int) get_transient( $key );
+
+		if ( $count >= self::JS_LOG_RATE_LIMIT ) {
+			return false;
+		}
+
+		set_transient( $key, $count + 1, self::JS_LOG_RATE_WINDOW );
+
+		return true;
+
+	}
+
+	/**
 	 * Log javascript errors
 	 *
 	 * @since 1.4.0
 	 */
 	public function log_js_errors() {
 
-		// Since we are using XHR for the js error logging, JSON data comes in via php://input
-		$request = json_decode(urldecode(file_get_contents('php://input')), true); // an array
-
-		// Verify error content and nonce and then log the JS error
-		// Source: https://plugins.svn.wordpress.org/lh-javascript-error-log/trunk/lh-javascript-error-log.php
-		if ( isset( $request['message'] ) && isset( $request['script'] ) && isset( $request['lineNo'] ) && isset( $request['columnNo'] ) && ! empty( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], DLM__SLUG ) ) {
-			
-				// Sanitize all input data
-				$message = sanitize_text_field( $request['message'] );
-				$script = sanitize_text_field( $request['script'] );
-				$line_number = sanitize_text_field( $request['lineNo'] );
-				$column_number = sanitize_text_field( $request['columnNo'] );
-				$page_url = sanitize_text_field( $request['pageUrl'] );
-
-				// The following entry will then be output with wp_kses()
-				error_log( 'JavaScript Error: ' . $message . ' in ' . $script . ' on line ' . $line_number . ' column ' . $column_number . ' at ' . get_site_url() . $page_url );
-
-		} else {
-
+		if ( ! $this->is_js_error_logging_enabled() ) {
 			wp_die();
-
 		}
+
+		// Since we are using XHR for the js error logging, JSON data comes in via php://input.
+		$request = json_decode( file_get_contents( 'php://input' ), true );
+
+		if ( ! is_array( $request ) ) {
+			wp_die();
+		}
+
+		// Verify error content and nonce and then log the JS error.
+		// Source: https://plugins.svn.wordpress.org/lh-javascript-error-log/trunk/lh-javascript-error-log.php
+		if ( ! isset( $request['message'], $request['script'], $request['lineNo'], $request['columnNo'] ) || empty( $request['nonce'] ) || ! wp_verify_nonce( $request['nonce'], DLM__SLUG ) ) {
+			wp_die();
+		}
+
+		$request_type = isset( $request['type'] ) ? sanitize_text_field( $request['type'] ) : '';
+
+		if ( 'wp-admin' === $request_type ) {
+			if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
+				wp_die();
+			}
+		} elseif ( ! is_user_logged_in() ) {
+			if ( ! $this->validate_request_origin() ) {
+				wp_die();
+			}
+		}
+
+		if ( ! $this->check_js_error_rate_limit() ) {
+			wp_die( '', '', 429 );
+		}
+
+		$message       = $this->sanitize_log_field( $request['message'] );
+		$script        = $this->sanitize_log_field( $request['script'] );
+		$line_number   = $this->sanitize_log_field( $request['lineNo'], 20 );
+		$column_number = $this->sanitize_log_field( $request['columnNo'], 20 );
+		$page_url      = isset( $request['pageUrl'] ) ? $this->sanitize_log_field( $request['pageUrl'] ) : '';
+
+		error_log( self::JS_LOG_PREFIX . $message . ' in ' . $script . ' on line ' . $line_number . ' column ' . $column_number . ' at ' . get_site_url() . $page_url );
+
+		wp_die();
 
 	}
 

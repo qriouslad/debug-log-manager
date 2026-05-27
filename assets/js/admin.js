@@ -469,7 +469,7 @@
 			var xhr = new XMLHttpRequest();
 			xhr.open("POST", dlmVars.jsErrorLogging.url + "?action=" + dlmVars.jsErrorLogging.action );
 			xhr.setRequestHeader('Content-type', 'application/json');
-			xhr.send(encodeURI(JSON.stringify(data)));
+			xhr.send(JSON.stringify(data));
 			return false;
 
 		}
