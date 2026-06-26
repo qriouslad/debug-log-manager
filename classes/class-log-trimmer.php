@@ -3,7 +3,7 @@
 namespace DLM\Classes;
 
 /**
- * Trims the debug log file to stay within a size cap based on PHP memory limit.
+ * Trims the debug log file and returns bounded tail chunks based on PHP memory limit.
  *
  * @since 2.5.0
  */
@@ -24,13 +24,27 @@ class Log_Trimmer {
 	const FALLBACK_BASE_BYTES = 67108864; // 64 MB.
 
 	/**
-	 * Returns the maximum allowed debug log file size in bytes.
+	 * Maximum bytes to read when parsing log entries in the admin UI.
 	 *
-	 * @since 2.5.0
+	 * @var int
+	 */
+	const MAX_PARSE_WINDOW_BYTES = 33554432; // 32 MB.
+
+	/**
+	 * Minimum bytes to read when parsing log entries in the admin UI.
+	 *
+	 * @var int
+	 */
+	const MIN_PARSE_WINDOW_BYTES = 4194304; // 4 MB.
+
+	/**
+	 * Returns the configured PHP memory limit in bytes.
+	 *
+	 * @since 2.5.2
 	 *
 	 * @return int
 	 */
-	public function get_max_log_size_bytes() {
+	private function get_memory_limit_bytes() {
 
 		$memory_limit = ini_get( 'memory_limit' );
 
@@ -44,7 +58,68 @@ class Log_Trimmer {
 			$limit_bytes = self::FALLBACK_BASE_BYTES;
 		}
 
+		return $limit_bytes;
+	}
+
+	/**
+	 * Returns the maximum allowed debug log file size in bytes.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @return int
+	 */
+	public function get_max_log_size_bytes() {
+
+		$limit_bytes = $this->get_memory_limit_bytes();
+
 		return (int) floor( $limit_bytes * ( self::CAP_PERCENT / 100 ) );
+	}
+
+	/**
+	 * Returns the maximum bytes the parser should read into memory at once.
+	 *
+	 * @since 2.5.2
+	 *
+	 * @return int
+	 */
+	public function get_parse_window_bytes() {
+
+		$limit_bytes        = $this->get_memory_limit_bytes();
+		$parse_window_bytes = (int) floor( $limit_bytes / 8 );
+
+		if ( $parse_window_bytes < self::MIN_PARSE_WINDOW_BYTES ) {
+			$parse_window_bytes = self::MIN_PARSE_WINDOW_BYTES;
+		}
+
+		return (int) min( self::MAX_PARSE_WINDOW_BYTES, $parse_window_bytes );
+	}
+
+	/**
+	 * Reads a bounded chunk from the end of the log file for parsing.
+	 *
+	 * @since 2.5.2
+	 *
+	 * @param string   $path      Full path to the log file.
+	 * @param int|null $max_bytes Optional. Maximum bytes to read. Defaults to parse window size.
+	 * @return string|false Tail chunk on success, false on failure.
+	 */
+	public function read_tail_chunk( $path, $max_bytes = null ) {
+
+		if ( empty( $path ) || ! is_file( $path ) || ! is_readable( $path ) ) {
+			return false;
+		}
+
+		if ( null === $max_bytes ) {
+			$max_bytes = $this->get_parse_window_bytes();
+		}
+
+		$max_bytes = (int) $max_bytes;
+
+		if ( $max_bytes <= 0 ) {
+			return false;
+		}
+
+		return $this->get_tail_chunk( $path, $max_bytes );
 	}
 
 	/**
@@ -92,34 +167,9 @@ class Log_Trimmer {
 			return false;
 		}
 
-		$handle = fopen( $path, 'rb' );
-
-		if ( false === $handle ) {
-			return false;
-		}
-
-		$read_size = min( $max_bytes, $file_size );
-		$offset    = $file_size - $read_size;
-
-		if ( fseek( $handle, $offset, SEEK_SET ) !== 0 ) {
-			fclose( $handle );
-			return false;
-		}
-
-		$chunk = fread( $handle, $read_size );
-		fclose( $handle );
+		$chunk = $this->get_tail_chunk( $path, $max_bytes );
 
 		if ( false === $chunk || '' === $chunk ) {
-			return false;
-		}
-
-		$boundary_offset = $this->find_entry_boundary_offset( $chunk );
-
-		if ( $boundary_offset > 0 ) {
-			$chunk = substr( $chunk, $boundary_offset );
-		}
-
-		if ( '' === $chunk ) {
 			return false;
 		}
 
@@ -140,6 +190,55 @@ class Log_Trimmer {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Reads the newest portion of the log file up to the requested size.
+	 *
+	 * @since 2.5.2
+	 *
+	 * @param string $path      Full path to the log file.
+	 * @param int    $max_bytes Maximum bytes to read.
+	 * @return string|false
+	 */
+	private function get_tail_chunk( $path, $max_bytes ) {
+
+		$file_size = (int) filesize( $path );
+
+		if ( $file_size <= 0 ) {
+			return '';
+		}
+
+		$handle = fopen( $path, 'rb' );
+
+		if ( false === $handle ) {
+			return false;
+		}
+
+		$read_size = min( $max_bytes, $file_size );
+		$offset    = $file_size - $read_size;
+
+		if ( fseek( $handle, $offset, SEEK_SET ) !== 0 ) {
+			fclose( $handle );
+			return false;
+		}
+
+		$chunk = fread( $handle, $read_size );
+		fclose( $handle );
+
+		if ( false === $chunk || '' === $chunk ) {
+			return $chunk;
+		}
+
+		if ( $offset > 0 ) {
+			$boundary_offset = $this->find_entry_boundary_offset( $chunk );
+
+			if ( $boundary_offset > 0 ) {
+				$chunk = substr( $chunk, $boundary_offset );
+			}
+		}
+
+		return $chunk;
 	}
 
 	/**

@@ -80,6 +80,10 @@ Debug Log Manager is built using the excellent [WPConfigTransformer class](https
 
 ## Changelog
 
+### 2.5.2 (2026.06.26)
+
+* Added mechanism to prevent memory exhaustion error when parsing a large debug.log file. Props to [@lbdesign](https://wordpress.org/support/users/lbdesign/) for [reporting](https://wordpress.org/support/topic/critical-error-warning-3/) this issue.
+
 ### 2.5.1 (2026.05.28)
 
 * Security: Hardened unauthenticated `log_js_errors` AJAX endpoint against log injection (CVE-2026-9016). Added same-site Origin/Referer validation, rate limiting, stricter field sanitization, fixed `[DLM JS]` log prefix, capability check for wp-admin requests, and parser fix so browser-submitted entries cannot be misclassified as PHP errors. Props to Endang Alfarisi for responsibly disclosing this via Wordfence.
