@@ -5,7 +5,7 @@ Donate link: https://bowo.io/dotorg-sponsor-dlm
 Tags: debug, errors, developer  
 Requires at least: 4.6  
 Tested up to: 7.0  
-Stable tag: 2.5.1  
+Stable tag: 2.5.2  
 Requires PHP: 5.6  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -30,6 +30,7 @@ Debug Log Manager allows you to:
 * **Show an indicator on the admin bar** when error logging is enabled.
 * **Add a dashboard widget** showing the latest errors logged.
 * **Use `error_log()`** to output error info into your debug log. e.g. `error_log( $error_message )` for simple, string-based error message, or `error_log( json_encode( $error ) )` when inspecting a more complex error info, e.g. array or object.
+* **Auto-trim debug.log file size** so it does not grow larger than the available memory. This prevents out-of-memory error when trying to parse and view the debug.log file.
 
 A simpler and more compact version of Debug Log Manager is included as part of the [System Dashboard plugin](https://wordpress.org/plugins/system-dashboard/), should you prefer a single plugin that does more.
 
@@ -78,6 +79,10 @@ Maybe. It's been tested with Kinsta and GridPane (with Secure Debug turned off).
 Debug Log Manager is built using the excellent [WPConfigTransformer class](https://plugins.svn.wordpress.org/debug-log-config-tool/tags/1.1/src/Classes/vendor/WPConfigTransformer.php) from [WP Debug Log – Config Tool](https://wordpress.org/plugins/debug-log-config-tool/), [DataTables.js](https://datatables.net/), [jSticky](https://github.com/AndrewHenderson/jSticky) and [jQuery Toast](https://github.com/kamranahmedse/jquery-toast-plugin).
 
 ## Changelog
+
+### 2.5.2 (2026.06.26)
+
+* Added mechanism to prevent memory exhaustion error when parsing a large debug.log file. Props to [@lbdesign](https://wordpress.org/support/users/lbdesign/) for [reporting](https://wordpress.org/support/topic/critical-error-warning-3/) this issue.
 
 ### 2.5.1 (2026.05.28)
 

@@ -484,18 +484,28 @@ class Debug_Log {
         $debug_log_file_path = get_option( 'debug_log_manager_file_path' );
 		$process_non_utc_timezones_status = get_option( 'debug_log_manager_process_non_utc_timezones', 'enabled' );
 
+		if ( empty( $debug_log_file_path ) || ! is_file( $debug_log_file_path ) || ! is_readable( $debug_log_file_path ) ) {
+			return json_encode( array() );
+		}
+
 		$log_trimmer = new Log_Trimmer();
 		$log_trimmer->maybe_trim_log( $debug_log_file_path );
 
-        // Read the errors log file 
-        $log 	= file_get_contents( $debug_log_file_path );
-        
-        // Ignore words between square brackets, 
+        // Read only the newest bounded chunk to avoid loading the entire log into memory.
+        $log = $log_trimmer->read_tail_chunk( $debug_log_file_path );
+
+		if ( false === $log || '' === $log ) {
+			return json_encode( array() );
+		}
+
+        // Ignore words between square brackets,
         // e.g. [DEBUG], [INFO], [WARNING], [ERROR] may come after timestamp [29-Nov-2023 01:30:03 UTC]
         // This regex will extract DEBUG, INFO, WARNING, ERROR
         // Prevents log entry with two bracket sets e.g. [timestamp] [someinfo] Details....
         // from being returned as "No error message specified"
-		$log = preg_replace("/\[([a-zA-Z\s\-]+)\]/", "$1", $log);
+		$log = preg_replace( "/\\[([a-zA-Z\\s\\-]+)\\]/", '$1', $log );
+
+		$starts_with_opening_bracket = ( '[' === substr( $log, 0, 1 ) );
 
         $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
 
@@ -507,6 +517,12 @@ class Debug_Log {
 
         // We are splitting the log file not using PHP_EOL to preserve the stack traces for PHP Fatal Errors among other things
         $lines 	= explode("[", $log);
+		unset( $log );
+
+		if ( ! $starts_with_opening_bracket ) {
+			array_shift( $lines );
+		}
+
         $prepended_lines = array();
 
         // Pluck out the last 100k entries, the newest entry is last

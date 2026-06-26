@@ -4,7 +4,7 @@
  * Plugin Name:       Debug Log Manager
  * Plugin URI:        https://wordpress.org/plugins/debug-log-manager/
  * Description:       Log errors via WP_DEBUG. Create, view and clear debug.log file.
- * Version:           2.5.1
+ * Version:           2.5.2
  * Author:            Bowo
  * Author URI:        https://bowo.io
  * License:           GPL-2.0+
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DLM__VERSION', '2.5.1' );
+define( 'DLM__VERSION', '2.5.2' );
 define( 'DLM__SLUG', 'debug-log-manager' );
 define( 'DLM__URL', plugins_url( '/', __FILE__ ) ); // e.g. https://www.example.com/wp-content/plugins/this-plugin/
 define( 'DLM__PATH', plugin_dir_path( __FILE__ ) ); // e.g. /home/user/apps/wp-root/wp-content/plugins/this-plugin/
