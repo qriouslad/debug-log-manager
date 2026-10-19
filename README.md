@@ -4,7 +4,7 @@ Contributors: qriouslad
 Donate link: https://bowo.io/dotorg-sponsor-dlm  
 Tags: debug, errors, developer  
 Requires at least: 4.6  
-Tested up to: 7.0  
+Tested up to: 7.1.3  
 Stable tag: 2.5.3  
 Requires PHP: 5.6  
 License: GPLv2 or later  
