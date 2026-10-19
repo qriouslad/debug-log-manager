@@ -249,7 +249,7 @@ class Debug_Log {
 						$entry = array( 
 								$n, 
 								$error['type'], 
-								$error['details'], 
+								wp_kses_post( $error['details'] ), 
 								$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
 						);
 
@@ -509,7 +509,13 @@ class Debug_Log {
 
         $log 	= str_replace( "[\\", "^\\", $log ); // certain error message contains the '[\' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^\'
 
-        $log 	= str_replace( "[\"", "^\"", $log ); // certain error message contains the '["' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^"'
+        // "[" plus optional whitespace plus a quote must not remain a split point.
+        // explode() below splits on "[", and a space before the quote was used to
+        // isolate a fake JSON entry. The "^" placeholder is restored to "[" later.
+        $protected_log = preg_replace( '/\[\s*"/', '^"', $log );
+        if ( is_string( $protected_log ) ) {
+        	$log = $protected_log;
+        }
 
         $log 	= str_replace( ":[", ":^", $log ); // certain error message contains the ':[' string, which will make the following split via explode() to split lines at places in the message it's not supposed to. So, we temporarily replace those with '^"'
 
@@ -1601,8 +1607,9 @@ class Debug_Log {
 				$error_details 	= $error;
 				if ( $this->is_json( $error_details ) ) {
 					// For JSON string in error message, originally added via error_log( json_encode( $variable ) )
-					// This will output said JSON string as well-formated array in the log entries table
-					$error_details = '<pre>' . print_r( json_decode( $error_details, true ), true ) . '</pre>';
+					// This will output said JSON string as well-formated array in the log entries table.
+					// Escape the dump. Decoded JSON is log text, not trusted HTML.
+					$error_details = '<pre>' . esc_html( print_r( json_decode( $error_details, true ), true ) ) . '</pre>';
 				}
 			}
 
@@ -1703,7 +1710,7 @@ class Debug_Log {
 					$entry = array( 
 							$n, 
 							$error['type'], 
-							$error['details'], 
+							wp_kses_post( $error['details'] ), 
 							$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
 					);
 
@@ -1992,7 +1999,7 @@ class Debug_Log {
 					$entry = array( 
 							$n, 
 							$error['type'], 
-							$error['details'], 
+							wp_kses_post( $error['details'] ), 
 							$localized_timestamp . '<br /><span class="dlm-faint">(' . sprintf( _n( '%s occurrence logged', '%s occurrences logged', $occurrence_count, 'debug-log-manager' ), number_format_i18n( $occurrence_count ) ) . ')<span>',
 					);
 
@@ -2037,11 +2044,91 @@ class Debug_Log {
 	}
 
 	/**
+	 * Decode JSON unicode escapes and HTML entities until the string is stable.
+	 *
+	 * One pass is not enough. A unicode escape can decode into another unicode
+	 * escape, which a later json_decode() would turn into markup. The cap stops
+	 * a crafted value from looping.
+	 *
+	 * @since 2.5.3
+	 * @param string $value Raw field value.
+	 * @return string
+	 */
+	private function decode_encoded_markup( $value ) {
+
+		$previous = '';
+		$guard    = 0;
+
+		while ( $value !== $previous && $guard < 5 ) {
+			$previous = $value;
+			$decoded  = preg_replace_callback(
+				'/\\\\u([0-9a-fA-F]{4})/',
+				array( $this, 'decode_json_unicode_escape' ),
+				$value
+			);
+
+			if ( is_string( $decoded ) ) {
+				$value = $decoded;
+			}
+
+			$value = html_entity_decode( $value, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			$guard++;
+		}
+
+		return $value;
+
+	}
+
+	/**
+	 * Convert one JSON \uXXXX escape to a UTF-8 character.
+	 *
+	 * UTF-16 surrogate code points are left unchanged. They are not characters,
+	 * and emitting them as UTF-8 would be invalid.
+	 *
+	 * @since 2.5.3
+	 * @param array $matches Regex matches. Index 1 is the hexadecimal code point.
+	 * @return string
+	 */
+	private function decode_json_unicode_escape( $matches ) {
+
+		$codepoint = hexdec( $matches[1] );
+
+		if ( $codepoint < 0x80 ) {
+			return chr( $codepoint );
+		}
+
+		if ( $codepoint < 0x800 ) {
+			return chr( 0xC0 | ( $codepoint >> 6 ) )
+				. chr( 0x80 | ( $codepoint & 0x3F ) );
+		}
+
+		if ( $codepoint >= 0xD800 && $codepoint <= 0xDFFF ) {
+			return $matches[0];
+		}
+
+		if ( $codepoint < 0x10000 ) {
+			return chr( 0xE0 | ( $codepoint >> 12 ) )
+				. chr( 0x80 | ( ( $codepoint >> 6 ) & 0x3F ) )
+				. chr( 0x80 | ( $codepoint & 0x3F ) );
+		}
+
+		if ( $codepoint <= 0x10FFFF ) {
+			return chr( 0xF0 | ( $codepoint >> 18 ) )
+				. chr( 0x80 | ( ( $codepoint >> 12 ) & 0x3F ) )
+				. chr( 0x80 | ( ( $codepoint >> 6 ) & 0x3F ) )
+				. chr( 0x80 | ( $codepoint & 0x3F ) );
+		}
+
+		return '';
+
+	}
+
+	/**
 	 * Sanitize a field before writing to debug.log.
 	 *
 	 * @since 2.5.1
-	 * @param mixed $value       Raw value.
-	 * @param int   $max_length  Maximum allowed length.
+	 * @param mixed $value      Raw value.
+	 * @param int   $max_length Maximum allowed length.
 	 * @return string
 	 */
 	private function sanitize_log_field( $value, $max_length = 500 ) {
@@ -2050,7 +2137,12 @@ class Debug_Log {
 			$value = (string) $value;
 		}
 
+		// Decode escapes before the tag check. sanitize_text_field() strips tags
+		// only when a literal "<" is already present.
+		$value = $this->decode_encoded_markup( $value );
+
 		$filtered = sanitize_text_field( $value );
+		$filtered = wp_strip_all_tags( $filtered );
 
 		// Strip ASCII control characters and DEL.
 		$filtered = preg_replace( '/[\x00-\x1F\x7F]/u', '', $filtered );
